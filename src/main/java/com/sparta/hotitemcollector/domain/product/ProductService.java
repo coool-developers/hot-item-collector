@@ -55,6 +55,12 @@ public class ProductService {
         productRepository.delete(product);
     }
 
+    public ProductResponseDto getProduct(Long productId) {
+        Product product = findById(productId);
+        ProductResponseDto responseDto = new ProductResponseDto(product);
+        return responseDto;
+    }
+
     public Product findById(Long productId) {
         return productRepository.findById(productId).orElseThrow(
             () -> new CustomException(ErrorCode.NON_EXISTENT_PRODUCT)
