@@ -10,6 +10,9 @@ import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,16 +77,18 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getFollowProduct(User user) {
+    public List<ProductSimpleResponseDto> getFollowProduct(User user, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
         List<Follow> followList = followService.getAllFollowers(user);
 
         List<User> followingUsers = followList.stream()
             .map(Follow::getFollowing)
             .collect(Collectors.toList());
 
-        List<Product> productList = productRepository.findByUserIn(followingUsers);
+        Page<Product> productPage = productRepository.findByUserIn(followingUsers, pageable);
 
-        return productList.stream()
+        return productPage.getContent()
+            .stream()
             .map(ProductSimpleResponseDto::new)
             .collect(Collectors.toList());
     }
@@ -97,19 +102,24 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
-    public List<HotProductResponseDto> getHotProduct() {
-        List<Product> productList = productRepository.findTop10ByOrderByLikesDesc();
+    public List<HotProductResponseDto> getHotProduct(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage = productRepository.findTop10ByOrderByLikesDesc(pageable);
 
-        return productList.stream()
+        return productPage.getContent()
+            .stream()
             .map(HotProductResponseDto::new)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getSaleProduct(User user, ProductStatus status) {
-        List<Product> productList = productRepository.findByUserAndStatus(user, status);
+    public List<ProductSimpleResponseDto> getSaleProduct(User user, ProductStatus status, int page,
+        int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage = productRepository.findByUserAndStatus(user, status, pageable);
 
-        return productList.stream()
+        return productPage.getContent()
+            .stream()
             .map(ProductSimpleResponseDto::new)
             .collect(Collectors.toList());
     }
