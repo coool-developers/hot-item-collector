@@ -1,6 +1,8 @@
 package com.sparta.hotitemcollector.domain.user.controller;
 
 import com.sparta.hotitemcollector.domain.user.UserService;
+import com.sparta.hotitemcollector.domain.user.dto.LoginReqeustDto;
+import com.sparta.hotitemcollector.domain.user.dto.LoginResponseDto;
 import com.sparta.hotitemcollector.domain.user.dto.SignupRequestDto;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +23,18 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<CommonResponse> signup(@RequestBody SignupRequestDto requestDto) {
         userService.signup(requestDto);
-        CommonResponse response = new CommonResponse<>("회원가입 완료",201,"");
+        CommonResponse response = new CommonResponse<>("회원가입 성공",201,"");
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<CommonResponse> login(@RequestBody LoginReqeustDto requestDto) {
+        LoginResponseDto responseDto = userService.login(requestDto);
+        CommonResponse response = new CommonResponse<>("로그인 성공",200,responseDto);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
 
 
 }
