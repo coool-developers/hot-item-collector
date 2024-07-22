@@ -17,7 +17,13 @@ public enum ErrorCode {
     // 각 Service에서 필요한 ErrorCode 추가
 
     // Product
-    NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "NOT FOUND PRODUCT");
+    NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "NOT FOUND PRODUCT"),
+
+    // User
+    NOT_FOUND_USER(HttpStatus.NOT_FOUND, "NOT FOUND USER"),
+
+    // Follow
+    ALREADY_EXIST_FOLLOW(HttpStatus.CONFLICT, "ALREADY_EXIST FOLLOW");
 
     private final HttpStatus status;
     private final String message;
