@@ -7,12 +7,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Getter
 public class JwtConfig {
-    @Value("${spring.jwt.secret.key}")
+    @Value("${jwt.key}")
     private String secretKey;
 
-    @Value("${spring.jwt.token.expiration}")
+    @Value("${jwt.access-expire-time}")
     private long tokenExpiration;
 
-    @Value("${spring.jwt.refresh.token.expiration}")
+    @Value("${jwt.refresh-expire-time}")
     private long refreshTokenExpiration;
 }

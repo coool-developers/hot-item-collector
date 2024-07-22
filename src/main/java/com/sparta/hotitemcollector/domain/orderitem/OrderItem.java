@@ -1,6 +1,6 @@
 package com.sparta.hotitemcollector.domain.orderitem;
 
-import com.sparta.hotitemcollector.domain.order.Order;
+import com.sparta.hotitemcollector.domain.order.Orders;
 import com.sparta.hotitemcollector.domain.product.Product;
 import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.*;
@@ -21,14 +21,14 @@ public class OrderItem extends Timestamped {
 
     @ManyToOne
     @JoinColumn(name ="order_id", nullable = false)
-    private Order order;
+    private Orders order;
 
     @ManyToOne
     @JoinColumn(name ="product_id", nullable = false)
     private Product product;
 
     @Builder
-    public OrderItem(long id, Order order, Product product) {
+    public OrderItem(long id, Orders order, Product product) {
         this.id = id;
         this.order = order;
         this.product = product;
