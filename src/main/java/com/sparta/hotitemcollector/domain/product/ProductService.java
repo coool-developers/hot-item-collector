@@ -74,6 +74,7 @@ public class ProductService {
         return responseDto;
     }
 
+    @Transactional(readOnly = true)
     public List<ProductSimpleResponseDto> getFollowProduct(User user) {
         List<Follow> followList = followService.getAllFollowers(user);
 
@@ -88,6 +89,7 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<ProductSimpleResponseDto> getLikeProduct(User user) {
         List<Product> productList = likeService.findLikeProductIdByUser(user);
 
@@ -101,6 +103,15 @@ public class ProductService {
 
         return productList.stream()
             .map(HotProductResponseDto::new)
+            .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductSimpleResponseDto> getSaleProduct(User user, ProductStatus status) {
+        List<Product> productList = productRepository.findByUserAndStatus(user,status);
+
+        return productList.stream()
+            .map(ProductSimpleResponseDto::new)
             .collect(Collectors.toList());
     }
 

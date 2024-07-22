@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -81,6 +82,13 @@ public class ProductController {
     public ResponseEntity<CommonResponse<List<HotProductResponseDto>>> getHotProduct(){
         List<HotProductResponseDto> responseDtoList = productService.getHotProduct();
         CommonResponse<List<HotProductResponseDto>> response = new CommonResponse<>("Hot Top 10 조회 성공",200,responseDtoList);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    @GetMapping("/sale")
+    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getSaleProduct(@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestParam ProductStatus status){
+        List<ProductSimpleResponseDto> responseDtoList = productService.getSaleProduct(userDetails.getUser(),status);
+        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>("판매 상태에 따른 상품 목록 조회 성공",200,responseDtoList);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
 }
