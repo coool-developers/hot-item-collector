@@ -44,7 +44,7 @@ public class LikeService {
     }
 
     @Transactional(readOnly = true)
-    public List<Product> findProductIdByUser(User user) {
+    public List<Product> findLikeProductIdByUser(User user) {
         List<Likes> likes = likeRepository.findByUser(user);
 
         return likes.stream()
