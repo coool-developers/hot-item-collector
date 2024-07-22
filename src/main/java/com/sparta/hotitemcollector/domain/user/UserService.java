@@ -1,5 +1,6 @@
 package com.sparta.hotitemcollector.domain.user;
 
+import com.sparta.hotitemcollector.domain.token.Token;
 import com.sparta.hotitemcollector.domain.token.TokenService;
 import com.sparta.hotitemcollector.domain.user.dto.LoginReqeustDto;
 import com.sparta.hotitemcollector.domain.user.dto.LoginResponseDto;
@@ -54,15 +55,38 @@ public class UserService {
             throw new CustomException(ErrorCode.INCORRECT_PASSWORD);
         }
 
-        String access = jwtUtil.createAccessToken(user.getLoginId());
-        String refresh = jwtUtil.createRefreshToken(user.getLoginId());
+        String access = jwtUtil.createAccessToken(user.getLoginId(),user.getRole());
+        String refresh = jwtUtil.createRefreshToken(user.getLoginId(),user.getRole());
+
 
         // 토큰을 데이터베이스에 저장
-        tokenService.saveToken(user, refresh);
+        Optional<Token> optionalToken = tokenService.checkToken(user);
+        if(optionalToken.isPresent()) {
+            Token token = optionalToken.get();
+            tokenService.updateToken(token,refresh);
+        }else{
+            tokenService.saveToken(user, refresh);
+        }
 
-        return new LoginResponseDto("Bearer "+access, refresh);
+        return new LoginResponseDto("Bearer "+access, "Bearer "+refresh);
     }
 
+    public void logout(String token) {
+        try {
+            String tokenValue = jwtUtil.substringToken(token);
 
+            // 토큰 유효한지 확인 - 로그아웃유무 토큰이 유효한지
+            jwtUtil.validateToken(tokenValue);
+
+            // 블랙리스트에 토큰 추가
+            jwtUtil.createblacklistToken(tokenValue);
+            if(!jwtUtil.isTokenBlacklisted(tokenValue)) {
+                throw new IllegalStateException("Failed to blacklist token");
+            }
+        } catch (Exception e) {
+            log.error("Error during logout: {}", e.getMessage());
+            throw new IllegalArgumentException("Failed to logout");
+        }
+    }
 
 }

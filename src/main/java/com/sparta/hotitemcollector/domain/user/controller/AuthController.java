@@ -8,10 +8,7 @@ import com.sparta.hotitemcollector.global.common.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,7 +29,13 @@ public class AuthController {
         LoginResponseDto responseDto = userService.login(requestDto);
         CommonResponse response = new CommonResponse<>("로그인 성공",200,responseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
+    @PostMapping("/logout")
+    public ResponseEntity<CommonResponse> logout(@RequestHeader("Authorization") String token) {
+        userService.logout(token);
+        CommonResponse response = new CommonResponse<>("로그아웃 성공",200,"");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
