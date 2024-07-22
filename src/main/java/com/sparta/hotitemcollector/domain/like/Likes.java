@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
-public class Like extends Timestamped {
+public class Likes extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
@@ -26,7 +26,7 @@ public class Like extends Timestamped {
     private Product product;
 
     @Builder
-    public Like(User user, Product product) {
+    public Likes(User user, Product product) {
         this.user = user;
         this.product = product;
     }

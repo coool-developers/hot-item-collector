@@ -2,7 +2,6 @@ package com.sparta.hotitemcollector.domain.order;
 
 import com.sparta.hotitemcollector.domain.user.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
-public class Order {
+public class Orders {
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     @Column
@@ -28,12 +27,12 @@ public class Order {
     @Column (name = "status", nullable = false)
     private OrderStatus status;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Builder
-    public Order(User user, String address, String phoneNumber, OrderStatus status, String userName) {
+    public Orders(User user, String address, String phoneNumber, OrderStatus status, String userName) {
         this.user = user;
         this.address = address;
         this.phoneNumber = phoneNumber;
