@@ -1,4 +1,4 @@
-package com.sparta.hotitemcollector.domain.cartitem;
+package com.sparta.hotitemcollector.domain.cart;
 
 import java.util.Optional;
 

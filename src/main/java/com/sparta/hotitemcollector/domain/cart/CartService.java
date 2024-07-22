@@ -8,12 +8,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.sparta.hotitemcollector.domain.cartitem.CartItem;
-import com.sparta.hotitemcollector.domain.cartitem.CartItemRepository;
-import com.sparta.hotitemcollector.domain.cartitem.dto.CartItemResponseDto;
+import com.sparta.hotitemcollector.domain.cart.dto.CartItemResponseDto;
 import com.sparta.hotitemcollector.domain.product.Product;
-import com.sparta.hotitemcollector.domain.product.ProductRepository;
+import com.sparta.hotitemcollector.domain.product.ProductService;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
@@ -23,14 +22,14 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CartService {
+
 	private final CartRepository cartRepository;
 	private final CartItemRepository cartItemRepository;
-	// private final ProductService productService;
-	private final ProductRepository productRepository;
+	private final ProductService productService;
 
+	@Transactional
 	public CartItemResponseDto createCartItem(User user, Long productId) {
-		// Product product = productService.findById(productId);
-		Product product = productRepository.findById(productId).orElseThrow();
+		Product product = productService.findById(productId);
 		Cart cart = findCartByUserId(user.getId());
 
 		CartItem cartItem = CartItem.builder()
@@ -60,15 +59,16 @@ public class CartService {
 			.build();
 	}
 
+	@Transactional
 	public void deleteCartItem(User user, Long productId) {
-		// Product product = productService.findById(productId);
-		Product product = productRepository.findById(productId).orElseThrow();
+		Product product = productService.findById(productId);
 		Cart cart = findCartByUserId(user.getId());
 		CartItem cartItem = findCartItemByProductIdAndCartId(productId, cart.getId());
 
 		cartItemRepository.delete(cartItem);
 	}
 
+	@Transactional(readOnly = true)
 	public Page<CartItemResponseDto> getCart(int page, User user) {
 		Cart cart = findCartByUserId(user.getId());
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
@@ -108,7 +108,7 @@ public class CartService {
 		);
 	}
 
-	public CartItem findCartItemByProductIdAndCartId(Long productId, Long cartId){
+	public CartItem findCartItemByProductIdAndCartId(Long productId, Long cartId) {
 		return cartItemRepository.findCartItemByProductIdAndCartId(productId, cartId).orElseThrow(
 			() -> new CustomException(ErrorCode.NOT_FOUND_CARTITEM)
 		);

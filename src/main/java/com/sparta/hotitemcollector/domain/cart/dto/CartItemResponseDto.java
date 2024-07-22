@@ -1,4 +1,4 @@
-package com.sparta.hotitemcollector.domain.cartitem.dto;
+package com.sparta.hotitemcollector.domain.cart.dto;
 
 import java.time.LocalDateTime;
 
