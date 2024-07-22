@@ -58,4 +58,11 @@ public class Product extends Timestamped {
         this.user = user;
     }
 
+    public void updateProduct(ProductRequestDto requestDto) {
+        this.name = requestDto.getName();
+        this.image = requestDto.getImage();
+        this.price = requestDto.getPrice();
+        this.info = requestDto.getInfo();
+        this.category = requestDto.getCategory();
+    }
 }
