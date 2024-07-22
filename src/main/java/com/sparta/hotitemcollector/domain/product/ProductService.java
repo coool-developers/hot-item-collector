@@ -6,6 +6,7 @@ import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -14,6 +15,7 @@ public class ProductService {
     private UserService userService;
     private ProductRepository productRepository;
 
+    @Transactional
     public ProductResponseDto createProduct(ProductRequestDto requestDto, User user) {
         /*User user1 = userService.findById(user.getId());*/
 
@@ -27,6 +29,7 @@ public class ProductService {
         return responseDto;
     }
 
+    @Transactional
     public ProductResponseDto updateProduct(Long productId, ProductRequestDto requestDto,
         User user) {
         Product product = findById(productId);
@@ -45,6 +48,7 @@ public class ProductService {
         return responseDto;
     }
 
+    @Transactional
     public void deleteProduct(Long productId, User user) {
         Product product = findById(productId);
 
@@ -55,6 +59,7 @@ public class ProductService {
         productRepository.delete(product);
     }
 
+    @Transactional(readOnly = true)
     public ProductResponseDto getProduct(Long productId) {
         Product product = findById(productId);
         ProductResponseDto responseDto = new ProductResponseDto(product);
