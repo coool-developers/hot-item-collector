@@ -45,6 +45,16 @@ public class ProductService {
         return responseDto;
     }
 
+    public void deleteProduct(Long productId, User user) {
+        Product product = findById(productId);
+
+        if (!product.getUser().getId().equals(user.getId())) {
+            throw new CustomException(ErrorCode.NOT_SAME_USER);
+        }
+
+        productRepository.delete(product);
+    }
+
     public Product findById(Long productId) {
         return productRepository.findById(productId).orElseThrow(
             () -> new CustomException(ErrorCode.NON_EXISTENT_PRODUCT)
