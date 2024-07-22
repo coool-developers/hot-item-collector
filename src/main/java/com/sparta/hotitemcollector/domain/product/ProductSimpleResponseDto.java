@@ -8,5 +8,11 @@ public class ProductSimpleResponseDto {
     private String name;
     private String image;
     private Long userId;
-    private Long userName;
+
+    public ProductSimpleResponseDto(Product product) {
+        this.id = product.getId();
+        this.name = product.getName();
+        this.image = product.getImage();
+        this.userId =product.getUser().getId();
+    }
 }

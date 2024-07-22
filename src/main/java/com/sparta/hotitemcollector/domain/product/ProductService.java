@@ -9,6 +9,7 @@ import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,11 +76,16 @@ public class ProductService {
 
     public List<ProductSimpleResponseDto> getFollowProduct(User user) {
         List<Follow> followList = followService.getAllFollowers(user);
-        List<Product> productList = new ArrayList<>();
-        for (Follow follow : followList) {
-            Product product = findByUser(follow.getFollowing());
-            productList.add(product);
-        }
+
+        List<User> followingUsers = followList.stream()
+            .map(Follow::getFollowing)
+            .collect(Collectors.toList());
+
+        List<Product> productList = productRepository.findByUserIn(followingUsers);
+
+        return productList.stream()
+            .map(ProductSimpleResponseDto::new)
+            .collect(Collectors.toList());
     }
 
     public List<ProductSimpleResponseDto> getLikeProduct(User user) {
@@ -89,12 +95,6 @@ public class ProductService {
     public Product findById(Long productId) {
         return productRepository.findById(productId).orElseThrow(
             () -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT)
-        );
-    }
-
-    public Product findByUser(User user){
-        return productRepository.findByUser(user).orElseThrow(
-            ()-> new CustomException(ErrorCode.NON_EXISTENT_PRODUCT)
         );
     }
 }
