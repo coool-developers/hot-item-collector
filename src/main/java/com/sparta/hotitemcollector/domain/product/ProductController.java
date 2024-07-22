@@ -4,6 +4,7 @@ import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
 import jakarta.validation.Valid;
 import java.util.List;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,6 +74,13 @@ public class ProductController {
     public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getLikeProduct(@AuthenticationPrincipal UserDetailsImpl userDetails){
         List<ProductSimpleResponseDto> responseDtoList = productService.getLikeProduct(userDetails.getUser());
         CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>("좋아요한 상품 목록 조회 성공",200,responseDtoList);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    @GetMapping("/hot")
+    public ResponseEntity<CommonResponse<List<HotProductResponseDto>>> getHotProduct(){
+        List<HotProductResponseDto> responseDtoList = productService.getHotProduct();
+        CommonResponse<List<HotProductResponseDto>> response = new CommonResponse<>("Hot Top 10 조회 성공",200,responseDtoList);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
 }

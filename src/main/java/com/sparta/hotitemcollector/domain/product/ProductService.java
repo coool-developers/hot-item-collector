@@ -96,6 +96,14 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
+    public List<HotProductResponseDto> getHotProduct() {
+        List<Product> productList = productRepository.findTop10ByOrderByLikesDesc();
+
+        return productList.stream()
+            .map(HotProductResponseDto::new)
+            .collect(Collectors.toList());
+    }
+
     public Product findById(Long productId) {
         return productRepository.findById(productId).orElseThrow(
             () -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT)
