@@ -33,24 +33,29 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
-    public ResponseEntity<CommonResponse<ProductResponseDto>> updateProduct(@PathVariable(name = "productId") Long productId, @RequestBody ProductRequestDto requestDto,@AuthenticationPrincipal UserDetailsImpl userDetails){
-        ProductResponseDto responseDto = productService.updateProduct(productId,requestDto,
+    public ResponseEntity<CommonResponse<ProductResponseDto>> updateProduct(
+        @PathVariable(name = "productId") Long productId, @RequestBody ProductRequestDto requestDto,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        ProductResponseDto responseDto = productService.updateProduct(productId, requestDto,
             userDetails.getUser());
         CommonResponse response = new CommonResponse("상품 수정 성공", 200, responseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<CommonResponse> deleteProduct(@PathVariable(name = "productId") Long productId,@AuthenticationPrincipal UserDetailsImpl userDetails){
-        productService.deleteProduct(productId,userDetails.getUser());
-        CommonResponse response = new CommonResponse("상품 삭제 성공",204,"");
-        return new ResponseEntity<>(response,HttpStatus.OK);
+    public ResponseEntity<CommonResponse> deleteProduct(
+        @PathVariable(name = "productId") Long productId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        productService.deleteProduct(productId, userDetails.getUser());
+        CommonResponse response = new CommonResponse("상품 삭제 성공", 204, "");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<CommonResponse<ProductResponseDto>> getProduct(@PathVariable(name = "productId") Long productId){
+    public ResponseEntity<CommonResponse<ProductResponseDto>> getProduct(
+        @PathVariable(name = "productId") Long productId) {
         ProductResponseDto responseDto = productService.getProduct(productId);
-        CommonResponse response = new CommonResponse("상품 단건 조회 성공",200,responseDto);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+        CommonResponse response = new CommonResponse("상품 단건 조회 성공", 200, responseDto);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
