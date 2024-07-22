@@ -89,7 +89,11 @@ public class ProductService {
     }
 
     public List<ProductSimpleResponseDto> getLikeProduct(User user) {
+        List<Product> productList = likeService.findLikeProductIdByUser(user);
 
+        return productList.stream()
+            .map(ProductSimpleResponseDto::new)
+            .collect(Collectors.toList());
     }
 
     public Product findById(Long productId) {
