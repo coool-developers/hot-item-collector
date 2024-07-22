@@ -7,8 +7,6 @@ import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class FollowService {
@@ -30,8 +28,24 @@ public class FollowService {
         followRepository.save(newFollow);
     }
 
+    public void deleteFollow(Long userId, User followerUser) {
+        User followingUser = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+
+        if (!checkFollowAlready(followerUser, followingUser)) {
+            throw new CustomException(ErrorCode.ALREADY_EXIST_FOLLOW);
+        }
+
+        Follow followForDelete = checkFollowExists(followerUser, followingUser);
+
+        followRepository.delete(followForDelete);
+    }
+
     public boolean checkFollowAlready(User followerUser, User followingUser) {
         return followRepository.existsFollowerAndFollowing(followerUser, followingUser);
     }
 
+    public Follow checkFollowExists(User followerUser, User followingUser) {
+        return followRepository.findByFollowerIdAndFollowingId(followerUser.getId(), followingUser.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_FOLLOW));
+    }
 }
