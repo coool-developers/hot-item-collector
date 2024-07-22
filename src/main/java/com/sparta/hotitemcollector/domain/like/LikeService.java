@@ -19,7 +19,7 @@ public class LikeService {
     // 좋아요 토글 로직
     public boolean createOrDeleteLike(Long productId, User user) {
         // 좋아요 존재 여부 확인
-        Optional<Like> existingLike = likeRepository.findByProductIdAndUser(productId, user);
+        Optional<Likes> existingLike = likeRepository.findByProductIdAndUser(productId, user);
 
         if (existingLike.isPresent()) {
             // 좋아요가 이미 존재하면 삭제
@@ -31,7 +31,7 @@ public class LikeService {
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT));
 
-            Like like = Like.builder()
+            Likes like = Likes.builder()
                     .user(user)
                     .product(product)
                     .build();
