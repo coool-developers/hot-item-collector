@@ -5,11 +5,13 @@ import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 
 @Getter
 @Entity
 @Table(name = "product")
+@RequiredArgsConstructor
 public class Product extends Timestamped {
 
     @Id
@@ -45,9 +47,22 @@ public class Product extends Timestamped {
     private User user;
 
     @Builder
-    public Product(){
-        this.likes=0L;
-        this.status=ProductStatus.ON_SALE;
+    public Product(ProductRequestDto requestDto, User user) {
+        this.name = requestDto.getName();
+        this.image = requestDto.getImage();
+        this.price = requestDto.getPrice();
+        this.info = requestDto.getInfo();
+        this.category = requestDto.getCategory();
+        this.likes = 0L;
+        this.status = ProductStatus.ON_SALE;
+        this.user = user;
     }
 
+    public void updateProduct(ProductRequestDto requestDto) {
+        this.name = requestDto.getName();
+        this.image = requestDto.getImage();
+        this.price = requestDto.getPrice();
+        this.info = requestDto.getInfo();
+        this.category = requestDto.getCategory();
+    }
 }

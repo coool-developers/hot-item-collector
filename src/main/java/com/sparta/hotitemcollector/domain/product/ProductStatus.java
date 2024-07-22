@@ -5,9 +5,11 @@ public enum ProductStatus {
     SOLD_OUT("판매완료");
 
     private String status;
+
     ProductStatus(String status) {
         this.status = status;
     }
+
     public String getStatus() {
         return this.status;
     }
