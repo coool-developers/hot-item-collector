@@ -2,19 +2,23 @@ package com.sparta.hotitemcollector.domain.like;
 
 import com.sparta.hotitemcollector.domain.product.Product;
 import com.sparta.hotitemcollector.domain.product.ProductRepository;
+import com.sparta.hotitemcollector.domain.product.ProductService;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class LikeService {
     private final LikeRepository likeRepository;
-    private final ProductRepository productRepository;
+    private final ProductService productService;
 
     // 좋아요 토글 로직
     public boolean createOrDeleteLike(Long productId, User user) {
@@ -27,9 +31,7 @@ public class LikeService {
             return false; // 좋아요 취소
         } else {
             // 좋아요가 존재하지 않으면 생성
-            // ToDo : ProductService에서 체크 메서드 생성 시 Service레이어 참조하도록 변경
-            Product product = productRepository.findById(productId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT));
+            Product product = productService.findById(productId);
 
             Likes like = Likes.builder()
                     .user(user)
@@ -39,5 +41,14 @@ public class LikeService {
             likeRepository.save(like);
             return true; // 좋아요 생성
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<Product> findProductIdByUser(User user) {
+        List<Likes> likes = likeRepository.findByUser(user);
+
+        return likes.stream()
+                .map(Likes::getProduct)
+                .toList();
     }
 }

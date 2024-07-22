@@ -45,7 +45,7 @@ public class FollowService {
 
     @Transactional(readOnly = true)
     public List<GetAllFollowsResponseDto> getFollows(User user) {
-        List<Follow> followList = followRepository.findByUserId(user.getId());
+        List<Follow> followList = getAllFollowers(user);
 
         return followList.stream()
                 .map(follow -> new GetAllFollowsResponseDto(
@@ -64,5 +64,9 @@ public class FollowService {
     public Follow checkFollowExists(User followerUser, User followingUser) {
         return followRepository.findByFollowerIdAndFollowingId(followerUser.getId(), followingUser.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_FOLLOW));
+    }
+
+    public List<Follow> getAllFollowers(User user) {
+        return followRepository.findByUserId(user.getId());
     }
 }
