@@ -4,18 +4,19 @@ import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "user")
+@NoArgsConstructor
 public class User extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Long id;
 
-    @Column(name = "user_name",nullable = false)
-    private String userName;
+    @Column(nullable = false)
+    private String username;
 
     @Column(name = "login_id",nullable = false)
     private String loginId;
@@ -45,7 +46,12 @@ public class User extends Timestamped {
     private String info;
 
     @Builder
-    public User(){
+    public User(String loginId,String password, String username, String nickname){
         this.userStatus = UserStatus.NORMAL;
+        this.role = UserRole.USER;
+        this.loginId = loginId;
+        this.password = password;
+        this.username = username;
+        this.nickname = nickname;
     }
 }
