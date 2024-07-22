@@ -7,7 +7,6 @@ import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.domain.user.UserService;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -108,7 +107,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<ProductSimpleResponseDto> getSaleProduct(User user, ProductStatus status) {
-        List<Product> productList = productRepository.findByUserAndStatus(user,status);
+        List<Product> productList = productRepository.findByUserAndStatus(user, status);
 
         return productList.stream()
             .map(ProductSimpleResponseDto::new)

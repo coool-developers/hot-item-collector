@@ -65,30 +65,40 @@ public class ProductController {
     }
 
     @GetMapping("/follow")
-    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getFollowProduct(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        List<ProductSimpleResponseDto> responseDtoList = productService.getFollowProduct(userDetails.getUser());
-        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>("팔로우한 사용자의 상품 목록 조회 성공",200,responseDtoList);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getFollowProduct(
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<ProductSimpleResponseDto> responseDtoList = productService.getFollowProduct(
+            userDetails.getUser());
+        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
+            "팔로우한 사용자의 상품 목록 조회 성공", 200, responseDtoList);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/like")
-    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getLikeProduct(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        List<ProductSimpleResponseDto> responseDtoList = productService.getLikeProduct(userDetails.getUser());
-        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>("좋아요한 상품 목록 조회 성공",200,responseDtoList);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getLikeProduct(
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<ProductSimpleResponseDto> responseDtoList = productService.getLikeProduct(
+            userDetails.getUser());
+        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
+            "좋아요한 상품 목록 조회 성공", 200, responseDtoList);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/hot")
-    public ResponseEntity<CommonResponse<List<HotProductResponseDto>>> getHotProduct(){
+    public ResponseEntity<CommonResponse<List<HotProductResponseDto>>> getHotProduct() {
         List<HotProductResponseDto> responseDtoList = productService.getHotProduct();
-        CommonResponse<List<HotProductResponseDto>> response = new CommonResponse<>("Hot Top 10 조회 성공",200,responseDtoList);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+        CommonResponse<List<HotProductResponseDto>> response = new CommonResponse<>(
+            "Hot Top 10 조회 성공", 200, responseDtoList);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/sale")
-    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getSaleProduct(@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestParam ProductStatus status){
-        List<ProductSimpleResponseDto> responseDtoList = productService.getSaleProduct(userDetails.getUser(),status);
-        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>("판매 상태에 따른 상품 목록 조회 성공",200,responseDtoList);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getSaleProduct(
+        @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam ProductStatus status) {
+        List<ProductSimpleResponseDto> responseDtoList = productService.getSaleProduct(
+            userDetails.getUser(), status);
+        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
+            "판매 상태에 따른 상품 목록 조회 성공", 200, responseDtoList);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
