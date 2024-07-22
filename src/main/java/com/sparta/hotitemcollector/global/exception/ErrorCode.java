@@ -15,9 +15,20 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL SERVER ERROR"),
 
     // 각 Service에서 필요한 ErrorCode 추가
-    // 회원가입
 
-    DUPLICATE_USER(HttpStatus.CONFLICT,"DUPLICATE_USER"),
+    // Token
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다."),
+    TOKEN_EXPIRATION(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다. 재로그인 해주세요."),
+    NOT_SUPPORTED_TOKEN(HttpStatus.UNAUTHORIZED, "지원되지 않는 JWT 토큰입니다."),
+    FALSE_TOKEN(HttpStatus.BAD_REQUEST, "잘못된 JWT 토큰입니다."),
+    HEADER_NOT_FOUND(HttpStatus.BAD_REQUEST, "헤더가 잘못되었거나 누락되었습니다."),
+    UNMATCHED_TOKEN(HttpStatus.BAD_REQUEST, "일치하지 않는 토큰입니다."),
+
+    // Auth
+    DUPLICATE_USER(HttpStatus.CONFLICT,"이미 등록된 사용자 입니다."),
+    NOT_FOUND_USER(HttpStatus.NOT_FOUND, "등록되지 않은 사용자입니다."),
+    INCORRECT_PASSWORD(HttpStatus.UNAUTHORIZED,"비밀번호가 일치하지 않습니다."),
+
 
     // Product
     NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "NOT FOUND PRODUCT");
