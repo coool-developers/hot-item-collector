@@ -15,6 +15,9 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL SERVER ERROR"),
 
     // 각 Service에서 필요한 ErrorCode 추가
+    // 회원가입
+
+    DUPLICATE_USER(HttpStatus.CONFLICT,"DUPLICATE_USER"),
 
     // Product
     NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "NOT FOUND PRODUCT");
