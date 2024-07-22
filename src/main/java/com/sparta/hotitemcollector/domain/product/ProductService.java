@@ -1,9 +1,14 @@
 package com.sparta.hotitemcollector.domain.product;
 
+import com.sparta.hotitemcollector.domain.follow.Follow;
+import com.sparta.hotitemcollector.domain.follow.FollowService;
+import com.sparta.hotitemcollector.domain.like.LikeService;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.domain.user.UserService;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +19,8 @@ public class ProductService {
 
     private UserService userService;
     private ProductRepository productRepository;
+    private FollowService followService;
+    private LikeService likeService;
 
     @Transactional
     public ProductResponseDto createProduct(ProductRequestDto requestDto, User user) {
@@ -66,9 +73,28 @@ public class ProductService {
         return responseDto;
     }
 
+    public List<ProductSimpleResponseDto> getFollowProduct(User user) {
+        List<Follow> followList = followService.getAllFollowers(user);
+        List<Product> productList = new ArrayList<>();
+        for (Follow follow : followList) {
+            Product product = findByUser(follow.getFollowing());
+            productList.add(product);
+        }
+    }
+
+    public List<ProductSimpleResponseDto> getLikeProduct(User user) {
+
+    }
+
     public Product findById(Long productId) {
         return productRepository.findById(productId).orElseThrow(
-            () -> new CustomException(ErrorCode.NON_EXISTENT_PRODUCT)
+            () -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT)
+        );
+    }
+
+    public Product findByUser(User user){
+        return productRepository.findByUser(user).orElseThrow(
+            ()-> new CustomException(ErrorCode.NON_EXISTENT_PRODUCT)
         );
     }
 }

@@ -3,6 +3,7 @@ package com.sparta.hotitemcollector.domain.product;
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,5 +60,19 @@ public class ProductController {
         ProductResponseDto responseDto = productService.getProduct(productId);
         CommonResponse response = new CommonResponse("상품 단건 조회 성공", 200, responseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/follow")
+    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getFollowProduct(@AuthenticationPrincipal UserDetailsImpl userDetails){
+        List<ProductSimpleResponseDto> responseDtoList = productService.getFollowProduct(userDetails.getUser());
+        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>("팔로우한 사용자의 상품 목록 조회 성공",200,responseDtoList);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    @GetMapping("/like")
+    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getLikeProduct(@AuthenticationPrincipal UserDetailsImpl userDetails){
+        List<ProductSimpleResponseDto> responseDtoList = productService.getLikeProduct(userDetails.getUser());
+        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>("좋아요한 상품 목록 조회 성공",200,responseDtoList);
+        return new ResponseEntity<>(response,HttpStatus.OK);
     }
 }
