@@ -58,7 +58,7 @@ public class FollowService {
     }
 
     public boolean checkFollowAlready(User followerUser, User followingUser) {
-        return followRepository.existsFollowerAndFollowing(followerUser, followingUser);
+        return followRepository.existsByFollowerAndFollowing(followerUser, followingUser);
     }
 
     public Follow checkFollowExists(User followerUser, User followingUser) {
@@ -67,6 +67,6 @@ public class FollowService {
     }
 
     public List<Follow> getAllFollowers(User user) {
-        return followRepository.findByUserId(user.getId());
+        return followRepository.findByFollowerId(user.getId());
     }
 }
