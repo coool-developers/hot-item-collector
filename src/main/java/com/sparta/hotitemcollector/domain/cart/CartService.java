@@ -1,5 +1,12 @@
 package com.sparta.hotitemcollector.domain.cart;
 
+import java.util.Collections;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.sparta.hotitemcollector.domain.cartitem.CartItem;
@@ -62,6 +69,30 @@ public class CartService {
 		cartItemRepository.delete(cartItem);
 	}
 
+	public Page<CartItemResponseDto> getCart(int page, User user) {
+		Cart cart = findCartByUserId(user.getId());
+		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+		Pageable pageable = PageRequest.of(page - 1, 10, sort);
+
+		Page<CartItem> cartItemList = cartItemRepository.findAllByCartId(cart.getId(), pageable);
+
+		if (cartItemList.isEmpty()) {
+			return new PageImpl<>(Collections.emptyList());
+		}
+
+		return cartItemList.map(cartItem -> CartItemResponseDto.builder()
+			.id(cartItem.getId())
+			.productId(cartItem.getProduct().getId())
+			.productName(cartItem.getProduct().getName())
+			.productImage(cartItem.getProduct().getImage())
+			.price(cartItem.getProduct().getPrice())
+			.productInfo(cartItem.getProduct().getInfo())
+			.productStatus(cartItem.getProduct().getStatus())
+			.cartId(cartItem.getCart().getId())
+			.createdAt(cartItem.getCreatedAt())
+			.build());
+	}
+
 	// 유저 만들 때 사용
 	public void createCart(User user) {
 		Cart cart = Cart.builder()
@@ -86,6 +117,5 @@ public class CartService {
 	public boolean isCartItemExistAtCart(Long productId, Long cartId) {
 		return cartItemRepository.findCartItemByProductIdAndCartId(productId, cartId).isPresent();
 	}
-
 
 }
