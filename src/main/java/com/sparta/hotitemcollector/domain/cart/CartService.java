@@ -36,9 +36,12 @@ public class CartService {
 		return CartItemResponseDto.builder()
 			.id(cartItem.getId())
 			.productId(cartItem.getProduct().getId())
+			.productName(cartItem.getProduct().getName())
+			.productImage(cartItem.getProduct().getImage())
+			.price(cartItem.getProduct().getPrice())
+			.productInfo(cartItem.getProduct().getInfo())
 			.cartId(cartItem.getCart().getId())
 			.createdAt(cartItem.getCreatedAt())
-			.modifiedAt(cartItem.getModifiedAt())
 			.build();
 	}
 
