@@ -31,6 +31,14 @@ public class CartService {
 			.cart(cart)
 			.build();
 
+		if (user.getId().equals(product.getUser().getId())) {
+			throw new CustomException(ErrorCode.SAME_USER_PRODUCT);
+		}
+
+		if (isCartItemExistAtCart(productId, cart.getId())) {
+			throw new CustomException(ErrorCode.ALREADY_EXIST_CARTITEM);
+		}
+
 		cartItemRepository.save(cartItem);
 
 		return CartItemResponseDto.builder()
@@ -45,8 +53,17 @@ public class CartService {
 			.build();
 	}
 
+	public void deleteCartItem(User user, Long productId) {
+		// Product product = productService.findById(productId);
+		Product product = productRepository.findById(productId).orElseThrow();
+		Cart cart = findCartByUserId(user.getId());
+		CartItem cartItem = findCartItemByProductIdAndCartId(productId, cart.getId());
+
+		cartItemRepository.delete(cartItem);
+	}
+
 	// 유저 만들 때 사용
-	public void CreateCart(User user) {
+	public void createCart(User user) {
 		Cart cart = Cart.builder()
 			.user(user)
 			.build();
@@ -59,5 +76,16 @@ public class CartService {
 			() -> new CustomException(ErrorCode.NOT_FOUND_CART)
 		);
 	}
+
+	public CartItem findCartItemByProductIdAndCartId(Long productId, Long cartId){
+		return cartItemRepository.findCartItemByProductIdAndCartId(productId, cartId).orElseThrow(
+			() -> new CustomException(ErrorCode.NOT_FOUND_CARTITEM)
+		);
+	}
+
+	public boolean isCartItemExistAtCart(Long productId, Long cartId) {
+		return cartItemRepository.findCartItemByProductIdAndCartId(productId, cartId).isPresent();
+	}
+
 
 }
