@@ -1,10 +1,13 @@
 package com.sparta.hotitemcollector.domain.order;
 
+import com.sparta.hotitemcollector.domain.payment.Payment;
 import com.sparta.hotitemcollector.domain.user.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @Entity
@@ -30,6 +33,10 @@ public class Orders {
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "order")
+    private List<Payment> paymentList;
+
 
     @Builder
     public Orders(User user, String address, String phoneNumber, OrderStatus status, String userName) {
