@@ -7,10 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,6 +31,14 @@ public class FollowController {
 
         CommonResponse response = new CommonResponse<>("팔로우 취소 완료", 200, "");
 
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/follows")
+    public ResponseEntity<CommonResponse> getFollows(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<GetAllFollowsResponseDto> followingList = followService.getFollows(userDetails.getUser());
+
+        CommonResponse response = new CommonResponse<>("팔로우 목록 조회 성공", 200, followingList);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

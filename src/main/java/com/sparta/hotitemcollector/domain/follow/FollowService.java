@@ -6,6 +6,9 @@ import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +41,20 @@ public class FollowService {
         Follow followForDelete = checkFollowExists(followerUser, followingUser);
 
         followRepository.delete(followForDelete);
+    }
+
+    @Transactional(readOnly = true)
+    public List<GetAllFollowsResponseDto> getFollows(User user) {
+        List<Follow> followList = followRepository.findByUserId(user.getId());
+
+        return followList.stream()
+                .map(follow -> new GetAllFollowsResponseDto(
+                        follow.getFollowing().getId(),
+                        follow.getFollowing().getProfileImage(),
+                        follow.getFollowing().getInfo(),
+                        follow.getFollowing().getNickname()
+                ))
+                .toList();
     }
 
     public boolean checkFollowAlready(User followerUser, User followingUser) {
