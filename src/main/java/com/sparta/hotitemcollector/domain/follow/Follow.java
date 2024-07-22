@@ -26,7 +26,7 @@ public class Follow extends Timestamped {
 
     @Builder
     public Follow (User follower, User following) {
-        this.follower = follower;
-        this.following = following;
+        this.follower = follower; // 팔로우 하는 사람
+        this.following = following; // 팔로우 당하는 사람
     }
 }
