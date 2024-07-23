@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -114,15 +115,30 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<ProductSimpleResponseDto> getSearchProduct(String nickname, String productName, ProductCategory category, int page, int size) {
-       /* if(!nickname.isEmpty()){
-            User user = userService.findByNickname(nickname);
-            List<Product> productList = productRepository.findByUser(user);
-        }
-        if(!productName.isEmpty()){
-            List<Product> productList = productRepository.findByNameContainingIgnoreCase(productName);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Product> productPage = Page.empty(pageable);
+
+       /* if (nickname != null && !nickname.isEmpty()) {
+            List<User> userList = userService.findByNicknameContainingIgnoreCase(nickname);
+            if (!userList.isEmpty()) {
+                productPage = productRepository.findByUserIn(userList, pageable);
+            }
         }*/
-        return null;
+
+        if (productName != null && !productName.isEmpty()) {
+            productPage = productRepository.findByNameContainingIgnoreCase(productName, pageable);
+        }
+
+        if (category != null) {
+            productPage = productRepository.findByCategory(category, pageable);
+        }
+
+        return productPage.getContent()
+            .stream()
+            .map(ProductSimpleResponseDto::new)
+            .collect(Collectors.toList());
     }
 
     public Product findById(Long productId) {
