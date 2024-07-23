@@ -93,7 +93,7 @@ public class ProductService {
     }
 
     public List<HotProductResponseDto> getHotProduct(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage = productRepository.findTop10ByOrderByLikesDesc(pageable);
 
         return productPage.getContent()
@@ -105,7 +105,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public List<ProductSimpleResponseDto> getSaleProduct(User user, ProductStatus status, int page,
         int size) {
-        Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage = productRepository.findByUserAndStatus(user, status, pageable);
 
         return productPage.getContent()
@@ -120,12 +120,13 @@ public class ProductService {
         );
     }
 
-    public void increaseLikes(Long productId){
+    public void increaseLikes(Long productId) {
         Product product = findById(productId);
         product.increaseLikes();
         productRepository.save(product);
     }
-    public void decreaseLikes(Long productId){
+
+    public void decreaseLikes(Long productId) {
         Product product = findById(productId);
         product.decreaseLikes();
         productRepository.save(product);

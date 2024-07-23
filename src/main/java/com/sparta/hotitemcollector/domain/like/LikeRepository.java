@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LikeRepository extends JpaRepository<Likes, Long> {
+
     Optional<Likes> findByProductIdAndUser(Long productId, User user);
 
     Page<Likes> findByUser(User user, Pageable pageable);

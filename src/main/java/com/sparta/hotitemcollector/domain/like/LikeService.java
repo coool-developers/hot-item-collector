@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class LikeService {
+
     private final LikeRepository likeRepository;
     private final ProductService productService;
 
@@ -36,9 +37,9 @@ public class LikeService {
             Product product = productService.findById(productId);
 
             Likes like = Likes.builder()
-                    .user(user)
-                    .product(product)
-                    .build();
+                .user(user)
+                .product(product)
+                .build();
 
             likeRepository.save(like);
             productService.increaseLikes(productId);
@@ -47,9 +48,9 @@ public class LikeService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getLikeProduct(User user,int page, int size) {
+    public List<ProductSimpleResponseDto> getLikeProduct(User user, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Product> productPage = findLikeProductIdByUser(user,pageable);
+        Page<Product> productPage = findLikeProductIdByUser(user, pageable);
 
         return productPage.getContent()
             .stream()

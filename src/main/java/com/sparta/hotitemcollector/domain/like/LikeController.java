@@ -18,11 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class LikeController {
+
     private final LikeService likeService;
 
     @PostMapping("/likes/{productId}")
-    public ResponseEntity<CommonResponse> createLike(@PathVariable ("productId") Long productId,
-                                                     @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<CommonResponse> createLike(@PathVariable("productId") Long productId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
         // User를 받아오기
         User user = userDetails.getUser();
 
@@ -43,7 +44,7 @@ public class LikeController {
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
         List<ProductSimpleResponseDto> responseDtoList = likeService.getLikeProduct(
-            userDetails.getUser(),page-1,size);
+            userDetails.getUser(), page - 1, size);
         CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
             "좋아요한 상품 목록 조회 성공", 200, responseDtoList);
         return new ResponseEntity<>(response, HttpStatus.OK);
