@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,7 +77,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<ProductSimpleResponseDto> getFollowProduct(User user, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         List<Follow> followList = followService.getAllFollowers(user);
 
         List<User> followingUsers = followList.stream()
@@ -92,7 +93,7 @@ public class ProductService {
     }
 
     public List<HotProductResponseDto> getHotProduct(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage = productRepository.findTop10ByOrderByLikesDesc(pageable);
 
         return productPage.getContent()
@@ -104,7 +105,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public List<ProductSimpleResponseDto> getSaleProduct(User user, ProductStatus status, int page,
         int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage = productRepository.findByUserAndStatus(user, status, pageable);
 
         return productPage.getContent()
