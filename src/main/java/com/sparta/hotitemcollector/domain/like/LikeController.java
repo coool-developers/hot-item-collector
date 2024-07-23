@@ -41,9 +41,9 @@ public class LikeController {
     @GetMapping("/products/like")
     public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getLikeProduct(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
         List<ProductSimpleResponseDto> responseDtoList = likeService.getLikeProduct(
-            userDetails.getUser());
+            userDetails.getUser(),page-1,size);
         CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
             "좋아요한 상품 목록 조회 성공", 200, responseDtoList);
         return new ResponseEntity<>(response, HttpStatus.OK);

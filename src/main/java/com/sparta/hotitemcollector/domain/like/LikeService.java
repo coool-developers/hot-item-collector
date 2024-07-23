@@ -43,7 +43,7 @@ public class LikeService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getLikeProduct(User user) {
+    public List<ProductSimpleResponseDto> getLikeProduct(User user,int page, int size) {
         List<Product> productList = findLikeProductIdByUser(user);
 
         return productList.stream()

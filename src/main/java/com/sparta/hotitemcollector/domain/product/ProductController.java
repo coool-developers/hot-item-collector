@@ -67,9 +67,9 @@ public class ProductController {
     @GetMapping("/follow")
     public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getFollowProduct(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
         List<ProductSimpleResponseDto> responseDtoList = productService.getFollowProduct(
-            userDetails.getUser(), page, size);
+            userDetails.getUser(), page-1, size);
         CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
             "팔로우한 사용자의 상품 목록 조회 성공", 200, responseDtoList);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -77,8 +77,8 @@ public class ProductController {
 
     @GetMapping("/hot")
     public ResponseEntity<CommonResponse<List<HotProductResponseDto>>> getHotProduct(
-        @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        List<HotProductResponseDto> responseDtoList = productService.getHotProduct(page, size);
+        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+        List<HotProductResponseDto> responseDtoList = productService.getHotProduct(page-1, size);
         CommonResponse<List<HotProductResponseDto>> response = new CommonResponse<>(
             "Hot Top 10 조회 성공", 200, responseDtoList);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -87,9 +87,9 @@ public class ProductController {
     @GetMapping("/sale")
     public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getSaleProduct(
         @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam ProductStatus status,
-        @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
         List<ProductSimpleResponseDto> responseDtoList = productService.getSaleProduct(
-            userDetails.getUser(), status, page, size);
+            userDetails.getUser(), status, page-1, size);
         CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
             "판매 상태에 따른 상품 목록 조회 성공", 200, responseDtoList);
         return new ResponseEntity<>(response, HttpStatus.OK);
