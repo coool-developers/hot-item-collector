@@ -4,6 +4,7 @@ import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
 import com.sparta.hotitemcollector.domain.user.UserService;
 import com.sparta.hotitemcollector.domain.user.dto.LoginReqeustDto;
 import com.sparta.hotitemcollector.domain.user.dto.LoginResponseDto;
+import com.sparta.hotitemcollector.domain.user.dto.RefreshRequestDto;
 import com.sparta.hotitemcollector.domain.user.dto.SignupRequestDto;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,12 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<CommonResponse> refreshToken(@RequestBody RefreshRequestDto refreshRequestDto) {
+        LoginResponseDto responseDto = userService.refreshToken(refreshRequestDto);
 
+        CommonResponse response = new CommonResponse<>("access 토큰 재발급 성공",204,"");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
 }

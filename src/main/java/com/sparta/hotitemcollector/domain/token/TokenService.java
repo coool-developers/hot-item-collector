@@ -34,7 +34,7 @@ public class TokenService {
      * @param user
      * @return
      */
-    public Optional<Token> checkToken(User user) {
+    public Optional<Token> findRefreshToken(User user) {
         return tokenRepository.findByUser(user);
     }
 

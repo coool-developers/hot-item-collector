@@ -4,10 +4,12 @@ import com.sparta.hotitemcollector.domain.token.Token;
 import com.sparta.hotitemcollector.domain.token.TokenService;
 import com.sparta.hotitemcollector.domain.user.dto.LoginReqeustDto;
 import com.sparta.hotitemcollector.domain.user.dto.LoginResponseDto;
+import com.sparta.hotitemcollector.domain.user.dto.RefreshRequestDto;
 import com.sparta.hotitemcollector.domain.user.dto.SignupRequestDto;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import com.sparta.hotitemcollector.global.jwt.JwtUtil;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,7 +27,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final TokenService tokenService;
-
 
 
     public void signup(SignupRequestDto signupRequestDto) {
@@ -64,13 +65,42 @@ public class UserService {
 
 
         // 토큰을 데이터베이스에 저장
-        Optional<Token> optionalToken = tokenService.checkToken(finduser);
+        Optional<Token> optionalToken = tokenService.findRefreshToken(finduser);
         if (optionalToken.isPresent()) {
             Token token = optionalToken.get();
             tokenService.updateToken(token, refresh);
         } else {
             tokenService.saveToken(finduser, refresh);
         }
+
+        return new LoginResponseDto("Bearer " + access, refresh);
+    }
+
+    public LoginResponseDto refreshToken(RefreshRequestDto refreshRequestDto) {
+        String refreshToken = refreshRequestDto.getRefresh();
+
+        // 토큰 유효성 및 만료 확인
+        if (!jwtUtil.validateToken(refreshToken)) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
+
+        Claims claims = jwtUtil.getUserInfoFromToken(refreshToken);
+        String loginId = claims.getSubject();
+        UserRole role = jwtUtil.getRoleFromToken(refreshToken);
+
+
+        User finduser = findByLoginId(loginId);
+
+        // DB에 저장된 리프레시 토큰 검증
+        Optional<Token> optionalToken = tokenService.findRefreshToken(finduser);
+        if (!optionalToken.get().getRefreshToken().equals(refreshToken)) {
+            throw new CustomException(ErrorCode.UNMATCHED_TOKEN);
+        }
+
+        String access = jwtUtil.createAccessToken(loginId, role);
+        String refresh = jwtUtil.createRefreshToken(loginId, role);
+
+        tokenService.updateToken(optionalToken.get(),refresh);
 
         return new LoginResponseDto("Bearer " + access, refresh);
     }
@@ -84,8 +114,6 @@ public class UserService {
     }
 
 
-
-
     public void withdraw(String accessToken, User user) {
         // RefreshToken 삭제
         deleteRefreshToken(user);
@@ -94,13 +122,14 @@ public class UserService {
         addBlackListToken(accessToken);
 
         // 유저 상태 변경
-        User finduser = findByUserId(user.getLoginId());
+        User finduser = findByLoginId(user.getLoginId());
         finduser.updateStatus(UserStatus.WITHDRAW);
         userRepository.save(finduser);
     }
 
     /**
      * accessToken 블랙리스트 추가
+     *
      * @param accessToken AccessToken
      */
     public void addBlackListToken(String accessToken) {
@@ -119,22 +148,22 @@ public class UserService {
 
     /**
      * DB에 저장된 RefreshToken 삭제
+     *
      * @param user 유저
      */
     public void deleteRefreshToken(User user) {
-        User finduser = findByUserId(user.getLoginId());
+        User finduser = findByLoginId(user.getLoginId());
 
         // 회원 상태 확인
         checkUserStatus(finduser);
 
         // refreshToken 삭제
-        Optional<Token> optionalToken = tokenService.checkToken(user);
+        Optional<Token> optionalToken = tokenService.findRefreshToken(user);
         if (optionalToken.isPresent()) {
             Token token = optionalToken.get();
             tokenService.deleteToken(token);
         }
     }
-
 
 
     /**
@@ -143,7 +172,7 @@ public class UserService {
      * @param loginId 사용자 ID
      * @return 유저 정보
      */
-    public User findByUserId(String loginId) {
+    public User findByLoginId(String loginId) {
         return userRepository.findByLoginId(loginId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_FOUND_USER)
         );
@@ -159,4 +188,6 @@ public class UserService {
             throw new CustomException(ErrorCode.WITHDRAW_USER);
         }
     }
+
+
 }
