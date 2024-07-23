@@ -34,17 +34,21 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<CommonResponse> logout(@RequestHeader("Authorization") String token) {
-        userService.logout(token);
+    public ResponseEntity<CommonResponse> logout(@RequestHeader("Authorization") String accessToken,
+                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        userService.logout(accessToken,userDetails.getUser());
         CommonResponse response = new CommonResponse<>("로그아웃 성공",200,"");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/withdraw")
-    public ResponseEntity<CommonResponse> withdraw(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        userService.withdraw(userDetails.getUser());
-        CommonResponse response = new CommonResponse<>("로그인 성공",200,"");
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+    @PatchMapping("/withdraw")
+    public ResponseEntity<CommonResponse> withdraw(@RequestHeader("Authorization") String accessToken,
+                                                   @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        userService.withdraw(accessToken,userDetails.getUser());
+        CommonResponse response = new CommonResponse<>("회원탈퇴 성공",204,"");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+
 
 }

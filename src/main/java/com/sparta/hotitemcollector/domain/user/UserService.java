@@ -27,10 +27,7 @@ public class UserService {
     private final TokenService tokenService;
 
 
-    /**
-     * 회원가입
-     * @param signupRequestDto
-     */
+
     public void signup(SignupRequestDto signupRequestDto) {
         Optional<User> finduser = userRepository.findByLoginId(signupRequestDto.getLoginId());
 
@@ -51,11 +48,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    /**
-     * 로그인
-     * @param loginReqeustDto LoginRequestDto
-     * @return
-     */
+
     public LoginResponseDto login(LoginReqeustDto loginReqeustDto) {
         User finduser = userRepository.findByLoginId(loginReqeustDto.getLoginId())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
@@ -66,63 +59,82 @@ public class UserService {
             throw new CustomException(ErrorCode.INCORRECT_PASSWORD);
         }
 
-        String access = jwtUtil.createAccessToken(finduser.getLoginId(),finduser.getRole());
-        String refresh = jwtUtil.createRefreshToken(finduser.getLoginId(),finduser.getRole());
+        String access = jwtUtil.createAccessToken(finduser.getLoginId(), finduser.getRole());
+        String refresh = jwtUtil.createRefreshToken(finduser.getLoginId(), finduser.getRole());
 
 
         // 토큰을 데이터베이스에 저장
         Optional<Token> optionalToken = tokenService.checkToken(finduser);
-        if(optionalToken.isPresent()) {
+        if (optionalToken.isPresent()) {
             Token token = optionalToken.get();
-            tokenService.updateToken(token,refresh);
-        }else{
+            tokenService.updateToken(token, refresh);
+        } else {
             tokenService.saveToken(finduser, refresh);
         }
 
-        return new LoginResponseDto("Bearer "+access, refresh);
+        return new LoginResponseDto("Bearer " + access, refresh);
+    }
+
+
+    public void logout(String accessToken, User user) {
+        // RefreshToken 삭제
+        deleteRefreshToken(user);
+        // AccessToken 블랙리스트 추가
+        addBlackListToken(accessToken);
+    }
+
+
+
+
+    public void withdraw(String accessToken, User user) {
+        // RefreshToken 삭제
+        deleteRefreshToken(user);
+
+        // AccessToken 블랙리스트 추가
+        addBlackListToken(accessToken);
+
+        // 유저 상태 변경
+        User finduser = findByUserId(user.getLoginId());
+        finduser.updateStatus(UserStatus.WITHDRAW);
+        userRepository.save(finduser);
     }
 
     /**
-     *  로그아웃
-     *
-     * @param token access토큰
+     * accessToken 블랙리스트 추가
+     * @param accessToken AccessToken
      */
-    public void logout(String token) {
-        try {
-            String tokenValue = jwtUtil.substringToken(token);
+    public void addBlackListToken(String accessToken) {
+        // accessToken 블랙리스트 추가
+        String tokenValue = jwtUtil.substringToken(accessToken);
 
-            // 토큰 유효한지 확인 - 로그아웃유무 토큰이 유효한지
-            jwtUtil.validateToken(tokenValue);
+        // 토큰 유효한지 확인 - 로그아웃 유무 토큰이 유효한지
+        jwtUtil.validateToken(tokenValue);
 
-            // 블랙리스트에 토큰 추가
-            jwtUtil.createblacklistToken(tokenValue);
-            if(!jwtUtil.isTokenBlacklisted(tokenValue)) {
-                throw new IllegalStateException("Failed to blacklist token");
-            }
-        } catch (Exception e) {
-            log.error("Error during logout: {}", e.getMessage());
-            throw new IllegalArgumentException("Failed to logout");
+        // 블랙리스트에 토큰 추가
+        jwtUtil.createblacklistToken(tokenValue);
+        if (!jwtUtil.isTokenBlacklisted(tokenValue)) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * 회원 탈퇴
-     *
-     * @param user User
+     * DB에 저장된 RefreshToken 삭제
+     * @param user 유저
      */
-    public void withdraw(User user) {
+    public void deleteRefreshToken(User user) {
         User finduser = findByUserId(user.getLoginId());
 
         // 회원 상태 확인
         checkUserStatus(finduser);
 
+        // refreshToken 삭제
         Optional<Token> optionalToken = tokenService.checkToken(user);
-        if(optionalToken.isPresent()) {
+        if (optionalToken.isPresent()) {
             Token token = optionalToken.get();
             tokenService.deleteToken(token);
         }
-        finduser.updateStatus(UserStatus.WITHDRAW);
     }
+
 
 
     /**
