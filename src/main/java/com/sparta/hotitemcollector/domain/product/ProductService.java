@@ -114,6 +114,17 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
+    public List<ProductSimpleResponseDto> getSearchProduct(String nickname, String productName, ProductCategory category, int page, int size) {
+       /* if(!nickname.isEmpty()){
+            User user = userService.findByNickname(nickname);
+            List<Product> productList = productRepository.findByUser(user);
+        }
+        if(!productName.isEmpty()){
+            List<Product> productList = productRepository.findByNameContainingIgnoreCase(productName);
+        }*/
+        return null;
+    }
+
     public Product findById(Long productId) {
         return productRepository.findById(productId).orElseThrow(
             () -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT)
