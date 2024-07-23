@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,19 +48,18 @@ public class LikeService {
 
     @Transactional(readOnly = true)
     public List<ProductSimpleResponseDto> getLikeProduct(User user,int page, int size) {
-        List<Product> productList = findLikeProductIdByUser(user);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Product> productPage = findLikeProductIdByUser(user,pageable);
 
-        return productList.stream()
+        return productPage.getContent()
+            .stream()
             .map(ProductSimpleResponseDto::new)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<Product> findLikeProductIdByUser(User user) {
-        List<Likes> likes = likeRepository.findByUser(user);
-
-        return likes.stream()
-                .map(Likes::getProduct)
-                .toList();
+    public Page<Product> findLikeProductIdByUser(User user, Pageable pageable) {
+        Page<Likes> likesPage = likeRepository.findByUser(user, pageable);
+        return likesPage.map(Likes::getProduct);
     }
 }
