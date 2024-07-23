@@ -21,6 +21,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -43,6 +44,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3'
+
+    // iamport
+    implementation 'com.github.iamport:iamport-rest-client-java:0.2.21'
 
 }
 

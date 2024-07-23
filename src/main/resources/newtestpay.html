@@ -23,7 +23,9 @@
         methods: {
             requestPay: function () {
                 console.log("api 진입 전");
-                axios.get('http://localhost:8080/api/payments/request-data')
+                axios.get('http://localhost:8080/api/payments/prepare-payment', {
+                    params: { temporaryPaymentId: 'temporary_payment_id' }
+                })
                     .then(response => {
                         const paymentData = response.data.result;
                         const IMP = window.IMP;
