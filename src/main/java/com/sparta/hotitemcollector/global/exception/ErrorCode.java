@@ -35,8 +35,13 @@ public enum ErrorCode {
     // Product
     NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "NOT FOUND PRODUCT"),
 
+    // Cart
+    NOT_FOUND_CART(HttpStatus.NOT_FOUND, "NOT FOUND CART"),
+    NOT_FOUND_CARTITEM(HttpStatus.NOT_FOUND, "NOT FOUND CART_ITEM"),
+    ALREADY_EXIST_CARTITEM(HttpStatus.CONFLICT, "ALREADY_EXIST_CARTITEM"),
+
     // User
-    NOT_FOUND_USER(HttpStatus.NOT_FOUND, "등록되지 않은 사용자입니다."),
+    NOT_FOUND_USER(HttpStatus.NOT_FOUND, "NOT FOUND USER"),
 
     // Follow
     ALREADY_EXIST_FOLLOW(HttpStatus.CONFLICT, "ALREADY_EXIST FOLLOW"),
