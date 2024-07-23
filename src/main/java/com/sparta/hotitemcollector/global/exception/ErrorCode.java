@@ -29,7 +29,6 @@ public enum ErrorCode {
 
     // Auth
     DUPLICATE_USER(HttpStatus.CONFLICT,"이미 등록된 사용자 입니다."),
-    NOT_FOUND_USER(HttpStatus.NOT_FOUND, "등록되지 않은 사용자입니다."),
     INCORRECT_PASSWORD(HttpStatus.UNAUTHORIZED,"비밀번호가 일치하지 않습니다."),
 
 
@@ -37,7 +36,7 @@ public enum ErrorCode {
     NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "NOT FOUND PRODUCT"),
 
     // User
-    NOT_FOUND_USER(HttpStatus.NOT_FOUND, "NOT FOUND USER"),
+    NOT_FOUND_USER(HttpStatus.NOT_FOUND, "등록되지 않은 사용자입니다."),
 
     // Follow
     ALREADY_EXIST_FOLLOW(HttpStatus.CONFLICT, "ALREADY_EXIST FOLLOW"),
