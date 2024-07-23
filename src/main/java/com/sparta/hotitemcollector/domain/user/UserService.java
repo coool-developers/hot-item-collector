@@ -68,7 +68,7 @@ public class UserService {
             tokenService.saveToken(user, refresh);
         }
 
-        return new LoginResponseDto("Bearer "+access, "Bearer "+refresh);
+        return new LoginResponseDto("Bearer "+access, refresh);
     }
 
     public void logout(String token) {
