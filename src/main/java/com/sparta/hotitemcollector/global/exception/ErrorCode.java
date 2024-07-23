@@ -42,7 +42,7 @@ public enum ErrorCode {
 
     // User
     NOT_FOUND_USER(HttpStatus.NOT_FOUND, "NOT FOUND USER"),
-
+    SAME_USER_PRODUCT(HttpStatus.BAD_REQUEST, "SAME USER PRODUCT"),
     // Follow
     ALREADY_EXIST_FOLLOW(HttpStatus.CONFLICT, "ALREADY_EXIST FOLLOW"),
     NOT_FOUND_FOLLOW(HttpStatus.NOT_FOUND, "NOT FOUND FOLLOW");
