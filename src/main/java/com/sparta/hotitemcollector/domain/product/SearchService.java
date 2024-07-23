@@ -15,11 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class SearchService {
+
     private final UserService userService;
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getSearchProduct(String nickname, String productName, ProductCategory category, int page, int size) {
+    public List<ProductSimpleResponseDto> getSearchProduct(String nickname, String productName,
+        ProductCategory category, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage = Page.empty(pageable);
 

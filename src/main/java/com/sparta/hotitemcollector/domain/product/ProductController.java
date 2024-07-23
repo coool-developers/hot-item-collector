@@ -98,12 +98,12 @@ public class ProductController {
 
     @GetMapping("/search")
     public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getSearchProduct(
-        @RequestParam(required=false) String nickname,
-        @RequestParam(required=false) String productName,
-        @RequestParam(required=false) ProductCategory category,
+        @RequestParam(required = false) String nickname,
+        @RequestParam(required = false) String productName,
+        @RequestParam(required = false) ProductCategory category,
         @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
         List<ProductSimpleResponseDto> responseDtoList = searchService.getSearchProduct(
-            nickname,productName,category,page-1,size);
+            nickname, productName, category, page - 1, size);
         CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
             "검색을 통한 상품 목록 조회 성공", 200, responseDtoList);
         return new ResponseEntity<>(response, HttpStatus.OK);
