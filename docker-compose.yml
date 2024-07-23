@@ -15,5 +15,6 @@ services:
       TZ: Asia/Seoul
   redis:
     image: redis
+    container_name: hot-item-collector-redis
     ports:
       - "6379:6379"
