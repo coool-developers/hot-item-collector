@@ -32,11 +32,6 @@ public class CartService {
 		Product product = productService.findById(productId);
 		Cart cart = findCartByUserId(user.getId());
 
-		CartItem cartItem = CartItem.builder()
-			.product(product)
-			.cart(cart)
-			.build();
-
 		if (user.getId().equals(product.getUser().getId())) {
 			throw new CustomException(ErrorCode.SAME_USER_PRODUCT);
 		}
@@ -44,6 +39,11 @@ public class CartService {
 		if (isCartItemExistAtCart(productId, cart.getId())) {
 			throw new CustomException(ErrorCode.ALREADY_EXIST_CARTITEM);
 		}
+
+		CartItem cartItem = CartItem.builder()
+			.product(product)
+			.cart(cart)
+			.build();
 
 		cartItemRepository.save(cartItem);
 
@@ -93,7 +93,7 @@ public class CartService {
 			.build());
 	}
 
-	// 유저 만들 때 사용
+	@Transactional
 	public void createCart(User user) {
 		Cart cart = Cart.builder()
 			.user(user)
