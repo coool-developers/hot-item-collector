@@ -54,4 +54,12 @@ public class User extends Timestamped {
         this.username = username;
         this.nickname = nickname;
     }
+
+    public void updateStatus(UserStatus userStatus) {
+        this.userStatus = userStatus;
+    }
+
+    public boolean isExist() {
+        return this.userStatus == UserStatus.NORMAL;
+    }
 }

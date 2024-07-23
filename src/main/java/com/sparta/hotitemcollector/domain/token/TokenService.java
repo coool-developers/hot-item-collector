@@ -35,4 +35,9 @@ public class TokenService {
         token.setRefreshTime(new Date());
         tokenRepository.save(token); // 토큰 업데이트
     }
+
+
+    public void deleteToken(Token token) {
+        tokenRepository.delete(token);
+    }
 }
