@@ -1,5 +1,6 @@
 package com.sparta.hotitemcollector.domain.user;
 
+import com.sparta.hotitemcollector.domain.cart.CartService;
 import com.sparta.hotitemcollector.domain.token.Token;
 import com.sparta.hotitemcollector.domain.token.TokenService;
 import com.sparta.hotitemcollector.domain.user.dto.LoginReqeustDto;
@@ -27,6 +28,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final TokenService tokenService;
+    private final CartService cartService;
 
 
     public void signup(SignupRequestDto signupRequestDto) {
@@ -46,7 +48,8 @@ public class UserService {
                 .nickname(signupRequestDto.getNickname())
                 .build();
 
-        userRepository.save(user);
+        User saveUser = userRepository.save(user);
+        cartService.createCart(saveUser);
     }
 
 
