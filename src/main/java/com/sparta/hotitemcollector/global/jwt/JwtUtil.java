@@ -24,12 +24,10 @@ public class JwtUtil {
     // 사용하는 암호화 알고리즘
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
-
     private final long tokenExpiration;
     private final long refreshTokenExpiration;
     private final SecretKey secretKey;
     private final RedisUtil redisUtil;
-
 
     public JwtUtil(JwtConfig jwtConfig, RedisUtil redisUtil) {
         this.tokenExpiration = jwtConfig.getTokenExpiration();
@@ -37,10 +35,6 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(jwtConfig.getSecretKey().getBytes());
         this.redisUtil = redisUtil;
     }
-
-
-
-
 
     public String createAccessToken(String userId, UserRole role) {
         return createToken(userId, role, tokenExpiration);
@@ -63,9 +57,10 @@ public class JwtUtil {
     }
 
     // 토큰 유효성 검증
-    public void validateToken(String token) {
+    public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+            return true;
         } catch (SecurityException | MalformedJwtException | SignatureException e) {
             throw new CustomException(ErrorCode.INVALID_TOKEN);
         } catch (UnsupportedJwtException e) {
@@ -97,11 +92,6 @@ public class JwtUtil {
         return UserRole.valueOf(claims.get(AUTHORIZATION_KEY).toString());
     }
 
-
-
-
-
-
     // header 에서 JWT 가져오기
     public String getJwtFromHeader(HttpServletRequest request, String header) {
         String bearerToken = request.getHeader(header);
@@ -116,15 +106,6 @@ public class JwtUtil {
     public String substringToken(String token) {
         return token.substring(BEARER_PREFIX.length()); // "Bearer " 접두사 제거
     }
-
-    //  JWT 토큰이 만료되었는지 확인
-    public Boolean isTokenExpired(String token) {
-        Claims claims = getUserInfoFromToken(token);
-        Date date = claims.getExpiration();
-        return date.before(new Date());
-    }
-
-
 
     // 블랙리스트
     public String getLoginIdFromToken(String token) {
@@ -145,12 +126,6 @@ public class JwtUtil {
     // 블랙리스트에서 토큰 제거
     public void removeTokenFromBlacklist(String token) {
         redisUtil.deleteBlackList(token);
-    }
-
-
-    // 유효하지 않은 토큰 예외 처리
-    private void handleInvalidTokenException(Exception e) {
-        throw new IllegalArgumentException("Invalid token: " + e.getMessage());
     }
 
     // 만료 시간 계산

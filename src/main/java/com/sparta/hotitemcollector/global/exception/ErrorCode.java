@@ -27,6 +27,7 @@ public enum ErrorCode {
     // Auth
     DUPLICATE_USER(HttpStatus.CONFLICT,"이미 등록된 사용자 입니다."),
     INCORRECT_PASSWORD(HttpStatus.UNAUTHORIZED,"비밀번호가 일치하지 않습니다."),
+    WITHDRAW_USER(HttpStatus.BAD_REQUEST, "탈퇴한 회원입니다."),
 
 
     // Product
