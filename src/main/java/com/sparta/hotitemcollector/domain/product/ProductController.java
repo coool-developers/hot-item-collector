@@ -75,17 +75,6 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/like")
-    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getLikeProduct(
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        List<ProductSimpleResponseDto> responseDtoList = productService.getLikeProduct(
-            userDetails.getUser());
-        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
-            "좋아요한 상품 목록 조회 성공", 200, responseDtoList);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
     @GetMapping("/hot")
     public ResponseEntity<CommonResponse<List<HotProductResponseDto>>> getHotProduct(
         @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {

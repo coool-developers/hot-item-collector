@@ -1,14 +1,18 @@
 package com.sparta.hotitemcollector.domain.like;
 
+import com.sparta.hotitemcollector.domain.product.ProductSimpleResponseDto;
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -32,5 +36,16 @@ public class LikeController {
             CommonResponse response = new CommonResponse<>("좋아요 취소 완료", 200, "");
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
+    }
+
+    @GetMapping("/products/like")
+    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getLikeProduct(
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
+        @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        List<ProductSimpleResponseDto> responseDtoList = likeService.getLikeProduct(
+            userDetails.getUser());
+        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
+            "좋아요한 상품 목록 조회 성공", 200, responseDtoList);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

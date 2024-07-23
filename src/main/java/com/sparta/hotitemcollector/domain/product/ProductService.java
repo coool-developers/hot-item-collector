@@ -2,7 +2,6 @@ package com.sparta.hotitemcollector.domain.product;
 
 import com.sparta.hotitemcollector.domain.follow.Follow;
 import com.sparta.hotitemcollector.domain.follow.FollowService;
-import com.sparta.hotitemcollector.domain.like.LikeService;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.domain.user.UserService;
 import com.sparta.hotitemcollector.global.exception.CustomException;
@@ -20,10 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProductService {
 
-    private UserService userService;
-    private ProductRepository productRepository;
-    private FollowService followService;
-    private LikeService likeService;
+    private final UserService userService;
+    private final ProductRepository productRepository;
+    private final FollowService followService;
 
     @Transactional
     public ProductResponseDto createProduct(ProductRequestDto requestDto, User user) {
@@ -93,15 +91,6 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getLikeProduct(User user) {
-        List<Product> productList = likeService.findLikeProductIdByUser(user);
-
-        return productList.stream()
-            .map(ProductSimpleResponseDto::new)
-            .collect(Collectors.toList());
-    }
-
     public List<HotProductResponseDto> getHotProduct(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Product> productPage = productRepository.findTop10ByOrderByLikesDesc(pageable);
@@ -128,5 +117,16 @@ public class ProductService {
         return productRepository.findById(productId).orElseThrow(
             () -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT)
         );
+    }
+
+    public void increaseLikes(Long productId){
+        Product product = findById(productId);
+        product.increaseLikes();
+        productRepository.save(product);
+    }
+    public void decreaseLikes(Long productId){
+        Product product = findById(productId);
+        product.decreaseLikes();
+        productRepository.save(product);
     }
 }
