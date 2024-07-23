@@ -15,9 +15,6 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL SERVER ERROR"),
 
     // 각 Service에서 필요한 ErrorCode 추가
-    NON_EXISTENT_PRODUCT(HttpStatus.BAD_REQUEST, "아이디에 맞는 상품을 찾을 수 없습니다."),
-    NOT_SAME_USER(HttpStatus.BAD_REQUEST, "사용자가 일치하지 않아 요청을 처리할 수 없습니다."),
-    ALREADY_SOLD_OUT(HttpStatus.BAD_REQUEST, "이미 판매 완료된 상품입니다."),
 
     // Token
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다."),
@@ -34,7 +31,10 @@ public enum ErrorCode {
 
 
     // Product
-    NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "NOT FOUND PRODUCT"),
+    NOT_FOUND_PRODUCT(HttpStatus.BAD_REQUEST, "상품을 찾을 수 없습니다."),
+    NOT_SAME_USER(HttpStatus.BAD_REQUEST, "사용자가 일치하지 않아 요청을 처리할 수 없습니다."),
+    ALREADY_SOLD_OUT(HttpStatus.BAD_REQUEST, "이미 판매 완료된 상품입니다."),
+    NON_EXISTENT_PRODUCT(HttpStatus.NO_CONTENT,"해당 사용자가 판매하는 상품이 없습니다."),
 
     // Cart
     NOT_FOUND_CART(HttpStatus.NOT_FOUND, "NOT FOUND CART"),

@@ -65,4 +65,12 @@ public class Product extends Timestamped {
         this.info = requestDto.getInfo();
         this.category = requestDto.getCategory();
     }
+
+    public void increaseLikes() {
+        this.likes++;
+    }
+
+    public void decreaseLikes() {
+        this.likes--;
+    }
 }
