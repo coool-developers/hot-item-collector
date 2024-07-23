@@ -3,14 +3,12 @@ package com.sparta.hotitemcollector.domain.product;
 import com.sparta.hotitemcollector.domain.follow.Follow;
 import com.sparta.hotitemcollector.domain.follow.FollowService;
 import com.sparta.hotitemcollector.domain.user.User;
-import com.sparta.hotitemcollector.domain.user.UserService;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,13 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProductService {
 
-    private final UserService userService;
     private final ProductRepository productRepository;
     private final FollowService followService;
 
     @Transactional
     public ProductResponseDto createProduct(ProductRequestDto requestDto, User user) {
-        /*User user1 = userService.findById(user.getId());*/
 
         Product product = Product.builder()
             .requestDto(requestDto)
@@ -108,32 +104,6 @@ public class ProductService {
         int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage = productRepository.findByUserAndStatus(user, status, pageable);
-
-        return productPage.getContent()
-            .stream()
-            .map(ProductSimpleResponseDto::new)
-            .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getSearchProduct(String nickname, String productName, ProductCategory category, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Product> productPage = Page.empty(pageable);
-
-       /* if (nickname != null && !nickname.isEmpty()) {
-            List<User> userList = userService.findByNicknameContainingIgnoreCase(nickname);
-            if (!userList.isEmpty()) {
-                productPage = productRepository.findByUserIn(userList, pageable);
-            }
-        }*/
-
-        if (productName != null && !productName.isEmpty()) {
-            productPage = productRepository.findByNameContainingIgnoreCase(productName, pageable);
-        }
-
-        if (category != null) {
-            productPage = productRepository.findByCategory(category, pageable);
-        }
 
         return productPage.getContent()
             .stream()
