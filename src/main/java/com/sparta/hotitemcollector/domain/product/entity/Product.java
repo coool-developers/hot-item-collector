@@ -4,6 +4,7 @@ import com.sparta.hotitemcollector.domain.product.dto.ProductRequestDto;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,7 +26,7 @@ public class Product extends Timestamped {
     private String name;
 
     @OneToMany(mappedBy = "product",fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private List<ProductImage> images;
+    private List<ProductImage> images = new ArrayList<>();
 
     @Column(nullable = false)
     private Long price;

@@ -46,9 +46,10 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<CommonResponse<ProductResponseDto>> createProduct(
-        @Valid @RequestBody ProductRequestDto requestDto,
+        @Valid @RequestPart("requestDto") ProductRequestDto requestDto,
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestPart("files") List<MultipartFile> files) throws IOException {
+
         // 크기제한, 확장자 확인
         for (MultipartFile file : files) {
             productImageService.validateFile(file);

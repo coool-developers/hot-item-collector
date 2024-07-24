@@ -13,7 +13,7 @@ public class ProductRequestDto {
     private String name;
     @NotNull(message = "상품의 카테고리를 입력해주세요.")
     private ProductCategory category;
-    @NotBlank(message = "상품의 이미지를 입력해주세요.")
+    //@NotBlank(message = "상품의 이미지를 입력해주세요.")
     private List<ProductImageDto> images;
     @NotNull(message = "상품의 가격을 입력해주세요.")
     private Long price;
