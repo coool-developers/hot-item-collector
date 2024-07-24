@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
@@ -23,5 +24,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findByCategory(ProductCategory category, Pageable pageable);
 
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.images WHERE p.id = :id")
-    Product findByIdWithImages(Long productId);
+    Product findByIdWithImages(@Param("id") Long id);
 }
