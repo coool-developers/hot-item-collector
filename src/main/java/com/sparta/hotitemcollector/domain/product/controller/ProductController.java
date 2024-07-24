@@ -18,7 +18,6 @@ import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import jakarta.validation.Valid;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,7 +28,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -71,7 +69,8 @@ public class ProductController {
         @PathVariable(name = "productId") Long productId,
         @Valid @RequestPart("requestDto") ProductRequestDto requestDto,
         @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @RequestPart(value = "files", required = false) List<MultipartFile> files) throws IOException {
+        @RequestPart(value = "files", required = false) List<MultipartFile> files)
+        throws IOException {
 
         // 현재 제품 정보를 조회
         Product product = productService.findById(productId);
@@ -91,10 +90,12 @@ public class ProductController {
         requestDto.addImages(images);
 
         // 제품 업데이트
-        ProductResponseDto responseDto = productService.updateProduct(productId, requestDto, userDetails.getUser());
+        ProductResponseDto responseDto = productService.updateProduct(productId, requestDto,
+            userDetails.getUser());
 
         // 응답 반환
-        CommonResponse<ProductResponseDto> response = new CommonResponse<>("상품 수정 성공", 200, responseDto);
+        CommonResponse<ProductResponseDto> response = new CommonResponse<>("상품 수정 성공", 200,
+            responseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

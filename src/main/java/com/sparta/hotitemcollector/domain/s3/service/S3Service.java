@@ -15,6 +15,7 @@ import java.io.IOException;
 @Service
 @RequiredArgsConstructor
 public class S3Service {
+
     private final AmazonS3 amazonS3;
 
     @Value("${cloud.aws.s3.bucket}")
@@ -37,7 +38,8 @@ public class S3Service {
             String imageUrl = amazonS3.getUrl(bucket, filename).toString();
 
             // ProductImageDto 생성
-            ProductImageRequestDto productImageRequestDto = new ProductImageRequestDto(filename, imageUrl);
+            ProductImageRequestDto productImageRequestDto = new ProductImageRequestDto(filename,
+                imageUrl);
             productImageRequestDtos.add(productImageRequestDto);
         }
 
@@ -45,7 +47,7 @@ public class S3Service {
     }
 
     // 파일 삭제
-    public void deleteImage(String originalFilename)  {
+    public void deleteImage(String originalFilename) {
         amazonS3.deleteObject(bucket, originalFilename);
     }
 }

@@ -15,7 +15,8 @@ public class ProductSimpleResponseDto {
     public ProductSimpleResponseDto(Product product) {
         this.id = product.getId();
         this.name = product.getName();
-        this.image = product.getImages().isEmpty() ? null : new ProductImageResponseDto(product.getImages().get(0));
+        this.image = product.getImages().isEmpty() ? null
+            : new ProductImageResponseDto(product.getImages().get(0));
         this.userId = product.getUser().getId();
         this.userName = product.getUser().getNickname();
     }

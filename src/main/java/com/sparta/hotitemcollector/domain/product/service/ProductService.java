@@ -51,7 +51,7 @@ public class ProductService {
 
         // ProductImage 엔티티 생성 및 저장
         List<ProductImage> productImages = requestDto.getImages().stream()
-            .map(dto -> new ProductImage(dto.getFilename(), dto.getImageUrl(), product,user))
+            .map(dto -> new ProductImage(dto.getFilename(), dto.getImageUrl(), product, user))
             .collect(Collectors.toList());
 
         // 각 이미지 엔티티를 저장
@@ -71,7 +71,8 @@ public class ProductService {
 
 
     @Transactional
-    public ProductResponseDto updateProduct(Long productId, ProductRequestDto requestDto, User user) {
+    public ProductResponseDto updateProduct(Long productId, ProductRequestDto requestDto,
+        User user) {
         Product product = findById(productId);
 
         if (!product.getUser().getId().equals(user.getId())) {
@@ -97,7 +98,8 @@ public class ProductService {
 
         // 새로운 이미지 추가
         for (ProductImageRequestDto newImageDto : newImageDtos) {
-            ProductImage newImage = new ProductImage(newImageDto.getFilename(), newImageDto.getImageUrl(), product, user);
+            ProductImage newImage = new ProductImage(newImageDto.getFilename(),
+                newImageDto.getImageUrl(), product, user);
             product.addImage(newImage); // 양방향 연관관계 설정
             productImageRepository.save(newImage);
         }
@@ -112,7 +114,6 @@ public class ProductService {
         // ProductResponseDto 생성 및 반환
         return new ProductResponseDto(product, updatedImageDtos);
     }
-
 
 
     @Transactional

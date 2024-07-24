@@ -26,7 +26,7 @@ public class Product extends Timestamped {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "product",fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images = new ArrayList<>();
 
     @Column(nullable = false)
@@ -67,6 +67,7 @@ public class Product extends Timestamped {
         this.info = requestDto.getInfo();
         this.category = requestDto.getCategory();
     }
+
     public void addImage(ProductImage image) {
         images.add(image);
         image.setProduct(this);

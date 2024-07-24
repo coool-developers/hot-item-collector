@@ -36,15 +36,15 @@ public class ProductImage extends Timestamped {
     private User user;
 
     public ProductImage(String filename, String imageUrl, Product product, User user) {
-        this.filename=filename;
-        this.imageUrl=imageUrl;
-        this.product=product;
-        this.user=user;
+        this.filename = filename;
+        this.imageUrl = imageUrl;
+        this.product = product;
+        this.user = user;
     }
 
     public void updateProductImage(ProductImageRequestDto imageDto) {
-    this.filename=imageDto.getFilename();
-    this.imageUrl=imageDto.getImageUrl();
+        this.filename = imageDto.getFilename();
+        this.imageUrl = imageDto.getImageUrl();
     }
 
     public void setProduct(Product product) {

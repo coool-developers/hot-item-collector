@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class S3Config {
+
     @Value("${S3_ACCESS_KEY}")
     private String accessKey;
     @Value("${S3_SECRET_KEY}")

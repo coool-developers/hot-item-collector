@@ -1,6 +1,5 @@
 package com.sparta.hotitemcollector.domain.product.dto;
 
-import com.sparta.hotitemcollector.domain.product.entity.ProductImage;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
@@ -13,7 +12,7 @@ public class ProductImageRequestDto {
     private String imageUrl;
 
     public ProductImageRequestDto(String filename, String imageUrl) {
-        this.filename=filename;
-        this.imageUrl=imageUrl;
+        this.filename = filename;
+        this.imageUrl = imageUrl;
     }
 }

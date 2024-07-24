@@ -5,13 +5,14 @@ import lombok.Getter;
 
 @Getter
 public class ProductImageResponseDto {
+
     private Long id;
     private String filename;
     private String imageUrl;
 
     public ProductImageResponseDto(ProductImage productImage) {
-        this.id= productImage.getId();
-        this.filename= productImage.getFilename();
-        this.imageUrl= productImage.getImageUrl();
+        this.id = productImage.getId();
+        this.filename = productImage.getFilename();
+        this.imageUrl = productImage.getImageUrl();
     }
 }

@@ -1,6 +1,5 @@
 package com.sparta.hotitemcollector.domain.product.service;
 
-import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.repository.ProductImageRepository;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
@@ -11,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class ProductImageService {
+
     private final ProductImageRepository productImageRepository;
 
     public void validateFile(MultipartFile file) {
@@ -19,13 +19,15 @@ public class ProductImageService {
         long fileSize = file.getSize();
 
         // 이미지 파일 형식 및 크기 제한
-        if (fileExtension.equals("jpg") || fileExtension.equals("jpeg") || fileExtension.equals("png")) {
+        if (fileExtension.equals("jpg") || fileExtension.equals("jpeg") || fileExtension.equals(
+            "png")) {
             if (fileSize > 10 * 1024 * 1024) { // 10MB 제한
                 throw new CustomException(ErrorCode.NOT_ALLOW_IMAGE_SIZE);
             }
         }
         // 비디오 및 GIF 파일 형식 및 크기 제한
-        else if (fileExtension.equals("mp4") || fileExtension.equals("avi") || fileExtension.equals("gif")) {
+        else if (fileExtension.equals("mp4") || fileExtension.equals("avi") || fileExtension.equals(
+            "gif")) {
             if (fileSize > 200 * 1024 * 1024) { // 200MB 제한
                 throw new CustomException(ErrorCode.NOT_ALLOW_VIDEO_SIZE);
             }
