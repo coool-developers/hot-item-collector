@@ -2,10 +2,10 @@ package com.sparta.hotitemcollector.domain.user.controller;
 
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
 import com.sparta.hotitemcollector.domain.user.service.AuthService;
-import com.sparta.hotitemcollector.domain.user.dto.LoginReqeustDto;
-import com.sparta.hotitemcollector.domain.user.dto.LoginResponseDto;
-import com.sparta.hotitemcollector.domain.user.dto.RefreshRequestDto;
-import com.sparta.hotitemcollector.domain.user.dto.SignupRequestDto;
+import com.sparta.hotitemcollector.domain.user.dto.auth.LoginReqeustDto;
+import com.sparta.hotitemcollector.domain.user.dto.auth.LoginResponseDto;
+import com.sparta.hotitemcollector.domain.user.dto.auth.RefreshRequestDto;
+import com.sparta.hotitemcollector.domain.user.dto.auth.SignupRequestDto;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

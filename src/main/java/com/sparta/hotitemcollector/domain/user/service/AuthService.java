@@ -1,16 +1,15 @@
 package com.sparta.hotitemcollector.domain.user.service;
 
-import com.sparta.hotitemcollector.domain.cart.CartService;
 import com.sparta.hotitemcollector.domain.token.Token;
 import com.sparta.hotitemcollector.domain.token.TokenService;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.domain.user.UserRepository;
 import com.sparta.hotitemcollector.domain.user.UserRole;
 import com.sparta.hotitemcollector.domain.user.UserStatus;
-import com.sparta.hotitemcollector.domain.user.dto.LoginReqeustDto;
-import com.sparta.hotitemcollector.domain.user.dto.LoginResponseDto;
-import com.sparta.hotitemcollector.domain.user.dto.RefreshRequestDto;
-import com.sparta.hotitemcollector.domain.user.dto.SignupRequestDto;
+import com.sparta.hotitemcollector.domain.user.dto.auth.LoginReqeustDto;
+import com.sparta.hotitemcollector.domain.user.dto.auth.LoginResponseDto;
+import com.sparta.hotitemcollector.domain.user.dto.auth.RefreshRequestDto;
+import com.sparta.hotitemcollector.domain.user.dto.auth.SignupRequestDto;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import com.sparta.hotitemcollector.global.jwt.JwtUtil;
