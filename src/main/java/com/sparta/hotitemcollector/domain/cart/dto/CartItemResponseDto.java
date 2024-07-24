@@ -16,11 +16,11 @@ public class CartItemResponseDto {
 	private Long price;
 	private String productInfo;
 	private String productStatus;
-	private Long cartId;
+	private Long userId;
 	private LocalDateTime createdAt;
 
 	@Builder
-	public CartItemResponseDto(Long id, Long productId, String productName, String productImage, Long price, String productInfo, String productStatus, Long cartId, LocalDateTime createdAt) {
+	public CartItemResponseDto(Long id, Long productId, String productName, String productImage, Long price, String productInfo, String productStatus, Long userId, LocalDateTime createdAt) {
 		this.id = id;
 		this.productId = productId;
 		this.productName = productName;
@@ -28,7 +28,7 @@ public class CartItemResponseDto {
 		this.price = price;
 		this.productInfo = productInfo;
 		this.productStatus = productStatus;
-		this.cartId = cartId;
+		this.userId = userId;
 		this.createdAt = createdAt;
 	}
 
@@ -40,7 +40,7 @@ public class CartItemResponseDto {
 		this.price = cartItem.getProduct().getPrice();
 		this.productInfo = cartItem.getProduct().getInfo();
 		this.productStatus = cartItem.getProduct().getStatus().getStatus();
-		this.cartId = cartItem.getCart().getId();
+		this.userId = cartItem.getUser().getId();
 		this.createdAt = cartItem.getCreatedAt();
 	}
 }

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
-	Optional<CartItem> findCartItemByProductIdAndCartId(Long productId, Long cartId);
-	Page<CartItem> findAllByCartId(Long cartId, Pageable pageable);
+	Optional<CartItem> findCartItemByProductIdAndUserId(Long productId, Long userId);
+
+	Page<CartItem> findAllByUserId(Long userId, Pageable pageable);
 }
