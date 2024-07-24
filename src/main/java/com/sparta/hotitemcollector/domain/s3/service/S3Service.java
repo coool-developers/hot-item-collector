@@ -2,18 +2,15 @@ package com.sparta.hotitemcollector.domain.s3.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.sparta.hotitemcollector.domain.product.dto.ProductImageDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductImageRequestDto;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.AbstractMap;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +21,8 @@ public class S3Service {
     private String bucket;
 
     // 파일 저장
-    public List<ProductImageDto> uploadFiles(List<MultipartFile> files) throws IOException {
-        List<ProductImageDto> productImageDtos = new ArrayList<>();
+    public List<ProductImageRequestDto> uploadFiles(List<MultipartFile> files) throws IOException {
+        List<ProductImageRequestDto> productImageRequestDtos = new ArrayList<>();
 
         for (MultipartFile file : files) {
             String filename = file.getOriginalFilename();
@@ -40,13 +37,12 @@ public class S3Service {
             String imageUrl = amazonS3.getUrl(bucket, filename).toString();
 
             // ProductImageDto 생성
-            ProductImageDto productImageDto = new ProductImageDto(filename, imageUrl);
-            productImageDtos.add(productImageDto);
+            ProductImageRequestDto productImageRequestDto = new ProductImageRequestDto(filename, imageUrl);
+            productImageRequestDtos.add(productImageRequestDto);
         }
 
-        return productImageDtos;
+        return productImageRequestDtos;
     }
-
 
     // 파일 삭제
     public void deleteImage(String originalFilename)  {

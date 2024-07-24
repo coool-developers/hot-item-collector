@@ -13,6 +13,7 @@ import com.sparta.hotitemcollector.domain.product.dto.ProductResponseDto;
 import com.sparta.hotitemcollector.domain.product.dto.ProductSimpleResponseDto;
 import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
+import com.sparta.hotitemcollector.domain.s3.service.S3Service;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
@@ -34,6 +35,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final FollowService followService;
     private final ProductImageRepository productImageRepository;
+    private final S3Service s3Service;
 
     @Transactional
     public ProductResponseDto createProduct(ProductRequestDto requestDto, User user) {
@@ -69,8 +71,7 @@ public class ProductService {
 
 
     @Transactional
-    public ProductResponseDto updateProduct(Long productId, ProductRequestDto requestDto,
-        User user) {
+    public ProductResponseDto updateProduct(Long productId, ProductRequestDto requestDto, User user) {
         Product product = findById(productId);
 
         if (!product.getUser().getId().equals(user.getId())) {
@@ -87,23 +88,18 @@ public class ProductService {
         List<ProductImage> existingImages = product.getImages();
         List<ProductImageRequestDto> newImageDtos = requestDto.getImages();
 
-        // 삭제할 이미지들
-        List<ProductImage> imagesToRemove = new ArrayList<>(existingImages);
-
-        for (ProductImageRequestDto newImageDto : newImageDtos) {
-            boolean imageExists = existingImages.stream()
-                .anyMatch(image -> image.getImageUrl().equals(newImageDto.getImageUrl()));
-
-            if (!imageExists) {
-                ProductImage newImage = new ProductImage();
-                newImage.updateProductImage(newImageDto);
-                productImageRepository.save(newImage);
-            }
-            imagesToRemove.removeIf(image -> image.getImageUrl().equals(newImageDto.getImageUrl()));
+        // 기존 이미지 모두 삭제
+        for (ProductImage imageToRemove : existingImages) {
+            s3Service.deleteImage(imageToRemove.getFilename());
+            productImageRepository.delete(imageToRemove);  // 여기서 문제가 발생할 수 있음
         }
+        product.getImages().clear(); // 부모 엔티티에서 자식 엔티티를 제거
 
-        if (!imagesToRemove.isEmpty()) {
-            productImageRepository.deleteAll(imagesToRemove);
+        // 새로운 이미지 추가
+        for (ProductImageRequestDto newImageDto : newImageDtos) {
+            ProductImage newImage = new ProductImage(newImageDto.getFilename(), newImageDto.getImageUrl(), product, user);
+            product.addImage(newImage); // 양방향 연관관계 설정
+            productImageRepository.save(newImage);
         }
 
         productRepository.save(product);
@@ -116,6 +112,8 @@ public class ProductService {
         // ProductResponseDto 생성 및 반환
         return new ProductResponseDto(product, updatedImageDtos);
     }
+
+
 
     @Transactional
     public void deleteProduct(Long productId, User user) {

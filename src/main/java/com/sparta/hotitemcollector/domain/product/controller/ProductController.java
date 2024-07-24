@@ -5,6 +5,7 @@ import com.sparta.hotitemcollector.domain.product.dto.ProductImageRequestDto;
 import com.sparta.hotitemcollector.domain.product.dto.ProductRequestDto;
 import com.sparta.hotitemcollector.domain.product.dto.ProductResponseDto;
 import com.sparta.hotitemcollector.domain.product.dto.ProductSimpleResponseDto;
+import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.entity.ProductCategory;
 import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
 import com.sparta.hotitemcollector.domain.product.service.ProductImageService;
@@ -13,8 +14,11 @@ import com.sparta.hotitemcollector.domain.product.service.SearchService;
 import com.sparta.hotitemcollector.domain.s3.service.S3Service;
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
+import com.sparta.hotitemcollector.global.exception.CustomException;
+import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -55,7 +59,6 @@ public class ProductController {
         // S3에 파일 업로드
         List<ProductImageRequestDto> images = s3Service.uploadFiles(files);
 
-        // ProductRequestDto에 이미지 URL 리스트 설정
         requestDto.addImages(images);
         ProductResponseDto responseDto = productService.createProduct(requestDto,
             userDetails.getUser());
@@ -66,9 +69,17 @@ public class ProductController {
     @PutMapping("/{productId}")
     public ResponseEntity<CommonResponse<ProductResponseDto>> updateProduct(
         @PathVariable(name = "productId") Long productId,
-        @Valid @RequestBody ProductRequestDto requestDto,
+        @Valid @RequestPart("requestDto") ProductRequestDto requestDto,
         @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @RequestPart("files") List<MultipartFile> files) throws IOException {
+        @RequestPart(value = "files", required = false) List<MultipartFile> files) throws IOException {
+
+        // 현재 제품 정보를 조회
+        Product product = productService.findById(productId);
+
+        // 사용자 권한 확인
+        if (!product.getUser().getId().equals(userDetails.getUser().getId())) {
+            throw new CustomException(ErrorCode.NOT_SAME_USER);
+        }
 
         // 크기제한, 확장자 확인
         for (MultipartFile file : files) {
@@ -77,13 +88,16 @@ public class ProductController {
         // S3에 파일 업로드
         List<ProductImageRequestDto> images = s3Service.uploadFiles(files);
 
-        // ProductRequestDto에 이미지 URL 리스트 설정
         requestDto.addImages(images);
-        ProductResponseDto responseDto = productService.updateProduct(productId, requestDto,
-            userDetails.getUser());
-        CommonResponse response = new CommonResponse("상품 수정 성공", 200, responseDto);
+
+        // 제품 업데이트
+        ProductResponseDto responseDto = productService.updateProduct(productId, requestDto, userDetails.getUser());
+
+        // 응답 반환
+        CommonResponse<ProductResponseDto> response = new CommonResponse<>("상품 수정 성공", 200, responseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<CommonResponse> deleteProduct(

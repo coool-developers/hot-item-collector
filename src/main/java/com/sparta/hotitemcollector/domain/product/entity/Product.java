@@ -9,6 +9,7 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 
 @Getter
@@ -25,7 +26,7 @@ public class Product extends Timestamped {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "product",fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "product",fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images = new ArrayList<>();
 
     @Column(nullable = false)
@@ -65,6 +66,10 @@ public class Product extends Timestamped {
         this.price = requestDto.getPrice();
         this.info = requestDto.getInfo();
         this.category = requestDto.getCategory();
+    }
+    public void addImage(ProductImage image) {
+        images.add(image);
+        image.setProduct(this);
     }
 
     public void increaseLikes() {

@@ -46,4 +46,11 @@ public class ProductImage extends Timestamped {
     this.filename=imageDto.getFilename();
     this.imageUrl=imageDto.getImageUrl();
     }
+
+    public void setProduct(Product product) {
+        this.product = product;
+        if (!product.getImages().contains(this)) {
+            product.getImages().add(this);  // 부모 엔티티의 리스트에 자식 엔티티 추가
+        }
+    }
 }
