@@ -28,7 +28,7 @@ public class S3Service {
         List<ProductImageDto> productImageDtos = new ArrayList<>();
 
         for (MultipartFile file : files) {
-            String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String filename = file.getOriginalFilename();
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
             metadata.setContentType(file.getContentType());
