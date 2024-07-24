@@ -23,9 +23,9 @@
         methods: {
             requestPay: function () {
                 console.log("api 진입 전");
-                axios.get('http://localhost:8080/prepare/payment?orderId=2', {
+                axios.get('http://localhost:8080/prepare/payment?orderId=1', {
                     headers: {
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0VXNlcjIiLCJhdXRoIjoiVVNFUiIsImlhdCI6MTcyMTc4ODAxMSwiZXhwIjoxNzIxNzg4NjExfQ.B3mF1SkNVnIfmYnOVk_DZ1Bs4vwJtQBeK_QqdtogWD4'
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0VXNlcjIiLCJhdXRoIjoiVVNFUiIsImlhdCI6MTcyMTgwNTMxNywiZXhwIjoxNzIxODA1OTE3fQ.I00-Km9fOR3H2PGQQAKOKrtw1oUNFuMmwyx3jchXCk4'
                     }
                 })
                     .then(response => {
@@ -55,7 +55,6 @@
                     })
                     .catch(error => {
                         console.log('결제 요청 데이터 불러오기 실패:', error);
-                        console.error(error.response ? error.response.data : error.message);
 
                     });
             }

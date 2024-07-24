@@ -75,7 +75,7 @@ Content-Type: application/json
 %}
 
 ### 로그인 유저 2 - 물건 조회
-GET http://localhost:8080/products/2
+GET http://localhost:8080/products/1
 Content-Type: application/json
 Authorization: {{access_token}}
 
@@ -97,6 +97,6 @@ Authorization: {{access_token}}
 }
 
 ### 로그인 유저 2 - 결제 테이블 생성
-GET http://localhost:8080/prepare/payment?orderId=2
+GET http://localhost:8080/prepare/payment?orderId=1
 Content-Type: application/json
 Authorization: {{access_token}}

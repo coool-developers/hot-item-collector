@@ -19,9 +19,8 @@ public class PaymentController {
 
     @PostMapping("/api/payments/verify")
     public ResponseEntity<CommonResponse<String>> verifyPayment(@RequestBody PaymentVerificationDto verificationDto) {
-//        paymentService.verifyPayment(verificationDto);
-//        return ResponseEntity.ok(new CommonResponse<>("결제 검증 완료", 200, "결제 검증 성공"));
-        return null;
+        paymentService.verifyPayment(verificationDto);
+        return ResponseEntity.ok(new CommonResponse<>("결제 검증 완료", 200, "결제 검증 성공"));
     }
 
     // ToDo : 추후에 order로 리팩토링 진행
@@ -29,7 +28,7 @@ public class PaymentController {
     public ResponseEntity<CommonResponse> prepareOrder(@RequestBody OrderPrepareRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long orderId = paymentService.prepareOrder(userDetails.getUser(), requestDto);
 
-        CommonResponse response = new CommonResponse<>("임시 결제 테이블 생성 완료", 200, orderId);
+        CommonResponse response = new CommonResponse<>("주문에 필요한 정보 입력 완료", 200, orderId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
