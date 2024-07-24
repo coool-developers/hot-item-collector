@@ -1,5 +1,6 @@
-package com.sparta.hotitemcollector.domain.product;
+package com.sparta.hotitemcollector.domain.product.dto;
 
+import com.sparta.hotitemcollector.domain.product.entity.Product;
 import lombok.Getter;
 
 @Getter

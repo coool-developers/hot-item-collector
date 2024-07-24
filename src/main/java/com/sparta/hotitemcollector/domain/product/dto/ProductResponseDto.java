@@ -1,5 +1,7 @@
-package com.sparta.hotitemcollector.domain.product;
+package com.sparta.hotitemcollector.domain.product.dto;
 
+import com.sparta.hotitemcollector.domain.product.entity.Product;
+import com.sparta.hotitemcollector.domain.product.entity.ProductCategory;
 import java.time.LocalDateTime;
 import lombok.Getter;
 

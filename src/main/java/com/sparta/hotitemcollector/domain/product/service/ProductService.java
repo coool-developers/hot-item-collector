@@ -1,7 +1,14 @@
-package com.sparta.hotitemcollector.domain.product;
+package com.sparta.hotitemcollector.domain.product.service;
 
 import com.sparta.hotitemcollector.domain.follow.Follow;
 import com.sparta.hotitemcollector.domain.follow.FollowService;
+import com.sparta.hotitemcollector.domain.product.repository.ProductRepository;
+import com.sparta.hotitemcollector.domain.product.dto.HotProductResponseDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductRequestDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductResponseDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductSimpleResponseDto;
+import com.sparta.hotitemcollector.domain.product.entity.Product;
+import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;

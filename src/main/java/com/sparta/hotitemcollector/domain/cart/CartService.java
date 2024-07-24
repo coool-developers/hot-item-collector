@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.hotitemcollector.domain.cart.dto.CartItemResponseDto;
-import com.sparta.hotitemcollector.domain.product.Product;
-import com.sparta.hotitemcollector.domain.product.ProductService;
+import com.sparta.hotitemcollector.domain.product.entity.Product;
+import com.sparta.hotitemcollector.domain.product.service.ProductService;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.domain.user.UserService;
 import com.sparta.hotitemcollector.global.exception.CustomException;

@@ -1,7 +1,7 @@
 package com.sparta.hotitemcollector.domain.orderitem;
 
 import com.sparta.hotitemcollector.domain.order.Orders;
-import com.sparta.hotitemcollector.domain.product.Product;
+import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.*;
 import lombok.Builder;

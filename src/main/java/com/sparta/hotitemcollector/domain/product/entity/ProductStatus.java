@@ -1,4 +1,4 @@
-package com.sparta.hotitemcollector.domain.product;
+package com.sparta.hotitemcollector.domain.product.entity;
 
 public enum ProductStatus {
     ON_SALE("판매중"),

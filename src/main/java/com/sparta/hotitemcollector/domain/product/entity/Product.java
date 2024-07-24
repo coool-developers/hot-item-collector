@@ -1,5 +1,6 @@
-package com.sparta.hotitemcollector.domain.product;
+package com.sparta.hotitemcollector.domain.product.entity;
 
+import com.sparta.hotitemcollector.domain.product.dto.ProductRequestDto;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.*;

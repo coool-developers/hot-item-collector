@@ -2,7 +2,7 @@ package com.sparta.hotitemcollector.domain.cart.dto;
 
 import java.time.LocalDateTime;
 
-import com.sparta.hotitemcollector.domain.product.ProductStatus;
+import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
 
 import lombok.Builder;
 import lombok.Getter;

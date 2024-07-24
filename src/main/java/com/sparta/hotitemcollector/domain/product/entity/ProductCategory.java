@@ -1,4 +1,4 @@
-package com.sparta.hotitemcollector.domain.product;
+package com.sparta.hotitemcollector.domain.product.entity;
 
 public enum ProductCategory {
     FOOD("식품"),

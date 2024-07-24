@@ -1,5 +1,8 @@
-package com.sparta.hotitemcollector.domain.product;
+package com.sparta.hotitemcollector.domain.product.repository;
 
+import com.sparta.hotitemcollector.domain.product.entity.Product;
+import com.sparta.hotitemcollector.domain.product.entity.ProductCategory;
+import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
 import com.sparta.hotitemcollector.domain.user.User;
 import java.util.List;
 import org.springframework.data.domain.Page;

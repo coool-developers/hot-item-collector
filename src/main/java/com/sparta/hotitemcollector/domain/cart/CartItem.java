@@ -1,6 +1,6 @@
 package com.sparta.hotitemcollector.domain.cart;
 
-import com.sparta.hotitemcollector.domain.product.Product;
+import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.Timestamped;
 

@@ -1,10 +1,17 @@
-package com.sparta.hotitemcollector.domain.product;
+package com.sparta.hotitemcollector.domain.product.controller;
 
+import com.sparta.hotitemcollector.domain.product.dto.HotProductResponseDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductRequestDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductResponseDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductSimpleResponseDto;
+import com.sparta.hotitemcollector.domain.product.entity.ProductCategory;
+import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
+import com.sparta.hotitemcollector.domain.product.service.ProductService;
+import com.sparta.hotitemcollector.domain.product.service.SearchService;
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
 import jakarta.validation.Valid;
 import java.util.List;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

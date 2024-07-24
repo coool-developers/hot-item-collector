@@ -1,8 +1,8 @@
 package com.sparta.hotitemcollector.domain.like;
 
-import com.sparta.hotitemcollector.domain.product.Product;
-import com.sparta.hotitemcollector.domain.product.ProductService;
-import com.sparta.hotitemcollector.domain.product.ProductSimpleResponseDto;
+import com.sparta.hotitemcollector.domain.product.entity.Product;
+import com.sparta.hotitemcollector.domain.product.service.ProductService;
+import com.sparta.hotitemcollector.domain.product.dto.ProductSimpleResponseDto;
 import com.sparta.hotitemcollector.domain.user.User;
 import java.util.List;
 import java.util.Optional;
