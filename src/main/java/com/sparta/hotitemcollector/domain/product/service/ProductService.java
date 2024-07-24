@@ -2,6 +2,8 @@ package com.sparta.hotitemcollector.domain.product.service;
 
 import com.sparta.hotitemcollector.domain.follow.Follow;
 import com.sparta.hotitemcollector.domain.follow.FollowService;
+import com.sparta.hotitemcollector.domain.product.entity.ProductImage;
+import com.sparta.hotitemcollector.domain.product.repository.ProductImageRepository;
 import com.sparta.hotitemcollector.domain.product.repository.ProductRepository;
 import com.sparta.hotitemcollector.domain.product.dto.HotProductResponseDto;
 import com.sparta.hotitemcollector.domain.product.dto.ProductRequestDto;
@@ -28,6 +30,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final FollowService followService;
+    private final ProductImageRepository productImageRepository;
 
     @Transactional
     public ProductResponseDto createProduct(ProductRequestDto requestDto, User user) {
@@ -38,6 +41,17 @@ public class ProductService {
             .build();
 
         productRepository.save(product);
+
+        // ProductImageDto를 ProductImage 엔티티로 변환하여 저장
+        List<ProductImage> productImages = requestDto.getImages().stream()
+            .map(dto -> new ProductImage(dto.getFilename(), dto.getImageUrl(), product, user))
+            .collect(Collectors.toList());
+
+        // 각 이미지 엔티티를 저장
+        for (ProductImage productImage : productImages) {
+            productImageRepository.save(productImage);
+        }
+
         ProductResponseDto responseDto = new ProductResponseDto(product);
         return responseDto;
     }

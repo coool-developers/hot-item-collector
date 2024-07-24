@@ -4,6 +4,7 @@ import com.sparta.hotitemcollector.domain.product.dto.ProductRequestDto;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.*;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +24,8 @@ public class Product extends Timestamped {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private String image;
+    @OneToMany(mappedBy = "product",cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private List<ProductImage> images;
 
     @Column(nullable = false)
     private Long price;
@@ -50,7 +51,6 @@ public class Product extends Timestamped {
     @Builder
     public Product(ProductRequestDto requestDto, User user) {
         this.name = requestDto.getName();
-        this.image = requestDto.getImage();
         this.price = requestDto.getPrice();
         this.info = requestDto.getInfo();
         this.category = requestDto.getCategory();
@@ -61,7 +61,6 @@ public class Product extends Timestamped {
 
     public void updateProduct(ProductRequestDto requestDto) {
         this.name = requestDto.getName();
-        this.image = requestDto.getImage();
         this.price = requestDto.getPrice();
         this.info = requestDto.getInfo();
         this.category = requestDto.getCategory();

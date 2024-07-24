@@ -2,7 +2,9 @@ package com.sparta.hotitemcollector.domain.product.dto;
 
 import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.entity.ProductCategory;
+import com.sparta.hotitemcollector.domain.product.entity.ProductImage;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.Getter;
 
 @Getter
@@ -11,7 +13,7 @@ public class ProductResponseDto {
     private Long id;
     private String name;
     private ProductCategory category;
-    private String image;
+    //private List<ProductImageDto> images;
     private Long price;
     private String info;
     private Long likes;
@@ -23,7 +25,7 @@ public class ProductResponseDto {
         this.id = product.getId();
         this.name = product.getName();
         this.category = product.getCategory();
-        this.image = product.getImage();
+        //this.images = product.getImage();
         this.price = product.getPrice();
         this.info = product.getInfo();
         this.likes = product.getLikes();

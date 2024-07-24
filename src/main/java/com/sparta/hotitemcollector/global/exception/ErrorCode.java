@@ -45,7 +45,15 @@ public enum ErrorCode {
 	SAME_USER_PRODUCT(HttpStatus.BAD_REQUEST, "SAME USER PRODUCT"),
 	// Follow
 	ALREADY_EXIST_FOLLOW(HttpStatus.CONFLICT, "ALREADY_EXIST FOLLOW"),
-	NOT_FOUND_FOLLOW(HttpStatus.NOT_FOUND, "NOT FOUND FOLLOW");
+	NOT_FOUND_FOLLOW(HttpStatus.NOT_FOUND, "NOT FOUND FOLLOW"),
+
+    // S3
+    EXCEED_MAX_COUNT(HttpStatus.BAD_REQUEST,"파일 업로드는 최대 5개까지 허용됩니다."),
+    NOT_ALLOW_IMAGE_SIZE(HttpStatus.BAD_REQUEST,"이미지 파일은 최대 10MB까지 업로드 가능합니다"),
+    NOT_ALLOW_VIDEO_SIZE(HttpStatus.BAD_REQUEST,"비디오 및 GIF 파일은 최대 200MB까지 업로드 가능합니다."),
+    NOT_ALLOW_FORMAT(HttpStatus.BAD_REQUEST,"허용되지 않는 파일 형식입니다."),
+    INCORRECT_FILE_NAME(HttpStatus.BAD_REQUEST,"파일 이름이 유효하지 않습니다."),
+    INCORRECT_EXTENSION(HttpStatus.BAD_REQUEST,"파일 학장자를 찾을 수 없습니다.");
 
 	private final HttpStatus status;
 	private final String message;
