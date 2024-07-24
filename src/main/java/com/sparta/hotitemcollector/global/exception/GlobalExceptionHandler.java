@@ -1,8 +1,11 @@
 package com.sparta.hotitemcollector.global.exception;
 
 import com.sparta.hotitemcollector.global.common.CommonErrorResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
@@ -20,5 +23,16 @@ public class GlobalExceptionHandler {
                         .timestamp(LocalDateTime.now())
                         .build()
         );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity handleValidationExceptions(MethodArgumentNotValidException ex) {
+        return ResponseEntity.status(ex.getStatusCode())
+                .body(CommonErrorResponse.builder()
+                        .message(ex.getBindingResult().getFieldError().getDefaultMessage())
+                        .error(HttpStatus.valueOf(ex.getStatusCode().value()).getReasonPhrase())
+                        .statusCode(ex.getStatusCode().value())
+                        .timestamp(LocalDateTime.now())
+                        .build());
     }
 }
