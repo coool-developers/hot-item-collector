@@ -32,7 +32,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final TokenService tokenService;
-    private final CartService cartService;
 
 
     public void signup(SignupRequestDto signupRequestDto) {
@@ -53,7 +52,6 @@ public class AuthService {
                 .build();
 
         User saveUser = userRepository.save(user);
-        cartService.createCart(saveUser);
     }
 
 
