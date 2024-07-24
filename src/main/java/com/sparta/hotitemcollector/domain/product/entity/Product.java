@@ -24,7 +24,7 @@ public class Product extends Timestamped {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "product",cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "product",fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<ProductImage> images;
 
     @Column(nullable = false)

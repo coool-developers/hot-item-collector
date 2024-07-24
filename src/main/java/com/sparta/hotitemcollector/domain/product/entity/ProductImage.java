@@ -1,5 +1,6 @@
 package com.sparta.hotitemcollector.domain.product.entity;
 
+import com.sparta.hotitemcollector.domain.product.dto.ProductImageDto;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.Column;
@@ -38,5 +39,10 @@ public class ProductImage extends Timestamped {
         this.imageUrl=imageUrl;
         this.product=product;
         this.user=user;
+    }
+
+    public void updateProductImage(ProductImageDto imageDto) {
+    this.filename=imageDto.getFilename();
+    this.imageUrl=imageDto.getImageUrl();
     }
 }

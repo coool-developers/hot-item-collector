@@ -10,14 +10,14 @@ public class ProductSimpleResponseDto {
 
     private Long id;
     private String name;
-    private List<ProductImageDto> images;
+    private ProductImageDto image;
     private Long userId;
     private String userName;
 
     public ProductSimpleResponseDto(Product product) {
         this.id = product.getId();
         this.name = product.getName();
-        this.images = product.getImages();
+        this.image = product.getImages().isEmpty() ? null : new ProductImageDto(product.getImages().get(0));
         this.userId = product.getUser().getId();
         this.userName = product.getUser().getNickname();
     }

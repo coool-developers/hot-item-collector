@@ -2,6 +2,7 @@ package com.sparta.hotitemcollector.domain.product.service;
 
 import com.sparta.hotitemcollector.domain.follow.Follow;
 import com.sparta.hotitemcollector.domain.follow.FollowService;
+import com.sparta.hotitemcollector.domain.product.dto.ProductImageDto;
 import com.sparta.hotitemcollector.domain.product.entity.ProductImage;
 import com.sparta.hotitemcollector.domain.product.repository.ProductImageRepository;
 import com.sparta.hotitemcollector.domain.product.repository.ProductRepository;
@@ -14,6 +15,7 @@ import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -71,9 +73,39 @@ public class ProductService {
         }
 
         product.updateProduct(requestDto);
+
+        // 5. 기존 이미지를 삭제하고 새로운 이미지를 추가합니다.
+        List<ProductImage> existingImages = product.getImages();
+        List<ProductImageDto> newImageDtos = requestDto.getImages();
+
+        // 삭제할 이미지들
+        List<ProductImage> imagesToRemove = new ArrayList<>(existingImages);
+
+        for (ProductImageDto newImageDto : newImageDtos) {
+            boolean imageExists = existingImages.stream()
+                .anyMatch(image -> image.getImageUrl().equals(newImageDto.getImageUrl()));
+
+            if (!imageExists) {
+                ProductImage newImage = new ProductImage();
+                newImage.updateProductImage(newImageDto);
+                productImageRepository.save(newImage);
+            }
+            imagesToRemove.removeIf(image -> image.getImageUrl().equals(newImageDto.getImageUrl()));
+        }
+
+        // 삭제된 이미지들을 DB에서 제거합니다.
+        if (!imagesToRemove.isEmpty()) {
+            productImageRepository.deleteAll(imagesToRemove);
+        }
+
+        // 6. 업데이트된 제품 정보를 저장합니다.
         productRepository.save(product);
-        ProductResponseDto responseDto = new ProductResponseDto(product, requestDto.getImages());
-        return responseDto;
+
+        // 7. ProductResponseDto를 생성하여 반환합니다.
+        return new ProductResponseDto(product,
+            newImageDtos.stream()
+                .map(dto -> new ProductImageDto(dto.getFilename(), dto.getImageUrl()))
+                .collect(Collectors.toList()));
     }
 
     @Transactional
@@ -89,8 +121,16 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductResponseDto getProduct(Long productId) {
-        Product product = findById(productId);
-        ProductResponseDto responseDto = new ProductResponseDto(product, product.getImages());
+        // Product와 관련된 이미지 정보를 가져옴
+        Product product = productRepository.findByIdWithImages(productId);
+
+        // Product와 연관된 이미지 정보를 DTO로 변환
+        List<ProductImageDto> imageDtos = product.getImages().stream()
+            .map(image -> new ProductImageDto(image.getFilename(), image.getImageUrl()))
+            .collect(Collectors.toList());
+
+        // ProductResponseDto 생성
+        ProductResponseDto responseDto = new ProductResponseDto(product, imageDtos);
         return responseDto;
     }
 
