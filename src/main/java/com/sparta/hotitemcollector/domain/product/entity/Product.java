@@ -82,6 +82,6 @@ public class Product extends Timestamped {
     }
 
     public void updateStatus() {
-        this.status=ProductStatus.SOLD_OUT;
+        this.status = ProductStatus.SOLD_OUT;
     }
 }

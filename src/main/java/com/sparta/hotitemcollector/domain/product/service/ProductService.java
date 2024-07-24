@@ -204,7 +204,8 @@ public class ProductService {
         product.decreaseLikes();
         productRepository.save(product);
     }
-    public void updateStatus(Long productId){
+
+    public void updateStatus(Long productId) {
         Product product = findById(productId);
         product.updateStatus();
         productRepository.save(product);
