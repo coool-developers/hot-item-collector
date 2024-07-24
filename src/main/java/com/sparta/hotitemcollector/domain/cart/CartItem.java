@@ -1,6 +1,7 @@
 package com.sparta.hotitemcollector.domain.cart;
 
 import com.sparta.hotitemcollector.domain.product.Product;
+import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.Timestamped;
 
 import jakarta.persistence.Column;
@@ -30,13 +31,13 @@ public class CartItem extends Timestamped {
 	private Product product;
 
 	@ManyToOne
-	@JoinColumn(name = "cart_id", nullable = false)
-	private Cart cart;
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
 	@Builder
-	public CartItem(Long id, Product product, Cart cart) {
+	public CartItem(Long id, Product product, User user) {
 		this.id = id;
 		this.product = product;
-		this.cart = cart;
+		this.user = user;
 	}
 }
