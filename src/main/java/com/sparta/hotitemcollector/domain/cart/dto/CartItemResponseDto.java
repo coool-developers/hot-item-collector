@@ -2,7 +2,7 @@ package com.sparta.hotitemcollector.domain.cart.dto;
 
 import java.time.LocalDateTime;
 
-import com.sparta.hotitemcollector.domain.product.ProductStatus;
+import com.sparta.hotitemcollector.domain.cart.CartItem;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -15,12 +15,12 @@ public class CartItemResponseDto {
 	private String productImage;
 	private Long price;
 	private String productInfo;
-	private ProductStatus productStatus;
+	private String productStatus;
 	private Long cartId;
 	private LocalDateTime createdAt;
 
 	@Builder
-	public CartItemResponseDto(Long id, Long productId, String productName, String productImage, Long price, String productInfo, ProductStatus productStatus, Long cartId, LocalDateTime createdAt) {
+	public CartItemResponseDto(Long id, Long productId, String productName, String productImage, Long price, String productInfo, String productStatus, Long cartId, LocalDateTime createdAt) {
 		this.id = id;
 		this.productId = productId;
 		this.productName = productName;
@@ -30,5 +30,17 @@ public class CartItemResponseDto {
 		this.productStatus = productStatus;
 		this.cartId = cartId;
 		this.createdAt = createdAt;
+	}
+
+	public CartItemResponseDto(CartItem cartItem) {
+		this.id = cartItem.getId();
+		this.productId = cartItem.getProduct().getId();
+		this.productName = cartItem.getProduct().getName();
+		this.productImage = cartItem.getProduct().getImage();
+		this.price = cartItem.getProduct().getPrice();
+		this.productInfo = cartItem.getProduct().getInfo();
+		this.productStatus = cartItem.getProduct().getStatus().getStatus();
+		this.cartId = cartItem.getCart().getId();
+		this.createdAt = cartItem.getCreatedAt();
 	}
 }

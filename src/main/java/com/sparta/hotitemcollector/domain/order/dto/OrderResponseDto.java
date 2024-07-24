@@ -3,6 +3,8 @@ package com.sparta.hotitemcollector.domain.order.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.sparta.hotitemcollector.domain.order.Orders;
+
 import lombok.Builder;
 import lombok.Getter;
 
@@ -26,6 +28,17 @@ public class OrderResponseDto {
 		this.createdAt = createdAt;
 
 		this.orderItemResponseDtoList = orderItemResponseDtoList;
+	}
+
+	@Builder
+	public OrderResponseDto(Orders order) {
+		this.id = order.getId();
+		this.userName = order.getUserName();
+		this.address = order.getAddress();
+		this.phoneNumber = order.getPhoneNumber();
+		this.createdAt = order.getCreatedAt();
+
+		this.orderItemResponseDtoList = order.getOrderItems().stream().map(OrderItemResponseDto::new).toList();
 	}
 
 }

@@ -3,6 +3,13 @@ package com.sparta.hotitemcollector.domain.order;
 import static com.sparta.hotitemcollector.domain.order.OrderStatus.SHIPMENT_START;
 import static com.sparta.hotitemcollector.domain.product.ProductStatus.SOLD_OUT;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,7 +67,8 @@ public class OrderService {
 			orderItemRepository.save(orderItem);
 			order.addOrderItem(orderItem);
 			cartService.deleteCartItem(user, id);
-			// TODO: productService. productStatus SOLD_OUT으로 수정해야함
+			// product.updateProductStatus(SOLD_OUT);
+			// TODO: productService. productStatus 수정해야함
 
 		});
 
@@ -74,6 +82,21 @@ public class OrderService {
 			.build();
 
 		return orderItemResponseDto;
+	}
+
+	@Transactional(readOnly = true)
+	public List<OrderResponseDto> getOrdersByBuyer(int page, User user) {
+
+		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+		Pageable pageable = PageRequest.of(page - 1, 5, sort);
+
+		Page<Orders> orderList = orderRepository.findAllByUserId(user.getId(), pageable);
+
+		return orderList.getContent()
+			.stream()
+			.map(OrderResponseDto::new)
+			.collect(Collectors.toList());
+
 	}
 
 	@Transactional
@@ -99,4 +122,5 @@ public class OrderService {
 			() -> new CustomException(ErrorCode.NOT_FOUND_ORDERITEM)
 		);
 	}
+
 }
