@@ -10,8 +10,11 @@ import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,93 +25,61 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CartService {
 
-    private final CartItemRepository cartItemRepository;
-    private final ProductService productService;
-    private final UserService userService;
+	private final CartItemRepository cartItemRepository;
+	private final ProductService productService;
+	private final UserService userService;
 
-    @Transactional
-    public CartItemResponseDto createCartItem(User user, Long productId) {
-        Product product = productService.findById(productId);
+	@Transactional
+	public CartItemResponseDto createCartItem(User user, Long productId) {
+		Product product = productService.findById(productId);
 
-        CartItem cartItem = CartItem.builder()
-            .product(product)
-            .user(user)
-            .build();
+		if (user.getId().equals(product.getUser().getId())) {
+			throw new CustomException(ErrorCode.SAME_USER_PRODUCT);
+		}
 
-        if (user.getId().equals(product.getUser().getId())) {
-            throw new CustomException(ErrorCode.SAME_USER_PRODUCT);
-        }
+		if (isCartItemExistAtUser(productId, user.getId())) {
+			throw new CustomException(ErrorCode.ALREADY_EXIST_CARTITEM);
+		}
 
-        if (isCartItemExistAtUser(productId, user.getId())) {
-            throw new CustomException(ErrorCode.ALREADY_EXIST_CARTITEM);
-        }
+		CartItem cartItem = CartItem.builder()
+			.product(product)
+			.user(user)
+			.build();
 
-        cartItemRepository.save(cartItem);
+		cartItemRepository.save(cartItem);
 
-        // 대표 사진 하나만 dto로 담아서 전달
-        ProductImageResponseDto representativeImage = product.getImages().isEmpty()
-            ? null
-            : new ProductImageResponseDto(product.getImages().get(0));
+		return new CartItemResponseDto(cartItem);
+	}
 
-        return CartItemResponseDto.builder()
-            .id(cartItem.getId())
-            .productId(cartItem.getProduct().getId())
-            .productName(cartItem.getProduct().getName())
-            .productImage(representativeImage)
-            .price(cartItem.getProduct().getPrice())
-            .productInfo(cartItem.getProduct().getInfo())
-            .userId(cartItem.getUser().getId())
-            .createdAt(cartItem.getCreatedAt())
-            .build();
-    }
+	@Transactional
+	public void deleteCartItem(User user, Long productId) {
+		Product product = productService.findById(productId);
+		CartItem cartItem = findCartItemByProductIdAndUserId(productId, user.getId());
 
-    @Transactional
-    public void deleteCartItem(User user, Long productId) {
-        Product product = productService.findById(productId);
-        CartItem cartItem = findCartItemByProductIdAndUserId(productId, user.getId());
+		cartItemRepository.delete(cartItem);
+	}
 
-        cartItemRepository.delete(cartItem);
-    }
+	@Transactional(readOnly = true)
+	public List<CartItemResponseDto> getCart(int page, User user) {
+		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+		Pageable pageable = PageRequest.of(page - 1, 10, sort);
 
-    @Transactional(readOnly = true)
-    public Page<CartItemResponseDto> getCart(int page, User user) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        Pageable pageable = PageRequest.of(page - 1, 10, sort);
+		Page<CartItem> cartItemPage = cartItemRepository.findAllByUserId(user.getId(), pageable);
 
-        Page<CartItem> cartItemList = cartItemRepository.findAllByUserId(user.getId(), pageable);
+		return cartItemPage.getContent()
+			.stream()
+			.map(CartItemResponseDto::new)
+			.collect(Collectors.toList());
+	}
 
-        if (cartItemList.isEmpty()) {
-            return new PageImpl<>(Collections.emptyList());
-        }
+	public CartItem findCartItemByProductIdAndUserId(Long productId, Long userId) {
+		return cartItemRepository.findCartItemByProductIdAndUserId(productId, userId).orElseThrow(
+			() -> new CustomException(ErrorCode.NOT_FOUND_CARTITEM)
+		);
+	}
 
-        return cartItemList.map(cartItem -> {
-            ProductImageResponseDto representativeImage =
-                cartItem.getProduct().getImages().isEmpty()
-                    ? null
-                    : new ProductImageResponseDto(cartItem.getProduct().getImages().get(0));
-
-            return CartItemResponseDto.builder()
-                .id(cartItem.getId())
-                .productId(cartItem.getProduct().getId())
-                .productName(cartItem.getProduct().getName())
-                .productImage(representativeImage)
-                .price(cartItem.getProduct().getPrice())
-                .productInfo(cartItem.getProduct().getInfo())
-                .productStatus(cartItem.getProduct().getStatus())
-                .userId(cartItem.getUser().getId())
-                .createdAt(cartItem.getCreatedAt())
-                .build();
-        });
-    }
-
-    public CartItem findCartItemByProductIdAndUserId(Long productId, Long userId) {
-        return cartItemRepository.findCartItemByProductIdAndUserId(productId, userId).orElseThrow(
-            () -> new CustomException(ErrorCode.NOT_FOUND_CARTITEM)
-        );
-    }
-
-    public boolean isCartItemExistAtUser(Long productId, Long userId) {
-        return cartItemRepository.findCartItemByProductIdAndUserId(productId, userId).isPresent();
-    }
+	public boolean isCartItemExistAtUser(Long productId, Long userId) {
+		return cartItemRepository.findCartItemByProductIdAndUserId(productId, userId).isPresent();
+	}
 
 }
