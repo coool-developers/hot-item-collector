@@ -4,6 +4,7 @@ import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.domain.user.UserRepository;
 import com.sparta.hotitemcollector.domain.user.dto.user.ProfileRequestDto;
 import com.sparta.hotitemcollector.domain.user.dto.user.ProfileResponseDto;
+import com.sparta.hotitemcollector.domain.user.dto.user.updatePasswordRequestDto;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,23 @@ public class UserService {
         // 유저 저장
         User saveUser = userRepository.save(findUser);
         return new ProfileResponseDto(saveUser);
+    }
+
+    public void updatePassword(updatePasswordRequestDto requestDto, User user) {
+        // 유저를 찾고, 없으면 예외를 발생시킵니다.
+        User findUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+
+        // 기존 비밀번호가 맞는지 확인합니다.
+        if (!passwordEncoder.matches(requestDto.getOldPassword(), findUser.getPassword())) {
+            throw new CustomException(ErrorCode.INCORRECT_PASSWORD);
+        }
+
+        // 새로운 비밀번호 설정
+        findUser.setPassword(passwordEncoder.encode(requestDto.getNewPassword()));
+
+        // 변경된 비밀번호를 저장합니다.
+        userRepository.save(findUser);
     }
 
 

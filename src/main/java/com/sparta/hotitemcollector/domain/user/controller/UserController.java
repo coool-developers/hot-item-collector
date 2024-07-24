@@ -3,6 +3,7 @@ package com.sparta.hotitemcollector.domain.user.controller;
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
 import com.sparta.hotitemcollector.domain.user.dto.user.ProfileRequestDto;
 import com.sparta.hotitemcollector.domain.user.dto.user.ProfileResponseDto;
+import com.sparta.hotitemcollector.domain.user.dto.user.updatePasswordRequestDto;
 import com.sparta.hotitemcollector.domain.user.service.UserService;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +29,11 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
+    @PatchMapping("/password")
+    public ResponseEntity<CommonResponse> updatePassword(@RequestBody updatePasswordRequestDto requestDto,
+                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        userService.updatePassword(requestDto,userDetails.getUser());
+        CommonResponse response = new CommonResponse<>("비밀번호 수정 성공",200,"");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
