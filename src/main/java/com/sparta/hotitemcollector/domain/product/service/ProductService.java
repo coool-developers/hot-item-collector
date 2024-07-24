@@ -92,7 +92,7 @@ public class ProductService {
         // 기존 이미지 모두 삭제
         for (ProductImage imageToRemove : existingImages) {
             s3Service.deleteImage(imageToRemove.getFilename());
-            productImageRepository.delete(imageToRemove);  // 여기서 문제가 발생할 수 있음
+            productImageRepository.delete(imageToRemove);
         }
         product.getImages().clear(); // 부모 엔티티에서 자식 엔티티를 제거
 
@@ -209,5 +209,8 @@ public class ProductService {
         Product product = findById(productId);
         product.updateStatus();
         productRepository.save(product);
+    }
+    public List<Product> findByUserAndStatus(User user,ProductStatus status){
+        return productRepository.findByUserAndStatus(user,status);
     }
 }
