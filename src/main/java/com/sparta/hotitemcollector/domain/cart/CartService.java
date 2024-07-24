@@ -1,5 +1,6 @@
 package com.sparta.hotitemcollector.domain.cart;
 
+import com.sparta.hotitemcollector.domain.product.dto.ProductImageDto;
 import java.util.Collections;
 
 import org.springframework.data.domain.Page;
@@ -47,11 +48,16 @@ public class CartService {
 
 		cartItemRepository.save(cartItem);
 
+		// 대표 사진 하나만 dto로 담아서 전달
+		ProductImageDto representativeImage = product.getImages().isEmpty()
+			? null
+			: new ProductImageDto(product.getImages().get(0));
+
 		return CartItemResponseDto.builder()
 			.id(cartItem.getId())
 			.productId(cartItem.getProduct().getId())
 			.productName(cartItem.getProduct().getName())
-			.productImage(cartItem.getProduct().getImage())
+			.productImage(representativeImage)
 			.price(cartItem.getProduct().getPrice())
 			.productInfo(cartItem.getProduct().getInfo())
 			.userId(cartItem.getUser().getId())
@@ -78,17 +84,23 @@ public class CartService {
 			return new PageImpl<>(Collections.emptyList());
 		}
 
-		return cartItemList.map(cartItem -> CartItemResponseDto.builder()
-			.id(cartItem.getId())
-			.productId(cartItem.getProduct().getId())
-			.productName(cartItem.getProduct().getName())
-			.productImage(cartItem.getProduct().getImage())
-			.price(cartItem.getProduct().getPrice())
-			.productInfo(cartItem.getProduct().getInfo())
-			.productStatus(cartItem.getProduct().getStatus())
-			.userId(cartItem.getUser().getId())
-			.createdAt(cartItem.getCreatedAt())
-			.build());
+		return cartItemList.map(cartItem -> {
+			ProductImageDto representativeImage = cartItem.getProduct().getImages().isEmpty()
+				? null
+				: new ProductImageDto(cartItem.getProduct().getImages().get(0));
+
+			return CartItemResponseDto.builder()
+				.id(cartItem.getId())
+				.productId(cartItem.getProduct().getId())
+				.productName(cartItem.getProduct().getName())
+				.productImage(representativeImage)
+				.price(cartItem.getProduct().getPrice())
+				.productInfo(cartItem.getProduct().getInfo())
+				.productStatus(cartItem.getProduct().getStatus())
+				.userId(cartItem.getUser().getId())
+				.createdAt(cartItem.getCreatedAt())
+				.build();
+		});
 	}
 
 	public CartItem findCartItemByProductIdAndUserId(Long productId, Long userId) {
