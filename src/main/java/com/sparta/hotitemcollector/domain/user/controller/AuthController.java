@@ -7,6 +7,7 @@ import com.sparta.hotitemcollector.domain.user.dto.auth.LoginResponseDto;
 import com.sparta.hotitemcollector.domain.user.dto.auth.RefreshRequestDto;
 import com.sparta.hotitemcollector.domain.user.dto.auth.SignupRequestDto;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponse> signup(@RequestBody SignupRequestDto requestDto) {
+    public ResponseEntity<CommonResponse> signup(@Valid @RequestBody SignupRequestDto requestDto) {
         authService.signup(requestDto);
         CommonResponse response = new CommonResponse<>("회원가입 성공",201,"");
         return new ResponseEntity<>(response, HttpStatus.CREATED);

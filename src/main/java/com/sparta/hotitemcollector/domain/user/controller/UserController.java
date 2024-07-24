@@ -8,6 +8,7 @@ import com.sparta.hotitemcollector.domain.user.dto.user.GetUserProfileDto;
 import com.sparta.hotitemcollector.domain.user.dto.user.updatePasswordRequestDto;
 import com.sparta.hotitemcollector.domain.user.service.UserService;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,7 @@ public class UserController {
     }
 
     @PatchMapping("/password")
-    public ResponseEntity<CommonResponse> updatePassword(@RequestBody updatePasswordRequestDto requestDto,
+    public ResponseEntity<CommonResponse> updatePassword(@Valid @RequestBody updatePasswordRequestDto requestDto,
                                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
         userService.updatePassword(requestDto,userDetails.getUser());
         CommonResponse response = new CommonResponse<>("비밀번호 수정 성공",200,"");
