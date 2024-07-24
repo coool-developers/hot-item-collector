@@ -1,6 +1,7 @@
 package com.sparta.hotitemcollector.domain.cart.dto;
 
-import com.sparta.hotitemcollector.domain.product.dto.ProductImageDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductImageRequestDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductImageResponseDto;
 import java.time.LocalDateTime;
 
 import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
@@ -13,7 +14,7 @@ public class CartItemResponseDto {
 	private Long id;
 	private Long productId;
 	private String productName;
-	private ProductImageDto productImage;
+	private ProductImageResponseDto productImage;
 	private Long price;
 	private String productInfo;
 	private ProductStatus productStatus;
@@ -21,7 +22,7 @@ public class CartItemResponseDto {
 	private LocalDateTime createdAt;
 
 	@Builder
-	public CartItemResponseDto(Long id, Long productId, String productName, ProductImageDto productImage, Long price, String productInfo, ProductStatus productStatus, Long userId, LocalDateTime createdAt) {
+	public CartItemResponseDto(Long id, Long productId, String productName, ProductImageResponseDto productImage, Long price, String productInfo, ProductStatus productStatus, Long userId, LocalDateTime createdAt) {
 		this.id = id;
 		this.productId = productId;
 		this.productName = productName;

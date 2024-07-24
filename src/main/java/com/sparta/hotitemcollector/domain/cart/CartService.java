@@ -1,6 +1,7 @@
 package com.sparta.hotitemcollector.domain.cart;
 
-import com.sparta.hotitemcollector.domain.product.dto.ProductImageDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductImageRequestDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductImageResponseDto;
 import java.util.Collections;
 
 import org.springframework.data.domain.Page;
@@ -49,9 +50,9 @@ public class CartService {
 		cartItemRepository.save(cartItem);
 
 		// 대표 사진 하나만 dto로 담아서 전달
-		ProductImageDto representativeImage = product.getImages().isEmpty()
+		ProductImageResponseDto representativeImage = product.getImages().isEmpty()
 			? null
-			: new ProductImageDto(product.getImages().get(0));
+			: new ProductImageResponseDto(product.getImages().get(0));
 
 		return CartItemResponseDto.builder()
 			.id(cartItem.getId())
@@ -85,9 +86,9 @@ public class CartService {
 		}
 
 		return cartItemList.map(cartItem -> {
-			ProductImageDto representativeImage = cartItem.getProduct().getImages().isEmpty()
+			ProductImageResponseDto representativeImage = cartItem.getProduct().getImages().isEmpty()
 				? null
-				: new ProductImageDto(cartItem.getProduct().getImages().get(0));
+				: new ProductImageResponseDto(cartItem.getProduct().getImages().get(0));
 
 			return CartItemResponseDto.builder()
 				.id(cartItem.getId())

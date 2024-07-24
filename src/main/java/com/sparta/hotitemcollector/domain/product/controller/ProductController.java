@@ -1,7 +1,7 @@
 package com.sparta.hotitemcollector.domain.product.controller;
 
 import com.sparta.hotitemcollector.domain.product.dto.HotProductResponseDto;
-import com.sparta.hotitemcollector.domain.product.dto.ProductImageDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductImageRequestDto;
 import com.sparta.hotitemcollector.domain.product.dto.ProductRequestDto;
 import com.sparta.hotitemcollector.domain.product.dto.ProductResponseDto;
 import com.sparta.hotitemcollector.domain.product.dto.ProductSimpleResponseDto;
@@ -13,8 +13,6 @@ import com.sparta.hotitemcollector.domain.product.service.SearchService;
 import com.sparta.hotitemcollector.domain.s3.service.S3Service;
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
-import com.sparta.hotitemcollector.global.exception.CustomException;
-import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
@@ -55,7 +53,7 @@ public class ProductController {
             productImageService.validateFile(file);
         }
         // S3에 파일 업로드
-        List<ProductImageDto> images = s3Service.uploadFiles(files);
+        List<ProductImageRequestDto> images = s3Service.uploadFiles(files);
 
         // ProductRequestDto에 이미지 URL 리스트 설정
         requestDto.addImages(images);
@@ -69,7 +67,18 @@ public class ProductController {
     public ResponseEntity<CommonResponse<ProductResponseDto>> updateProduct(
         @PathVariable(name = "productId") Long productId,
         @Valid @RequestBody ProductRequestDto requestDto,
-        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
+        @RequestPart("files") List<MultipartFile> files) throws IOException {
+
+        // 크기제한, 확장자 확인
+        for (MultipartFile file : files) {
+            productImageService.validateFile(file);
+        }
+        // S3에 파일 업로드
+        List<ProductImageRequestDto> images = s3Service.uploadFiles(files);
+
+        // ProductRequestDto에 이미지 URL 리스트 설정
+        requestDto.addImages(images);
         ProductResponseDto responseDto = productService.updateProduct(productId, requestDto,
             userDetails.getUser());
         CommonResponse response = new CommonResponse("상품 수정 성공", 200, responseDto);
