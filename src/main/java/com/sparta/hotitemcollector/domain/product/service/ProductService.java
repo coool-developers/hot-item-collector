@@ -123,6 +123,12 @@ public class ProductService {
             throw new CustomException(ErrorCode.NOT_SAME_USER);
         }
 
+        // 제품과 연결된 모든 이미지를 S3에서 삭제
+        List<ProductImage> images = product.getImages();
+        for (ProductImage image : images) {
+            s3Service.deleteImage(image.getFilename());
+        }
+
         productRepository.delete(product);
     }
 
