@@ -3,7 +3,6 @@ package com.sparta.hotitemcollector.domain.product;
 import com.sparta.hotitemcollector.domain.follow.Follow;
 import com.sparta.hotitemcollector.domain.follow.FollowService;
 import com.sparta.hotitemcollector.domain.user.User;
-import com.sparta.hotitemcollector.domain.user.UserService;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import java.util.List;
@@ -20,13 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProductService {
 
-    private final UserService userService;
     private final ProductRepository productRepository;
     private final FollowService followService;
 
     @Transactional
     public ProductResponseDto createProduct(ProductRequestDto requestDto, User user) {
-        /*User user1 = userService.findById(user.getId());*/
 
         Product product = Product.builder()
             .requestDto(requestDto)
