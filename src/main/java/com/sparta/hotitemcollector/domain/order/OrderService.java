@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.hotitemcollector.domain.cart.CartService;
+import com.sparta.hotitemcollector.domain.order.dto.OrderItemBySellerResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderRequestDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderStatusRequestDto;
@@ -38,7 +39,6 @@ public class OrderService {
 	@Transactional
 	public OrderResponseDto createOrder(OrderRequestDto orderRequestDto, User user) {
 
-		// 주문 생성
 		Orders order = Orders.builder()
 			.userName(orderRequestDto.getUserName())
 			.address(orderRequestDto.getAddress())
@@ -47,7 +47,6 @@ public class OrderService {
 			.build();
 		orderRepository.save(order);
 
-		// 주문한 아이템들 생성
 		orderRequestDto.getOrderItemsId().forEach(id -> {
 			Product product = productService.findById(id);
 
@@ -66,9 +65,7 @@ public class OrderService {
 			orderItemRepository.save(orderItem);
 			order.addOrderItem(orderItem);
 			cartService.deleteCartItem(user, id);
-			// product.updateProductStatus(SOLD_OUT);
-			// TODO: productService. productStatus 수정해야함
-
+			productService.updateStatus(product.getId());
 		});
 
 		return new OrderResponseDto(order);
@@ -86,9 +83,9 @@ public class OrderService {
 			.stream()
 			.map(OrderResponseDto::new)
 			.collect(Collectors.toList());
-
 	}
 
+	@Transactional(readOnly = true)
 	public OrderResponseDto getOrderByBuyer(Long orderId, User user) {
 		Orders order = findOrderById(orderId);
 
@@ -97,6 +94,27 @@ public class OrderService {
 		}
 
 		return new OrderResponseDto(order);
+	}
+
+	@Transactional(readOnly = true)
+	public List<OrderItemBySellerResponseDto> getOrdersAllBySeller(int page, OrderStatus status, User user) {
+
+		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+		Pageable pageable = PageRequest.of(page - 1, 5, sort);
+		Page<OrderItem> orderItemPage = Page.empty(pageable);
+		List<Product> productList = productService.findByUserAndStatus(user, SOLD_OUT);
+
+		if (status == null) {
+			orderItemPage = orderItemRepository.findAllByProductIn(productList, pageable);
+		}
+		if (status != null) {
+			orderItemPage = orderItemRepository.findAllByStatusAndProductIn(status, productList, pageable);
+		}
+
+		return orderItemPage.getContent()
+			.stream()
+			.map(OrderItemBySellerResponseDto::new)
+			.collect(Collectors.toList());
 	}
 
 	@Transactional

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sparta.hotitemcollector.domain.order.dto.OrderItemBySellerResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderRequestDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderStatusRequestDto;
@@ -53,6 +54,16 @@ public class OrderController {
 		OrderResponseDto responseDto = orderService.getOrderByBuyer(orderId, userDetails.getUser());
 
 		CommonResponse response = new CommonResponse("구매자의 단건 주문을 조회 성공했습니다.", 200, responseDto);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@GetMapping("/sell")
+	public ResponseEntity<CommonResponse> getOrdersBySeller(@RequestParam(defaultValue = "1") int page,
+		@RequestParam(required = false) OrderStatus status,
+		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		List<OrderItemBySellerResponseDto> responseDtoList = orderService.getOrdersAllBySeller(page, status, userDetails.getUser());
+
+		CommonResponse response = new CommonResponse("판매자의 주문 목록을 조회 성공했습니다.", 200, responseDtoList);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
