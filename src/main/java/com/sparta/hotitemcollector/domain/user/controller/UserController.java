@@ -3,6 +3,7 @@ package com.sparta.hotitemcollector.domain.user.controller;
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
 import com.sparta.hotitemcollector.domain.user.dto.user.ProfileRequestDto;
 import com.sparta.hotitemcollector.domain.user.dto.user.ProfileResponseDto;
+import com.sparta.hotitemcollector.domain.user.dto.user.UserProfileDto;
 import com.sparta.hotitemcollector.domain.user.dto.user.updatePasswordRequestDto;
 import com.sparta.hotitemcollector.domain.user.service.UserService;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
@@ -10,10 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,6 +34,15 @@ public class UserController {
                                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
         userService.updatePassword(requestDto,userDetails.getUser());
         CommonResponse response = new CommonResponse<>("비밀번호 수정 성공",200,"");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<CommonResponse> getUserProfile(@PathVariable Long userId,
+                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        UserProfileDto profile = userService.getUserProfile(userId, Optional.ofNullable(userDetails));
+        CommonResponse<UserProfileDto> response = new CommonResponse<>("유저 프로필 조회 성공", 200, profile);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
