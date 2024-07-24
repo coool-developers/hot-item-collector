@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.sparta.hotitemcollector.domain.product.dto.ProductImageRequestDto;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,10 @@ public class S3Service {
         List<ProductImageRequestDto> productImageRequestDtos = new ArrayList<>();
 
         for (MultipartFile file : files) {
-            String filename = file.getOriginalFilename();
+            // 파일명을 UUID로 변경하여 고유하게 설정
+            String originalFilename = file.getOriginalFilename();
+            String filename = UUID.randomUUID().toString() + "_" + originalFilename;
+
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
             metadata.setContentType(file.getContentType());
