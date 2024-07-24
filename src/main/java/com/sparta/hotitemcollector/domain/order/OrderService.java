@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.hotitemcollector.domain.cart.CartService;
-import com.sparta.hotitemcollector.domain.order.dto.OrderItemResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderRequestDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderStatusRequestDto;
@@ -72,20 +71,11 @@ public class OrderService {
 
 		});
 
-		OrderResponseDto orderItemResponseDto = OrderResponseDto.builder()
-			.id(order.getId())
-			.userName(order.getUserName())
-			.address(order.getAddress())
-			.phoneNumber(order.getPhoneNumber())
-			.createdAt(order.getCreatedAt())
-			.orderItemResponseDtoList(order.getOrderItems().stream().map(OrderItemResponseDto::new).toList())
-			.build();
-
-		return orderItemResponseDto;
+		return new OrderResponseDto(order);
 	}
 
 	@Transactional(readOnly = true)
-	public List<OrderResponseDto> getOrdersByBuyer(int page, User user) {
+	public List<OrderResponseDto> getOrdersAllByBuyer(int page, User user) {
 
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 		Pageable pageable = PageRequest.of(page - 1, 5, sort);
@@ -97,6 +87,16 @@ public class OrderService {
 			.map(OrderResponseDto::new)
 			.collect(Collectors.toList());
 
+	}
+
+	public OrderResponseDto getOrderByBuyer(Long orderId, User user) {
+		Orders order = findOrderById(orderId);
+
+		if (!user.getId().equals(order.getUser().getId())) {
+			throw new CustomException(ErrorCode.NOT_SAME_USER);
+		}
+
+		return new OrderResponseDto(order);
 	}
 
 	@Transactional
@@ -111,7 +111,7 @@ public class OrderService {
 
 	}
 
-	public Orders findOrdersById(Long orderId) {
+	public Orders findOrderById(Long orderId) {
 		return orderRepository.findById(orderId).orElseThrow(
 			() -> new CustomException(ErrorCode.NOT_FOUND_ORDER)
 		);

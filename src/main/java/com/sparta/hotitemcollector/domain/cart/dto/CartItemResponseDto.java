@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import com.sparta.hotitemcollector.domain.cart.CartItem;
 
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -18,19 +17,6 @@ public class CartItemResponseDto {
 	private String productStatus;
 	private Long userId;
 	private LocalDateTime createdAt;
-
-	@Builder
-	public CartItemResponseDto(Long id, Long productId, String productName, String productImage, Long price, String productInfo, String productStatus, Long userId, LocalDateTime createdAt) {
-		this.id = id;
-		this.productId = productId;
-		this.productName = productName;
-		this.productImage = productImage;
-		this.price = price;
-		this.productInfo = productInfo;
-		this.productStatus = productStatus;
-		this.userId = userId;
-		this.createdAt = createdAt;
-	}
 
 	public CartItemResponseDto(CartItem cartItem) {
 		this.id = cartItem.getId();

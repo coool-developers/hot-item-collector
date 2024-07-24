@@ -38,14 +38,22 @@ public class OrderController {
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
-	// 구매자 기준 구매한 상품 목록 조회
 	@GetMapping("/buy")
-	public ResponseEntity<CommonResponse> getOrdersByBuyer(@RequestParam(defaultValue = "1") int page,
+	public ResponseEntity<CommonResponse> getOrdersAllByBuyer(@RequestParam(defaultValue = "1") int page,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		List<OrderResponseDto> responseDtoList = orderService.getOrdersByBuyer(page, userDetails.getUser());
+		List<OrderResponseDto> responseDtoList = orderService.getOrdersAllByBuyer(page, userDetails.getUser());
 
 		CommonResponse responses = new CommonResponse("구매자의 주문 목록을 조회 성공했습니다.", 200, responseDtoList);
 		return new ResponseEntity<>(responses, HttpStatus.OK);
+	}
+
+	@GetMapping("/buy/{orderId}")
+	public ResponseEntity<CommonResponse> getOrderByBuyer(@PathVariable("orderId") Long orderId,
+		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		OrderResponseDto responseDto = orderService.getOrderByBuyer(orderId, userDetails.getUser());
+
+		CommonResponse response = new CommonResponse("구매자의 단건 주문을 조회 성공했습니다.", 200, responseDto);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@PatchMapping("/sell/{orderItemId}")

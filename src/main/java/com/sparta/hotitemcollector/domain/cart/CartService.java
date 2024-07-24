@@ -47,16 +47,7 @@ public class CartService {
 
 		cartItemRepository.save(cartItem);
 
-		return CartItemResponseDto.builder()
-			.id(cartItem.getId())
-			.productId(cartItem.getProduct().getId())
-			.productName(cartItem.getProduct().getName())
-			.productImage(cartItem.getProduct().getImage())
-			.price(cartItem.getProduct().getPrice())
-			.productInfo(cartItem.getProduct().getInfo())
-			.userId(cartItem.getUser().getId())
-			.createdAt(cartItem.getCreatedAt())
-			.build();
+		return new CartItemResponseDto(cartItem);
 	}
 
 	@Transactional
