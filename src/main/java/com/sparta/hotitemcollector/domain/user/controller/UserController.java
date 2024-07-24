@@ -1,9 +1,10 @@
 package com.sparta.hotitemcollector.domain.user.controller;
 
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
+import com.sparta.hotitemcollector.domain.user.dto.user.UserAddressDto;
 import com.sparta.hotitemcollector.domain.user.dto.user.ProfileRequestDto;
 import com.sparta.hotitemcollector.domain.user.dto.user.ProfileResponseDto;
-import com.sparta.hotitemcollector.domain.user.dto.user.UserProfileDto;
+import com.sparta.hotitemcollector.domain.user.dto.user.GetUserProfileDto;
 import com.sparta.hotitemcollector.domain.user.dto.user.updatePasswordRequestDto;
 import com.sparta.hotitemcollector.domain.user.service.UserService;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
@@ -40,9 +41,15 @@ public class UserController {
     @GetMapping("/profile/{userId}")
     public ResponseEntity<CommonResponse> getUserProfile(@PathVariable Long userId,
                                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        GetUserProfileDto profile = userService.getUserProfile(userId, Optional.ofNullable(userDetails));
+        CommonResponse response = new CommonResponse<>("유저 프로필 조회 성공", 200, profile);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
-        UserProfileDto profile = userService.getUserProfile(userId, Optional.ofNullable(userDetails));
-        CommonResponse<UserProfileDto> response = new CommonResponse<>("유저 프로필 조회 성공", 200, profile);
+    @GetMapping("/profile/address")
+    public ResponseEntity<CommonResponse> getUserAddress(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        UserAddressDto profile = userService.getUserAddress(userDetails.getUser());
+        CommonResponse response = new CommonResponse<>("유저 주소 조회 성공", 200, profile);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

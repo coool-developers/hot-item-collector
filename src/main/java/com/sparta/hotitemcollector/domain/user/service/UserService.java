@@ -3,10 +3,7 @@ package com.sparta.hotitemcollector.domain.user.service;
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.domain.user.UserRepository;
-import com.sparta.hotitemcollector.domain.user.dto.user.ProfileRequestDto;
-import com.sparta.hotitemcollector.domain.user.dto.user.ProfileResponseDto;
-import com.sparta.hotitemcollector.domain.user.dto.user.UserProfileDto;
-import com.sparta.hotitemcollector.domain.user.dto.user.updatePasswordRequestDto;
+import com.sparta.hotitemcollector.domain.user.dto.user.*;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -63,17 +60,24 @@ public class UserService {
         userRepository.save(findUser);
     }
 
-    public UserProfileDto getUserProfile(Long userId, Optional<UserDetailsImpl> currentUser) {
+    public GetUserProfileDto getUserProfile(Long userId, Optional<UserDetailsImpl> currentUser) {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
         if(!currentUser.isEmpty()){
             boolean isOwnProfile = findUser.getId().equals(currentUser.get().getUser().getId());
 
-            return new UserProfileDto(findUser, isOwnProfile);
+            return new GetUserProfileDto(findUser, isOwnProfile);
         }else{
-            return new UserProfileDto(findUser, false);
+            return new GetUserProfileDto(findUser, false);
         }
 
+    }
+
+
+    public UserAddressDto getUserAddress(User user) {
+        User findUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+        return new UserAddressDto(findUser);
     }
 
 
@@ -86,4 +90,6 @@ public class UserService {
     public List<User> findByNicknameContainingIgnoreCase (String nickname) {
         return userRepository.findByNicknameContainingIgnoreCase(nickname);
     }
+
+
 }
