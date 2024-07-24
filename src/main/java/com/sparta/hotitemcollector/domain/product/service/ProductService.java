@@ -52,7 +52,8 @@ public class ProductService {
             productImageRepository.save(productImage);
         }
 
-        ProductResponseDto responseDto = new ProductResponseDto(product);
+
+        ProductResponseDto responseDto = new ProductResponseDto(product,requestDto.getImages());
         return responseDto;
     }
 
@@ -71,7 +72,7 @@ public class ProductService {
 
         product.updateProduct(requestDto);
         productRepository.save(product);
-        ProductResponseDto responseDto = new ProductResponseDto(product);
+        ProductResponseDto responseDto = new ProductResponseDto(product, requestDto.getImages());
         return responseDto;
     }
 
@@ -89,7 +90,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductResponseDto getProduct(Long productId) {
         Product product = findById(productId);
-        ProductResponseDto responseDto = new ProductResponseDto(product);
+        ProductResponseDto responseDto = new ProductResponseDto(product, product.getImages());
         return responseDto;
     }
 
