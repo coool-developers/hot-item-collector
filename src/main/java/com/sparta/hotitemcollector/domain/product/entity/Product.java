@@ -80,4 +80,8 @@ public class Product extends Timestamped {
     public void decreaseLikes() {
         this.likes--;
     }
+
+    public void updateStatus() {
+        this.status=ProductStatus.SOLD_OUT;
+    }
 }
