@@ -1,4 +1,4 @@
-package com.sparta.hotitemcollector.domain.payment;
+package com.sparta.hotitemcollector.domain.payment.dto;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -11,13 +11,13 @@ public class PaymentRequestDto {
     private String payMethod;
     private String merchantUid;
     private String name;
-    private BigDecimal amount;
+    private Long amount;
     private String buyerName;
     private String buyerTel;
     private String buyerAddr;
 
     @Builder
-    public PaymentRequestDto(String pg, String payMethod, String merchantUid, String name, BigDecimal amount, String buyerName, String buyerTel, String buyerAddr) {
+    public PaymentRequestDto(String pg, String payMethod, String merchantUid, String name, Long amount, String buyerName, String buyerTel, String buyerAddr) {
         this.pg = pg;
         this.payMethod = payMethod;
         this.merchantUid = merchantUid;

@@ -1,6 +1,7 @@
 package com.sparta.hotitemcollector.domain.payment;
 
 import com.sparta.hotitemcollector.domain.order.Orders;
+import com.sparta.hotitemcollector.domain.orderitem.OrderItem;
 import com.sparta.hotitemcollector.domain.user.User;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -30,8 +31,8 @@ public class Payment {
     @Column(name = "pay_method", nullable = false)
     private String payMethod;
 
-    @Column(name = "pay_amount", nullable = false)
-    private BigDecimal payAmount;
+    @Column(name = "amount", nullable = false)
+    private Long amount;
 
     @Column(name = "status", nullable = false)
     private String status; // 결제 상태
@@ -43,14 +44,25 @@ public class Payment {
     @JoinColumn(name = "order_id", nullable = false)
     private Orders order;
 
+    @ManyToOne
+    @JoinColumn(name = "order_item_id",nullable = false)
+    private OrderItem orderItem;
+
     @Builder
-    public Payment(String merchantUid, String impUid, String payMethod, BigDecimal payAmount, String status, LocalDateTime paidAt, Orders order) {
+    public Payment(String merchantUid, String impUid, String payMethod, Long amount, String status, LocalDateTime paidAt, Orders order, OrderItem orderItem) {
         this.merchantUid = merchantUid;
         this.impUid = impUid;
         this.payMethod = payMethod;
-        this.payAmount = payAmount;
+        this.amount = amount;
         this.status = status;
         this.paidAt = paidAt;
         this.order = order;
+        this.orderItem = orderItem;
+    }
+
+    public void updatePayment(String impUid, String status, LocalDateTime paidAt) {
+        this.impUid = impUid;
+        this.status = status;
+        this.paidAt = paidAt;
     }
 }

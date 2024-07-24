@@ -1,0 +1,102 @@
+### 회원가입 - 유저
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "loginId": "testUser",
+  "password" : "passWord123!",
+  "username": "김아무개",
+  "nickname": "someone Kim"
+}
+
+### 회원가입 - 유저 2
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+
+{
+  "loginId": "testUser2",
+  "password" : "passWord123!",
+  "username": "이아무개",
+  "nickname": "someone Lee"
+}
+
+### 로그인 - 유저1
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "loginId": "testUser",
+  "password": "passWord123!"
+}
+
+> {%
+    client.global.set("access_token", response.body.result.access);
+    client.global.set("refresh_token", response.body.result.refresh);
+%}
+
+### 로그인 유저 1 - 상품 등록
+POST http://localhost:8080/products
+Content-Type: application/json
+Authorization: {{access_token}}
+
+{
+  "name" : "CD",
+  "category": "HOME_LIVING",
+  "image": "temp_image.url",
+  "price": 100,
+  "info": "CD를 요새 누가 씀"
+}
+
+### 로그인 유저 1 - 상품 등록 2
+POST http://localhost:8080/products
+Content-Type: application/json
+Authorization: {{access_token}}
+
+{
+  "name" : "TAPE",
+  "category": "HOME_LIVING",
+  "image": "temp_image.url",
+  "price": 100,
+  "info": "TAPE는 쓰지"
+}
+
+### 로그인 유저 2
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "loginId": "testUser2",
+  "password": "passWord123!"
+}
+
+> {%
+    client.global.set("access_token", response.body.result.access);
+    client.global.set("refresh_token", response.body.result.refresh);
+%}
+
+### 로그인 유저 2 - 물건 조회
+GET http://localhost:8080/products/2
+Content-Type: application/json
+Authorization: {{access_token}}
+
+### 로그인 유저 2 - 카트에 물건 담기
+POST http://localhost:8080/cart/2
+Content-Type: application/json
+Authorization: {{access_token}}
+
+### 로그인 유저 2 - 임시 결제 테이블 생성
+POST http://localhost:8080/prepare/order
+Content-Type: application/json
+Authorization: {{access_token}}
+
+{
+  "cartItemList": [1],
+  "buyerName": "김원기",
+  "buyerTel": "010-4242-4242",
+  "buyerAddr": "서울특별시 강남구 신사동"
+}
+
+### 로그인 유저 2 - 결제 테이블 생성
+GET http://localhost:8080/prepare/payment?orderId=2
+Content-Type: application/json
+Authorization: {{access_token}}

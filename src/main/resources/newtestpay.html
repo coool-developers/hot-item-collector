@@ -23,11 +23,15 @@
         methods: {
             requestPay: function () {
                 console.log("api 진입 전");
-                axios.get('http://localhost:8080/api/payments/prepare-payment', {
-                    params: { temporaryPaymentId: 'temporary_payment_id' }
+                axios.get('http://localhost:8080/prepare/payment?orderId=2', {
+                    headers: {
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0VXNlcjIiLCJhdXRoIjoiVVNFUiIsImlhdCI6MTcyMTc4ODAxMSwiZXhwIjoxNzIxNzg4NjExfQ.B3mF1SkNVnIfmYnOVk_DZ1Bs4vwJtQBeK_QqdtogWD4'
+                    }
                 })
                     .then(response => {
                         const paymentData = response.data.result;
+                        console.info(paymentData)
+                        console.log(paymentData)
                         const IMP = window.IMP;
                         IMP.init("imp83178621");
                         IMP.request_pay({
@@ -51,6 +55,8 @@
                     })
                     .catch(error => {
                         console.log('결제 요청 데이터 불러오기 실패:', error);
+                        console.error(error.response ? error.response.data : error.message);
+
                     });
             }
         }

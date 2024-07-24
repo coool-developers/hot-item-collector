@@ -28,6 +28,7 @@ public class Orders {
     private String phoneNumber;
 
     @Column (name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
     @OneToOne

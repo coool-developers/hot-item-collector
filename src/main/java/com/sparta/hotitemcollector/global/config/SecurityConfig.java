@@ -64,6 +64,8 @@ public class SecurityConfig {
                         .requestMatchers(permittedUrls.toArray(new String[0])).permitAll()
                         .requestMatchers("/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/prepare/order").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/prepare/payment").permitAll()
                         .anyRequest().authenticated()
         );
 
