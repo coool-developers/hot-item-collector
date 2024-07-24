@@ -38,9 +38,6 @@ public class Orders extends Timestamped {
 	@Column(name = "phone_number", nullable = false)
 	private String phoneNumber;
 
-	@Column(name = "status", nullable = false)
-	private OrderStatus status;
-
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
@@ -49,11 +46,10 @@ public class Orders extends Timestamped {
 	private List<OrderItem> orderItems = new ArrayList<>();
 
 	@Builder
-	public Orders(User user, String address, String phoneNumber, OrderStatus status, String userName) {
+	public Orders(User user, String address, String phoneNumber, String userName) {
 		this.user = user;
 		this.address = address;
 		this.phoneNumber = phoneNumber;
-		this.status = status;
 		this.userName = userName;
 	}
 

@@ -1,7 +1,6 @@
 package com.sparta.hotitemcollector.domain.order;
 
 import static com.sparta.hotitemcollector.domain.order.OrderStatus.SHIPMENT_START;
-import static com.sparta.hotitemcollector.domain.product.ProductStatus.ON_SALE;
 import static com.sparta.hotitemcollector.domain.product.ProductStatus.SOLD_OUT;
 
 import org.springframework.stereotype.Service;
@@ -11,6 +10,7 @@ import com.sparta.hotitemcollector.domain.cart.CartService;
 import com.sparta.hotitemcollector.domain.order.dto.OrderItemResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderRequestDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderResponseDto;
+import com.sparta.hotitemcollector.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.hotitemcollector.domain.orderitem.OrderItem;
 import com.sparta.hotitemcollector.domain.orderitem.OrderItemRepository;
 import com.sparta.hotitemcollector.domain.product.Product;
@@ -38,7 +38,6 @@ public class OrderService {
 			.address(orderRequestDto.getAddress())
 			.user(user)
 			.phoneNumber(orderRequestDto.getPhoneNumber())
-			.status(SHIPMENT_START)
 			.build();
 		orderRepository.save(order);
 
@@ -49,18 +48,19 @@ public class OrderService {
 			if (user.getId().equals(product.getUser().getId())) {
 				throw new CustomException(ErrorCode.SAME_USER_PRODUCT);
 			}
-			if (product.getStatus() == SOLD_OUT){
+			if (product.getStatus() == SOLD_OUT) {
 				throw new CustomException(ErrorCode.ALREADY_SOLD_OUT);
 			}
 
 			OrderItem orderItem = OrderItem.builder()
 				.product(product)
 				.order(order)
+				.status(SHIPMENT_START)
 				.build();
 			orderItemRepository.save(orderItem);
-			 order.addOrderItem(orderItem);
-			 cartService.deleteCartItem(user, id);
-			// productService. productStatus SOLD_OUT으로 수정해야함
+			order.addOrderItem(orderItem);
+			cartService.deleteCartItem(user, id);
+			// TODO: productService. productStatus SOLD_OUT으로 수정해야함
 
 		});
 
@@ -69,7 +69,6 @@ public class OrderService {
 			.userName(order.getUserName())
 			.address(order.getAddress())
 			.phoneNumber(order.getPhoneNumber())
-			.orderStatus(order.getStatus().getStatus())
 			.createdAt(order.getCreatedAt())
 			.orderItemResponseDtoList(order.getOrderItems().stream().map(OrderItemResponseDto::new).toList())
 			.build();
@@ -77,4 +76,27 @@ public class OrderService {
 		return orderItemResponseDto;
 	}
 
+	@Transactional
+	public void updateStatus(Long orderItemId, OrderStatusRequestDto orderStatusRequestDto, User user) {
+		OrderItem orderItem = findOrderItemById(orderItemId);
+
+		if (!user.getId().equals(orderItem.getProduct().getUser().getId())) {
+			throw new CustomException(ErrorCode.NOT_SAME_USER);
+		}
+		OrderStatus status = orderStatusRequestDto.getStatus();
+		orderItem.updateOrderItemStatus(status);
+
+	}
+
+	public Orders findOrdersById(Long orderId) {
+		return orderRepository.findById(orderId).orElseThrow(
+			() -> new CustomException(ErrorCode.NOT_FOUND_ORDER)
+		);
+	}
+
+	public OrderItem findOrderItemById(Long orderItemId) {
+		return orderItemRepository.findById(orderItemId).orElseThrow(
+			() -> new CustomException(ErrorCode.NOT_FOUND_ORDERITEM)
+		);
+	}
 }

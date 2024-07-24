@@ -12,6 +12,7 @@ public class OrderItemResponseDto {
 	private String productName;
 	private String productImage;
 	private Long price;
+	private String orderStatus;
 
 	@Builder
 	public OrderItemResponseDto(OrderItem orderItem) {
@@ -19,5 +20,6 @@ public class OrderItemResponseDto {
 		this.productName = orderItem.getProduct().getName();
 		this.productImage = orderItem.getProduct().getImage();
 		this.price = orderItem.getProduct().getPrice();
+		this.orderStatus = orderItem.getStatus().getStatus();
 	}
 }

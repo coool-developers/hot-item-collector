@@ -1,8 +1,9 @@
 package com.sparta.hotitemcollector.global.exception;
 
+import org.springframework.http.HttpStatus;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
@@ -41,9 +42,14 @@ public enum ErrorCode {
     NOT_FOUND_CARTITEM(HttpStatus.NOT_FOUND, "NOT FOUND CART_ITEM"),
     ALREADY_EXIST_CARTITEM(HttpStatus.CONFLICT, "ALREADY_EXIST_CARTITEM"),
 
+    // Orders
+    NOT_FOUND_ORDER(HttpStatus.NOT_FOUND, "NOT FOUND ORDER"),
+    NOT_FOUND_ORDERITEM(HttpStatus.NOT_FOUND, "NOT FOUND ORDERITEM"),
+
     // User
     NOT_FOUND_USER(HttpStatus.NOT_FOUND, "NOT FOUND USER"),
     SAME_USER_PRODUCT(HttpStatus.BAD_REQUEST, "SAME USER PRODUCT"),
+
     // Follow
     ALREADY_EXIST_FOLLOW(HttpStatus.CONFLICT, "ALREADY_EXIST FOLLOW"),
     NOT_FOUND_FOLLOW(HttpStatus.NOT_FOUND, "NOT FOUND FOLLOW");

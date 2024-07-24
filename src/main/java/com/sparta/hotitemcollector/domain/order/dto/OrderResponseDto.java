@@ -12,19 +12,17 @@ public class OrderResponseDto {
 	private String userName;
 	private String address;
 	private String phoneNumber;
-	private String orderStatus;
 	private LocalDateTime createdAt;
 
 	private List<OrderItemResponseDto> orderItemResponseDtoList;
 
 	@Builder
-	public OrderResponseDto(Long id, String userName, String address, String phoneNumber, String orderStatus, LocalDateTime createdAt,
+	public OrderResponseDto(Long id, String userName, String address, String phoneNumber, LocalDateTime createdAt,
 		List<OrderItemResponseDto> orderItemResponseDtoList) {
 		this.id = id;
 		this.userName = userName;
 		this.address = address;
 		this.phoneNumber = phoneNumber;
-		this.orderStatus = orderStatus;
 		this.createdAt = createdAt;
 
 		this.orderItemResponseDtoList = orderItemResponseDtoList;
