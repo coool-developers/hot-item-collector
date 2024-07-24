@@ -1,5 +1,6 @@
 package com.sparta.hotitemcollector.domain.order.dto;
 
+import com.sparta.hotitemcollector.domain.product.dto.ProductImageResponseDto;
 import java.time.LocalDateTime;
 
 import com.sparta.hotitemcollector.domain.orderitem.OrderItem;
@@ -11,7 +12,7 @@ public class OrderItemBySellerResponseDto {
 
 	private Long productId;
 	private String productName;
-	private String productImage;
+	private ProductImageResponseDto productImage;
 	private Long price;
 	private String orderStatus;
 
@@ -24,7 +25,8 @@ public class OrderItemBySellerResponseDto {
 	public OrderItemBySellerResponseDto(OrderItem orderItem) {
 		this.productId = orderItem.getProduct().getId();
 		this.productName = orderItem.getProduct().getName();
-		this.productImage = orderItem.getProduct().getImage();
+		this.productImage = orderItem.getProduct().getImages().isEmpty() ? null
+			: new ProductImageResponseDto(orderItem.getProduct().getImages().get(0));
 		this.price = orderItem.getProduct().getPrice();
 		this.orderStatus = orderItem.getStatus().getStatus();
 

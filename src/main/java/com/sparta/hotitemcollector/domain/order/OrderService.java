@@ -1,8 +1,10 @@
 package com.sparta.hotitemcollector.domain.order;
 
 import static com.sparta.hotitemcollector.domain.order.OrderStatus.SHIPMENT_START;
-import static com.sparta.hotitemcollector.domain.product.ProductStatus.SOLD_OUT;
 
+import com.sparta.hotitemcollector.domain.product.entity.Product;
+import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
+import com.sparta.hotitemcollector.domain.product.service.ProductService;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,8 +22,6 @@ import com.sparta.hotitemcollector.domain.order.dto.OrderResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.hotitemcollector.domain.orderitem.OrderItem;
 import com.sparta.hotitemcollector.domain.orderitem.OrderItemRepository;
-import com.sparta.hotitemcollector.domain.product.Product;
-import com.sparta.hotitemcollector.domain.product.ProductService;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
@@ -53,7 +53,7 @@ public class OrderService {
 			if (user.getId().equals(product.getUser().getId())) {
 				throw new CustomException(ErrorCode.SAME_USER_PRODUCT);
 			}
-			if (product.getStatus() == SOLD_OUT) {
+			if (product.getStatus() == ProductStatus.SOLD_OUT) {
 				throw new CustomException(ErrorCode.ALREADY_SOLD_OUT);
 			}
 
@@ -102,7 +102,7 @@ public class OrderService {
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 		Pageable pageable = PageRequest.of(page - 1, 5, sort);
 		Page<OrderItem> orderItemPage = Page.empty(pageable);
-		List<Product> productList = productService.findByUserAndStatus(user, SOLD_OUT);
+		List<Product> productList = productService.findByUserAndStatus(user, ProductStatus.SOLD_OUT);
 
 		if (status == null) {
 			orderItemPage = orderItemRepository.findAllByProductIn(productList, pageable);
