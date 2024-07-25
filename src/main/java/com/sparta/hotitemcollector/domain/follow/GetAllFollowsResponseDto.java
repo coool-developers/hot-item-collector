@@ -11,7 +11,6 @@ public class GetAllFollowsResponseDto {
     private String userName;
 
 
-    @Builder
     public GetAllFollowsResponseDto(Long userId, ProfileImageResponseDto profileImage, String profileInfo, String userName) {
         this.userId = userId;
         this.profileImage = profileImage;
