@@ -2,9 +2,7 @@ package com.sparta.hotitemcollector.domain.order;
 
 import static com.sparta.hotitemcollector.domain.order.OrderStatus.SHIPMENT_START;
 
-import com.sparta.hotitemcollector.domain.product.entity.Product;
-import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
-import com.sparta.hotitemcollector.domain.product.service.ProductService;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +20,9 @@ import com.sparta.hotitemcollector.domain.order.dto.OrderResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.hotitemcollector.domain.orderitem.OrderItem;
 import com.sparta.hotitemcollector.domain.orderitem.OrderItemRepository;
+import com.sparta.hotitemcollector.domain.product.entity.Product;
+import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
+import com.sparta.hotitemcollector.domain.product.service.ProductService;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
@@ -72,14 +73,13 @@ public class OrderService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<OrderResponseDto> getOrdersAllByBuyer(int page, User user) {
+	public List<OrderResponseDto> getOrdersAllByBuyer(int page, int size, LocalDateTime startDate, LocalDateTime endDate, User user) {
 
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-		Pageable pageable = PageRequest.of(page - 1, 5, sort);
+		Pageable pageable = PageRequest.of(page - 1, size, sort);
+		Page<Orders> orderPage = orderRepository.findAllByUserIdAndCreatedAtBetween(user.getId(), startDate, endDate, pageable);
 
-		Page<Orders> orderList = orderRepository.findAllByUserId(user.getId(), pageable);
-
-		return orderList.getContent()
+		return orderPage.getContent()
 			.stream()
 			.map(OrderResponseDto::new)
 			.collect(Collectors.toList());
@@ -97,10 +97,10 @@ public class OrderService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<OrderItemBySellerResponseDto> getOrdersAllBySeller(int page, OrderStatus status, User user) {
+	public List<OrderItemBySellerResponseDto> getOrdersAllBySeller(int page, int size, OrderStatus status, User user) {
 
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-		Pageable pageable = PageRequest.of(page - 1, 5, sort);
+		Pageable pageable = PageRequest.of(page - 1, size, sort);
 		Page<OrderItem> orderItemPage = Page.empty(pageable);
 		List<Product> productList = productService.findByUserAndStatus(user, ProductStatus.SOLD_OUT);
 
