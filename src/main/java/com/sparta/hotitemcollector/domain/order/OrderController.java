@@ -1,5 +1,6 @@
 package com.sparta.hotitemcollector.domain.order;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -30,40 +31,48 @@ public class OrderController {
 	private final OrderService orderService;
 
 	@PostMapping("/buy")
-	public ResponseEntity<CommonResponse> createOrder(@RequestBody OrderRequestDto orderRequestDto,
+	public ResponseEntity<CommonResponse<OrderResponseDto>> createOrder(@RequestBody OrderRequestDto orderRequestDto,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
 		OrderResponseDto responseDto = orderService.createOrder(orderRequestDto,
 			userDetails.getUser());
 
-		CommonResponse response = new CommonResponse("주문이 완료되었습니다.", 201, responseDto);
+		CommonResponse<OrderResponseDto> response = new CommonResponse("주문이 완료되었습니다.", 201, responseDto);
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
 	@GetMapping("/buy")
-	public ResponseEntity<CommonResponse> getOrdersAllByBuyer(@RequestParam(defaultValue = "1") int page,
+	public ResponseEntity<CommonResponse<List<OrderResponseDto>>> getOrdersAllByBuyer(
+		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "10") int size,
+		@RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now().minusMonths(3)}") LocalDateTime startDate,
+		@RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now()}") LocalDateTime endDate,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		List<OrderResponseDto> responseDtoList = orderService.getOrdersAllByBuyer(page, userDetails.getUser());
+		List<OrderResponseDto> responseDtoList = orderService.getOrdersAllByBuyer(page, size, startDate, endDate, userDetails.getUser());
 
-		CommonResponse responses = new CommonResponse("구매자의 주문 목록을 조회 성공했습니다.", 200, responseDtoList);
+		CommonResponse<List<OrderResponseDto>> responses = new CommonResponse("구매자의 주문 목록을 조회 성공했습니다.", 200, responseDtoList);
 		return new ResponseEntity<>(responses, HttpStatus.OK);
 	}
 
 	@GetMapping("/buy/{orderId}")
-	public ResponseEntity<CommonResponse> getOrderByBuyer(@PathVariable("orderId") Long orderId,
+	public ResponseEntity<CommonResponse<OrderResponseDto>> getOrderByBuyer(@PathVariable("orderId") Long orderId,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
 		OrderResponseDto responseDto = orderService.getOrderByBuyer(orderId, userDetails.getUser());
 
-		CommonResponse response = new CommonResponse("구매자의 단건 주문을 조회 성공했습니다.", 200, responseDto);
+		CommonResponse<OrderResponseDto> response = new CommonResponse("구매자의 단건 주문을 조회 성공했습니다.", 200, responseDto);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/sell")
-	public ResponseEntity<CommonResponse> getOrdersBySeller(@RequestParam(defaultValue = "1") int page,
+	public ResponseEntity<CommonResponse<List<OrderItemBySellerResponseDto>>> getOrdersBySeller(
+		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "10") int size,
+		@RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now().minusMonths(3)}") LocalDateTime startDate,
+		@RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now()}") LocalDateTime endDate,
 		@RequestParam(required = false) OrderStatus status,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		List<OrderItemBySellerResponseDto> responseDtoList = orderService.getOrdersAllBySeller(page, status, userDetails.getUser());
+		List<OrderItemBySellerResponseDto> responseDtoList = orderService.getOrdersAllBySeller(page, size, startDate, endDate, status, userDetails.getUser());
 
-		CommonResponse response = new CommonResponse("판매자의 주문 목록을 조회 성공했습니다.", 200, responseDtoList);
+		CommonResponse<List<OrderItemBySellerResponseDto>> response = new CommonResponse("판매자의 주문 목록을 조회 성공했습니다.", 200, responseDtoList);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
@@ -78,3 +87,5 @@ public class OrderController {
 	}
 
 }
+
+
