@@ -26,10 +26,10 @@ public class CartController {
 	private final CartService cartService;
 
 	@PostMapping("/{productId}")
-	public ResponseEntity<CommonResponse> createCartItem(@PathVariable("productId") Long productId,
+	public ResponseEntity<CommonResponse<CartItemResponseDto>> createCartItem(@PathVariable("productId") Long productId,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
 		CartItemResponseDto responseDto = cartService.createCartItem(userDetails.getUser(), productId);
-		CommonResponse response = new CommonResponse<>("장바구니에 상품 담기 성공", 201, responseDto);
+		CommonResponse<CartItemResponseDto> response = new CommonResponse<>("장바구니에 상품 담기 성공", 201, responseDto);
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
@@ -42,10 +42,12 @@ public class CartController {
 	}
 
 	@GetMapping
-	public ResponseEntity<CommonResponse> getCart(@RequestParam(defaultValue = "1") int page,
+	public ResponseEntity<CommonResponse<List<CartItemResponseDto>>> getCartItems(
+		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "10") int size,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		List<CartItemResponseDto> responseDtoList = cartService.getCart(page, userDetails.getUser());
-		CommonResponse response = new CommonResponse<>("장바구니 조회 성공", 200, responseDtoList);
+		List<CartItemResponseDto> responseDtoList = cartService.getCartItems(page, size, userDetails.getUser());
+		CommonResponse<List<CartItemResponseDto>> response = new CommonResponse<>("장바구니 조회 성공", 200, responseDtoList);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

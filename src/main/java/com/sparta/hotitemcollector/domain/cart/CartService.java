@@ -60,9 +60,9 @@ public class CartService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<CartItemResponseDto> getCart(int page, User user) {
+	public List<CartItemResponseDto> getCartItems(int page, int size, User user) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-		Pageable pageable = PageRequest.of(page - 1, 10, sort);
+		Pageable pageable = PageRequest.of(page - 1, size, sort);
 
 		Page<CartItem> cartItemPage = cartItemRepository.findAllByUserId(user.getId(), pageable);
 
