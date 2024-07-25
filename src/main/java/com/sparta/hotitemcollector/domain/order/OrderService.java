@@ -97,7 +97,8 @@ public class OrderService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<OrderItemBySellerResponseDto> getOrdersAllBySeller(int page, int size, OrderStatus status, User user) {
+	public List<OrderItemBySellerResponseDto> getOrdersAllBySeller(int page, int size,
+		LocalDateTime startDate, LocalDateTime endDate, OrderStatus status, User user) {
 
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 		Pageable pageable = PageRequest.of(page - 1, size, sort);
@@ -105,10 +106,10 @@ public class OrderService {
 		List<Product> productList = productService.findByUserAndStatus(user, ProductStatus.SOLD_OUT);
 
 		if (status == null) {
-			orderItemPage = orderItemRepository.findAllByProductIn(productList, pageable);
+			orderItemPage = orderItemRepository.findAllByCreatedAtBetweenAndProductIn(startDate, endDate, productList, pageable);
 		}
 		if (status != null) {
-			orderItemPage = orderItemRepository.findAllByStatusAndProductIn(status, productList, pageable);
+			orderItemPage = orderItemRepository.findAllByStatusAndCreatedAtBetweenAndProductIn(status, startDate, endDate, productList, pageable);
 		}
 
 		return orderItemPage.getContent()

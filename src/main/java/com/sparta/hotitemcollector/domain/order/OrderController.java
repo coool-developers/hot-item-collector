@@ -66,9 +66,11 @@ public class OrderController {
 	public ResponseEntity<CommonResponse<List<OrderItemBySellerResponseDto>>> getOrdersBySeller(
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int size,
+		@RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now().minusMonths(3)}") LocalDateTime startDate,
+		@RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now()}") LocalDateTime endDate,
 		@RequestParam(required = false) OrderStatus status,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		List<OrderItemBySellerResponseDto> responseDtoList = orderService.getOrdersAllBySeller(page, size, status, userDetails.getUser());
+		List<OrderItemBySellerResponseDto> responseDtoList = orderService.getOrdersAllBySeller(page, size, startDate, endDate, status, userDetails.getUser());
 
 		CommonResponse<List<OrderItemBySellerResponseDto>> response = new CommonResponse("판매자의 주문 목록을 조회 성공했습니다.", 200, responseDtoList);
 		return new ResponseEntity<>(response, HttpStatus.OK);
