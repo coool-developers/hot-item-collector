@@ -1,5 +1,6 @@
 package com.sparta.hotitemcollector.domain.user;
 
+import com.sparta.hotitemcollector.domain.s3.service.S3Service;
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
 import com.sparta.hotitemcollector.domain.token.Token;
 import com.sparta.hotitemcollector.domain.token.TokenService;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +31,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final TokenService tokenService;
-
+    private final S3Service s3Service;
+    private final ProfileImageRepository profileImageRepository;
 
     public void signup(SignupRequestDto signupRequestDto) {
         Optional<User> finduser = userRepository.findByLoginId(signupRequestDto.getLoginId());
@@ -171,9 +174,9 @@ public class UserService {
 
 
     public ProfileResponseDto updateProfile(ProfileRequestDto requestDto, User user) {
-        User findUser = userRepository.findById(user.getId()).orElseThrow(()->new CustomException(ErrorCode.NOT_FOUND_USER));
+        User findUser = userRepository.findById(user.getId())
+            .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
 
-        // 유저 정보 업데이트 (요청된 필드만 업데이트)
         if (requestDto.getNickname() != null) {
             findUser.setNickname(requestDto.getNickname());
         }
@@ -186,14 +189,35 @@ public class UserService {
         if (requestDto.getInfo() != null) {
             findUser.setInfo(requestDto.getInfo());
         }
-        ProfileImage profileImage = new ProfileImage(requestDto.getProfileImage(),findUser);
-        if(requestDto.getProfileImage() != null){
-            findUser.setProfileImage(profileImage);
+
+        // 요청으로 사진을 보냄
+        if (requestDto.getProfileImage() != null) {
+            // 해당 유저 프로필 사진 유무 확인
+            ProfileImage existingProfileImage = findUser.getProfileImage();
+            // 프로필 사진 있을 경우
+            if (existingProfileImage != null) {
+                // S3에서 기존 이미지 삭제
+                s3Service.deleteImage(existingProfileImage.getFilename());
+
+                // 테이블에 담겨있던 기존 이미지 새로운 이미지로 변경
+                existingProfileImage.updateImage(requestDto.getProfileImage());
+                profileImageRepository.save(existingProfileImage);
+                findUser.updateProfileImage(existingProfileImage);
+            }else{ // 프로필 사진 없을 경우
+                ProfileImageRequestDto profileImageRequestDto = new ProfileImageRequestDto(requestDto.getProfileImage().getFilename(),requestDto.getProfileImage().getImageUrl());
+                ProfileImage newProfileImage = new ProfileImage(profileImageRequestDto,findUser);
+                profileImageRepository.save(newProfileImage);
+                findUser.updateProfileImage(newProfileImage);
+            }
+
         }
-        // 유저 저장
+
         User saveUser = userRepository.save(findUser);
-        return new ProfileResponseDto(saveUser);
+
+        ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(saveUser.getProfileImage());
+        return new ProfileResponseDto(saveUser, profileImageResponseDto);
     }
+
 
     public void updatePassword(updatePasswordRequestDto requestDto, User user) {
         // 유저를 찾고, 없으면 예외를 발생시킵니다.
@@ -215,12 +239,13 @@ public class UserService {
     public GetUserProfileDto getUserProfile(Long userId, Optional<UserDetailsImpl> currentUser) {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+        ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(findUser.getProfileImage());
         if(!currentUser.isEmpty()){
             boolean isOwnProfile = findUser.getId().equals(currentUser.get().getUser().getId());
 
-            return new GetUserProfileDto(findUser, isOwnProfile);
+            return new GetUserProfileDto(findUser,profileImageResponseDto, isOwnProfile);
         }else{
-            return new GetUserProfileDto(findUser, false);
+            return new GetUserProfileDto(findUser,profileImageResponseDto, false);
         }
 
     }

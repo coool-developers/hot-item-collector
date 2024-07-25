@@ -34,4 +34,9 @@ public class ProfileImage extends Timestamped {
         this.imageUrl= profileImage.getImageUrl();
         this.user=user;
     }
+
+    public void updateImage(ProfileImageRequestDto profileImage) {
+        this.filename= profileImage.getFilename();
+        this.imageUrl= profileImage.getImageUrl();
+    }
 }

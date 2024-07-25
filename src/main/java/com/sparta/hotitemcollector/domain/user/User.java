@@ -1,5 +1,6 @@
 package com.sparta.hotitemcollector.domain.user;
 
+import com.sparta.hotitemcollector.domain.user.dto.user.ProfileImageRequestDto;
 import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -38,8 +39,7 @@ public class User extends Timestamped {
     private String address;
 
     @Setter
-    @OneToOne
-    @JoinColumn(name = "image_id")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private ProfileImage profileImage;
 
     @Setter
@@ -69,5 +69,9 @@ public class User extends Timestamped {
 
     public boolean isExist() {
         return this.userStatus == UserStatus.NORMAL;
+    }
+
+    public void updateProfileImage(ProfileImage profileImage) {
+        this.profileImage=profileImage;
     }
 }
