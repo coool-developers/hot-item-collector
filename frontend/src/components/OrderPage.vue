@@ -1,23 +1,24 @@
 <script>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 export default {
   setup() {
-    const searchType = ref('product')
     const searchQuery = ref('')
+    const searchType = ref('product')
     const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
-    const userInfo = ref({
-      username: 'johndoe',
-      loginId: 'johndoe123',
-      nickname: 'JohnD',
-      address: '서울특별시 강남구 테헤란로 123',
-      phoneNumber: '010-1234-5678',
-      info: '안녕하세요. 저는 Hot Item Collector의 열렬한 팬입니다!',
-      profileImage: 'https://example.com/profile-image.jpg'
+    const shippingInfo = ref({
+      name: '',
+      phone: '',
+      address: ''
     })
+    const cartItems = ref([
+      { id: 1, name: '수제 초콜릿', price: 15000, seller: '달콤공방', image: 'https://example.com/chocolate.jpg' },
+      { id: 2, name: '핸드메이드 비누', price: 8000, seller: '향기나라', image: 'https://example.com/soap.jpg' }
+    ])
 
-    const showProfileImageModal = ref(false)
-    const tempProfileImage = ref(null)
+    const totalAmount = computed(() => {
+      return cartItems.value.reduce((total, item) => total + item.price, 0)
+    })
 
     const search = () => {
       alert(`검색 유형: ${searchType.value}, 검색어: ${searchQuery.value}`)
@@ -40,11 +41,11 @@ export default {
     }
 
     const viewMyInfo = () => {
-      alert('내 정보 페이지로 이동합니다.')
+      alert('내 정보 보기 페이지로 이동합니다.')
     }
 
     const editProfile = () => {
-      alert('프로필 수정 페이지로 이동합니다.')
+      alert('정보 수정 페이지로 이동합니다.')
     }
 
     const logout = () => {
@@ -62,44 +63,41 @@ export default {
       alert('장바구니 페이지로 이동합니다.')
     }
 
-    const openProfileImageModal = () => {
-      showProfileImageModal.value = true
-    }
+    const useMyAddress = async () => {
+      try {
+        // API를 통해 주소 정보를 가져오는 것을 시뮬레이션
+        const response = await new Promise(resolve => {
+          setTimeout(() => {
+            resolve({
+              name: '김철수',
+              phone: '010-1234-5678',
+              address: '서울특별시 강남구 테헤란로 123 아파트 456호'
+            })
+          }, 1000)
+        })
 
-    const closeProfileImageModal = () => {
-      showProfileImageModal.value = false
-      tempProfileImage.value = null
-    }
-
-    const onFileChange = (event) => {
-      const file = event.target.files[0]
-      if (file) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          tempProfileImage.value = e.target.result
-        }
-        reader.readAsDataURL(file)
+        shippingInfo.value = response
+        alert('내 주소 정보를 불러왔습니다.')
+      } catch (error) {
+        alert('주소 정보를 불러오는데 실패했습니다.')
       }
     }
 
-    const updateProfileImage = () => {
-      if (tempProfileImage.value) {
-        userInfo.value.profileImage = tempProfileImage.value
-        closeProfileImageModal()
+    const checkout = () => {
+      if (!shippingInfo.value.name || !shippingInfo.value.phone || !shippingInfo.value.address) {
+        alert('배송지 정보를 모두 입력해주세요.')
+        return
       }
-    }
-
-    const submitForm = () => {
-      alert('개인정보가 성공적으로 수정되었습니다.')
-      // 여기에서 서버로 데이터를 전송하는 로직을 구현합니다.
+      alert('결제가 완료되었습니다. 감사합니다!')
     }
 
     return {
-      searchType,
       searchQuery,
+      searchType,
       categories,
-      userInfo,
-      showProfileImageModal,
+      shippingInfo,
+      cartItems,
+      totalAmount,
       search,
       selectCategory,
       goToProductRegistration,
@@ -110,11 +108,8 @@ export default {
       logout,
       deleteAccount,
       goToCart,
-      openProfileImageModal,
-      closeProfileImageModal,
-      onFileChange,
-      updateProfileImage,
-      submitForm
+      useMyAddress,
+      checkout
     }
   }
 }
@@ -166,52 +161,43 @@ export default {
       </div>
     </nav>
 
-    <main class="container edit-profile">
-      <h1>개인정보 수정</h1>
-      <form class="edit-profile-form" @submit.prevent="submitForm">
-        <div class="image-upload">
-          <img :src="userInfo.profileImage" alt="프로필 이미지" class="profile-image">
-          <button type="button" class="profile-image-change-btn" @click="openProfileImageModal">프로필 사진 변경</button>
+    <main class="container">
+      <div class="order-details">
+        <div class="shipping-info">
+          <h2>
+            배송지 입력
+            <button class="use-my-address" @click="useMyAddress">내 주소 배송</button>
+          </h2>
+          <div class="input-group">
+            <label for="name">이름</label>
+            <input type="text" id="name" v-model="shippingInfo.name">
+          </div>
+          <div class="input-group">
+            <label for="phone">전화번호</label>
+            <input type="tel" id="phone" v-model="shippingInfo.phone">
+          </div>
+          <div class="input-group">
+            <label for="address">주소</label>
+            <input type="text" id="address" v-model="shippingInfo.address">
+          </div>
         </div>
-        <div class="form-group">
-          <label for="username">사용자 이름</label>
-          <input type="text" id="username" v-model="userInfo.username" readonly>
-        </div>
-        <div class="form-group">
-          <label for="loginId">로그인 ID</label>
-          <input type="text" id="loginId" v-model="userInfo.loginId" readonly>
-        </div>
-        <div class="form-group">
-          <label for="nickname">닉네임</label>
-          <input type="text" id="nickname" v-model="userInfo.nickname">
-        </div>
-        <div class="form-group">
-          <label for="address">주소</label>
-          <input type="text" id="address" v-model="userInfo.address">
-        </div>
-        <div class="form-group">
-          <label for="phoneNumber">전화번호</label>
-          <input type="tel" id="phoneNumber" v-model="userInfo.phoneNumber">
-        </div>
-        <div class="form-group">
-          <label for="info">자기소개</label>
-          <textarea id="info" v-model="userInfo.info"></textarea>
-        </div>
-        <button type="submit" class="submit-btn">수정 완료</button>
-      </form>
-    </main>
-
-    <!-- 프로필 이미지 변경 모달 -->
-    <div class="modal" v-if="showProfileImageModal">
-      <div class="modal-content">
-        <h2>프로필 사진 변경</h2>
-        <input type="file" @change="onFileChange" accept="image/*">
-        <div class="modal-buttons">
-          <button @click="closeProfileImageModal">취소</button>
-          <button @click="updateProfileImage">변경</button>
+        <div class="order-summary">
+          <h2>주문 상품 정보</h2>
+          <div v-for="product in cartItems" :key="product.id" class="product-item">
+            <img :src="product.image" :alt="product.name" class="product-image">
+            <div class="product-info">
+              <h3>{{ product.name }}</h3>
+              <p>가격: {{ product.price.toLocaleString() }}원</p>
+              <p>판매자: {{ product.seller }}</p>
+            </div>
+          </div>
+          <div class="total-amount">
+            최종 결제금액: {{ totalAmount.toLocaleString() }}원
+          </div>
+          <button class="checkout-button" @click="checkout">결제하기</button>
         </div>
       </div>
-    </div>
+    </main>
 
     <footer>
       <div class="container footer-content">
@@ -228,6 +214,7 @@ export default {
     </footer>
   </div>
 </template>
+
 <style>
 :root {
   --main-color: #FF0000;
@@ -236,12 +223,9 @@ export default {
   --hover-color: #FF6666;
   --button-color: #FF4136;
   --footer-bg: #f8f8f8;
-  --light-gray: #f0f0f0;
-  --border-color: #ddd;
-  --modal-bg: rgba(0, 0, 0, 0.5);
-  --category-color: #f1f1f1;
-  --category-hover-color: #e0e0e0;
-  --button-hover-color: #FFCCCB;
+  --card-border: #e0e0e0;
+  --input-border: #ccc;
+  --section-border: #ddd;
 }
 
 body {
@@ -378,7 +362,7 @@ header {
 
 /* Categories Styles */
 .categories {
-  background-color: var(--category-color);
+  background-color: #f1f1f1;
   padding: 15px 0;
 }
 
@@ -408,146 +392,113 @@ header {
 }
 
 .category-item:hover {
-  background-color: var(--category-hover-color);
-  color: var(--text-color);
+  background-color: var(--hover-color);
+  color: var(--bg-color);
 }
 
-/* Edit Profile Styles */
-.edit-profile {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
+/* Main Content Styles */
+main {
+  flex-grow: 1;
+  padding: 60px 0;  /* 상하 패딩 더 증가 */
+}
+
+.order-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.shipping-info, .order-summary {
+  width: 100%;
+  margin-bottom: 30px;
+  border: 1px solid var(--section-border);
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.edit-profile h1 {
-  color: var(--text-color);
+h2 {
+  font-size: 24px;
   margin-bottom: 20px;
-  font-size: 28px;
-  font-weight: bold;
-  text-align: center;
-}
-
-.edit-profile-form {
-  display: grid;
-  gap: 15px;
-}
-
-.form-group {
   display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.form-group input,
-.form-group textarea {
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-.form-group input[readonly] {
-  background-color: var(--light-gray);
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.submit-btn,
-.profile-image-change-btn {
-  padding: 10px 20px;
-  background-color: var(--category-color);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.submit-btn:hover,
-.profile-image-change-btn:hover {
-  background-color: var(--button-hover-color);
-}
-
-.profile-image {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 15px;
-}
-
-.image-upload {
-  display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
 }
 
-/* Modal Styles */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--modal-bg);
+.input-group {
+  margin-bottom: 15px;
 }
 
-.modal-content {
-  background-color: var(--bg-color);
-  margin: 15% auto;
-  padding: 20px;
-  border-radius: 10px;
-  width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
 }
 
-.modal h2 {
-  margin-top: 0;
-}
-
-.modal input {
+.input-group input {
   width: 100%;
   padding: 10px;
-  margin: 10px 0;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--input-border);
   border-radius: 5px;
 }
 
-.modal-buttons {
+.use-my-address {
+  background-color: var(--button-color);
+  color: var(--bg-color);
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.use-my-address:hover {
+  background-color: var(--hover-color);
+}
+
+.product-item {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid var(--card-border);
+  border-radius: 5px;
+}
+
+.product-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  margin-right: 20px;
+}
+
+.product-info h3 {
+  margin: 0 0 10px 0;
+}
+
+.total-amount {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 20px;
+  text-align: right;
+}
+
+.checkout-button {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  background-color: var(--button-color);
+  color: var(--bg-color);
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
   margin-top: 20px;
 }
 
-.modal-buttons button {
-  margin-left: 10px;
-  padding: 10px 20px;
-  background-color: var(--category-color);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.modal-buttons button:hover {
-  background-color: var(--button-hover-color);
+.checkout-button:hover {
+  background-color: var(--hover-color);
 }
 
 /* Footer Styles */

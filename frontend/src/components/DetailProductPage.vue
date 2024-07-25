@@ -39,53 +39,59 @@
         </div>
       </div>
     </header>
+
     <nav class="categories">
       <div class="container">
         <div class="categories-container">
-          <a v-for="category in categories" :key="category" :href="'/category/' + category" class="category-item">{{ category }}</a>
+          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#"
+             class="category-item">
+            {{ category }}
+          </a>
         </div>
       </div>
     </nav>
+
     <main class="container">
-      <section class="hot-top-10">
-        <h2>Hot Top 10 Items</h2>
-        <ol>
-          <li v-for="item in hotTopItems" :key="item.id"><a :href="'/item/' + item.id">{{ item.name }}</a></li>
-        </ol>
-      </section>
-      <section class="new-items">
-        <h2>새로 등록된 상품</h2>
-        <div v-if="newItems.length > 0" class="item-cards">
-          <div v-for="item in newItems" :key="item.id" class="item-card">
-            <img :src="item.image" :alt="item.name">
-            <div class="item-info">
-              <div class="item-name">{{ item.name }}</div>
-              <div class="seller-info">판매자: <a :href="'/seller/' + item.userId">{{ item.userName }}</a></div>
-            </div>
+      <section class="product-detail">
+        <div class="seller-info">
+          <img :src="product.sellerPhoto" :alt="product.sellerName" class="seller-photo">
+          <div class="seller-name-follow">
+            <span class="seller-name">{{ product.sellerName }}</span>
+            <button v-if="isLoggedIn" class="follow-button" @click="toggleFollow">
+              {{ isFollowing ? '팔로우 취소' : '팔로우' }}
+            </button>
           </div>
         </div>
-        <div v-else class="no-items-message">등록된 상품이 없습니다.</div>
-        <div v-if="newItems.length > 0" class="view-more-container">
-          <button @click="viewMoreNewItems" class="view-more-btn">상품 더보기</button>
-        </div>
-      </section>
-      <section v-if="isLoggedIn" class="followed-users-items">
-        <h2>팔로우한 사용자의 상품</h2>
-        <div v-if="followedUsersItems.length > 0" class="item-cards">
-          <div v-for="item in followedUsersItems" :key="item.id" class="item-card">
-            <img :src="item.image" :alt="item.name">
-            <div class="item-info">
-              <div class="item-name">{{ item.name }}</div>
-              <div class="seller-info">판매자: <a :href="'/seller/' + item.userId">{{ item.userName }}</a></div>
+        <div class="product-info">
+          <div class="product-image-container">
+            <img :src="currentImage" :alt="product.name" class="product-image">
+            <button class="image-nav-button prev" @click="prevImage" v-if="product.images.length > 1">&lt;</button>
+            <button class="image-nav-button next" @click="nextImage" v-if="product.images.length > 1">&gt;</button>
+          </div>
+          <div class="product-details">
+            <div class="product-header">
+              <h1 class="product-name">{{ product.name }}</h1>
+              <div class="like-actions">
+                <span class="like-count">{{ product.likes }} 좋아요</span>
+                <button v-if="isLoggedIn" class="like-button" @click="toggleLike">
+                  {{ isLiked ? '❤️' : '🤍' }}
+                </button>
+              </div>
+            </div>
+            <p class="product-category">{{ product.category }}</p>
+            <p class="product-description">{{ product.description }}</p>
+            <div class="product-actions-container">
+              <p class="product-price">{{ formatPrice(product.price) }}원</p>
+              <div class="buy-actions">
+                <button class="add-to-cart" @click="addToCart">장바구니 담기</button>
+                <button class="buy-now" @click="buyNow">구매하기</button>
+              </div>
             </div>
           </div>
-        </div>
-        <div v-else class="no-items-message">팔로우한 사용자의 상품이 없습니다.</div>
-        <div v-if="followedUsersItems.length > 0" class="view-more-container">
-          <button @click="viewMoreFollowedItems" class="view-more-btn">상품 더보기</button>
         </div>
       </section>
     </main>
+
     <footer>
       <div class="container footer-content">
         <div class="footer-links">
@@ -94,9 +100,12 @@
           <a href="/privacy">개인정보처리방침</a>
           <a href="/contact">고객센터</a>
         </div>
-        <div class="footer-copyright">&copy; 2023 Hot Item Collector. All rights reserved.</div>
+        <div class="footer-copyright">
+          &copy; 2023 Hot Item Collector. All rights reserved.
+        </div>
       </div>
     </footer>
+
     <!-- 회원가입 모달 -->
     <div v-if="showSignupModal" class="modal-overlay" @click.self="showSignupModal = false">
       <div class="modal-container">
@@ -134,6 +143,7 @@
         </div>
       </div>
     </div>
+
     <!-- 로그인 모달 -->
     <div v-if="showLoginModal" class="modal-overlay" @click.self="showLoginModal = false">
       <div class="modal-container">
@@ -165,142 +175,129 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref } from 'vue'
 
 export default {
   setup() {
-    const isLoggedIn = ref(false);
-    const searchType = ref('product');
-    const searchQuery = ref('');
-    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물']);
-    const hotTopItems = ref([
-      { id: 1, name: '초특가 스마트폰' },
-      { id: 2, name: '인기 노트북' },
-      { id: 3, name: '베스트셀러 도서' },
-    ]);
-    const newItems = ref([
-      { id: 101, name: '새 상품 1', image: 'https://via.placeholder.com/250x200', userId: 1001, userName: '판매자1' },
-    ]);
-    const followedUsersItems = ref([
-      { id: 201, name: '팔로우 상품 1', image: 'https://via.placeholder.com/250x200', userId: 2001, userName: '팔로우판매자1' },
-    ]);
+    const isLoggedIn = ref(true)
+    const searchType = ref('product')
+    const searchQuery = ref('')
+    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
+    const isFollowing = ref(false)
+    const isLiked = ref(false)
+    const currentImageIndex = ref(0)
+    const showLoginModal = ref(false)
+    const showSignupModal = ref(false)
+    const signupLoginId = ref('')
+    const signupPassword = ref('')
+    const username = ref('')
+    const nickname = ref('')
+    const loginId = ref('')
+    const password = ref('')
+    const loginIdError = ref('')
+    const passwordError = ref('')
 
-    const showLoginModal = ref(false);
-    const showSignupModal = ref(false);
-    const signupLoginId = ref('');
-    const signupPassword = ref('');
-    const username = ref('');
-    const nickname = ref('');
-    const loginId = ref('');
-    const password = ref('');
-    const loginIdError = ref('');
-    const passwordError = ref('');
+    // 상품 상세 정보 (실제로는 API에서 가져와야 함)
+    const product = ref({
+      id: 1,
+      name: '수제 도자기 커피 머그컵',
+      category: '공예품',
+      description: '따뜻한 커피 한 잔을 즐길 수 있는 수제 도자기 머그컵입니다.',
+      price: 25000,
+      likes: 120,
+      images: [
+        'https://example.com/image1.jpg',
+        'https://example.com/image2.jpg',
+        'https://example.com/image3.jpg',
+      ],
+      sellerName: '홍길동',
+      sellerPhoto: 'https://example.com/seller-photo.jpg',
+    })
+
+    const currentImage = ref(product.value.images[0])
 
     const search = () => {
-      console.log(`Searching for ${searchQuery.value} in ${searchType.value}`);
-    };
+      // 검색 로직
+    }
 
-    const login = () => {
-      console.log('Login clicked');
-      isLoggedIn.value = true;
-      showLoginModal.value = false;
-    };
+    const toggleFollow = () => {
+      isFollowing.value = !isFollowing.value
+    }
 
-    const register = () => {
-      console.log('Register clicked');
-      isLoggedIn.value = true;
-      showSignupModal.value = false;
-    };
+    const toggleLike = () => {
+      isLiked.value = !isLiked.value
+      product.value.likes += isLiked.value ? 1 : -1
+    }
 
-    const goToProductRegistration = () => {
-      console.log('Going to product registration');
-    };
+    const prevImage = () => {
+      currentImageIndex.value = (currentImageIndex.value - 1 + product.value.images.length) % product.value.images.length
+      currentImage.value = product.value.images[currentImageIndex.value]
+    }
 
-    const goToProductManagement = () => {
-      console.log('Going to product management');
-    };
+    const nextImage = () => {
+      currentImageIndex.value = (currentImageIndex.value + 1) % product.value.images.length
+      currentImage.value = product.value.images[currentImageIndex.value]
+    }
 
-    const goToOrderManagement = () => {
-      console.log('Going to order management');
-    };
+    const addToCart = () => {
+      // 장바구니 추가 로직
+    }
 
-    const viewMyInfo = () => {
-      console.log('Going to my info');
-    };
+    const buyNow = () => {
+      // 구매 로직
+    }
 
-    const editProfile = () => {
-      console.log('Going to edit profile');
-    };
-
-    const logout = () => {
-      console.log('Logging out');
-      isLoggedIn.value = false;
-    };
-
-    const deleteAccount = () => {
-      if (confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-        console.log('Deleting account');
-        isLoggedIn.value = false;
-      }
-    };
-
-    const goToCart = () => {
-      console.log('Going to cart');
-    };
-
-    const viewMoreNewItems = () => {
-      console.log('View more new items');
-      window.location.href = '/new-items';
-    };
-
-    const viewMoreFollowedItems = () => {
-      console.log('View more followed items');
-      window.location.href = '/followed-items';
-    };
+    const formatPrice = (price) => {
+      return price.toLocaleString()
+    }
 
     const validateLoginId = () => {
-      const loginIdRegex = /^[a-z0-9]{4,10}$/;
-      if (!loginIdRegex.test(signupLoginId.value)) {
-        loginIdError.value = '아이디는 4~10자의 영문 소문자와 숫자만 사용 가능합니다.';
+      if (signupLoginId.value.length < 5) {
+        loginIdError.value = '아이디는 5자 이상이어야 합니다.'
       } else {
-        loginIdError.value = '';
+        loginIdError.value = ''
       }
-    };
+    }
 
     const validatePassword = () => {
-      if (signupPassword.value.length < 6) {
-        passwordError.value = '비밀번호는 최소 6자 이상이어야 합니다.';
+      if (signupPassword.value.length < 8) {
+        passwordError.value = '비밀번호는 8자 이상이어야 합니다.'
       } else {
-        passwordError.value = '';
+        passwordError.value = ''
       }
-    };
+    }
 
-    const isSignupFormValid = computed(() => {
-      return signupLoginId.value && signupPassword.value && username.value && nickname.value && !loginIdError.value && !passwordError.value;
-    });
+    const register = () => {
+      // 회원가입 로직
+    }
 
-    const switchToLogin = () => {
-      showSignupModal.value = false;
-      showLoginModal.value = true;
-    };
-
-    const switchToSignup = () => {
-      showLoginModal.value = false;
-      showSignupModal.value = true;
-    };
+    const login = () => {
+      // 로그인 로직
+    }
 
     const kakaoLogin = () => {
-      console.log('Kakao login clicked');
-    };
+      // 카카오 로그인 로직
+    }
+
+    const switchToLogin = () => {
+      showSignupModal.value = false
+      showLoginModal.value = true
+    }
+
+    const switchToSignup = () => {
+      showLoginModal.value = false
+      showSignupModal.value = true
+    }
 
     return {
       isLoggedIn,
       searchType,
       searchQuery,
       categories,
-      hotTopItems,
-      newItems,
-      followedUsersItems,
+      product,
+      currentImage,
+      isFollowing,
+      isLiked,
       showLoginModal,
       showSignupModal,
       signupLoginId,
@@ -312,30 +309,26 @@ export default {
       loginIdError,
       passwordError,
       search,
-      login,
-      register,
-      goToProductRegistration,
-      goToProductManagement,
-      goToOrderManagement,
-      viewMyInfo,
-      editProfile,
-      logout,
-      deleteAccount,
-      goToCart,
-      viewMoreNewItems,
-      viewMoreFollowedItems,
+      toggleFollow,
+      toggleLike,
+      prevImage,
+      nextImage,
+      addToCart,
+      buyNow,
+      formatPrice,
       validateLoginId,
       validatePassword,
-      isSignupFormValid,
+      register,
+      login,
+      kakaoLogin,
       switchToLogin,
       switchToSignup,
-      kakaoLogin,
-    };
+    }
   },
-};
+}
 </script>
 
-<style scoped>
+<style>
 :root {
   --main-color: #FF0000;
   --text-color: #333;
@@ -442,6 +435,267 @@ header {
 .user-actions button:hover {
   background-color: var(--bg-color);
   color: var(--main-color);
+}
+
+/* Categories Styles */
+.categories {
+  background-color: #FFFFFF;
+  padding: 15px 0;
+}
+
+.categories-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-color);
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.category-item {
+  flex: 1;
+  text-align: center;
+  padding: 15px 0;
+  color: var(--text-color);
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  border-right: 1px solid #e0e0e0;
+}
+
+.category-item:last-child {
+  border-right: none;
+}
+
+.category-item:hover {
+  background-color: var(--hover-color);
+  color: var(--bg-color);
+}
+
+/* Product Detail Styles */
+.product-detail {
+  display: flex;
+  flex-direction: column;
+  padding: 30px 0;
+}
+
+.seller-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.seller-photo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 15px;
+}
+
+.seller-name-follow {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.seller-name {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.follow-button {
+  padding: 5px 15px;
+  background-color: var(--main-color);
+  color: var(--bg-color);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.follow-button:hover {
+  background-color: var(--hover-color);
+}
+
+.product-info {
+  display: flex;
+  gap: 30px;
+}
+
+.product-image-container {
+  flex: 1;
+  max-width: 500px;
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.image-nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.image-nav-button:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.image-nav-button.prev {
+  left: 10px;
+}
+
+.image-nav-button.next {
+  right: 10px;
+}
+
+.product-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.product-name {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.like-actions {
+  display: flex;
+  align-items: center;
+}
+
+.like-count {
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+.like-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  padding: 0;
+}
+
+.product-category {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.product-description {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  flex-grow: 1;
+}
+
+.product-actions-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.product-price {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: var(--main-color);
+  text-align: right;
+}
+
+.buy-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.add-to-cart,
+.buy-now {
+  padding: 12px 24px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  flex: 1;
+}
+
+.add-to-cart {
+  background-color: #f0f0f0;
+  color: var(--text-color);
+}
+
+.add-to-cart:hover {
+  background-color: #e0e0e0;
+}
+
+.buy-now {
+  background-color: var(--main-color);
+  color: var(--bg-color);
+}
+
+.buy-now:hover {
+  background-color: var(--hover-color);
+}
+
+/* Footer Styles */
+footer {
+  background-color: var(--footer-bg);
+  padding: 30px 0;
+  margin-top: auto;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.footer-links {
+  display: flex;
+  gap: 20px;
+}
+
+.footer-links a {
+  color: var(--text-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: var(--main-color);
+}
+
+.footer-copyright {
+  margin-top: 20px;
+  text-align: center;
+  width: 100%;
+  font-size: 14px;
+  color: #666;
 }
 
 /* Modal Styles */
@@ -590,223 +844,6 @@ header {
 .login-link a:hover,
 .signup-link a:hover {
   text-decoration: underline;
-}
-
-/* Categories Styles */
-.categories {
-  background-color: #FFFFFF;
-  padding: 15px 0;
-}
-
-.categories-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: var(--bg-color);
-  border-radius: 5px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.category-item {
-  flex: 1;
-  text-align: center;
-  padding: 15px 0;
-  color: var(--text-color);
-  text-decoration: none;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  border-right: 1px solid #e0e0e0;
-}
-
-.category-item:last-child {
-  border-right: none;
-}
-
-.category-item:hover {
-  background-color: var(--hover-color);
-  color: var(--bg-color);
-}
-
-/* Hot Top 10 Styles */
-.hot-top-10 {
-  margin: 30px auto;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
-  border: 2px solid var(--main-color);
-}
-
-.hot-top-10 h2 {
-  color: var(--main-color);
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.hot-top-10 ol {
-  padding-left: 0;
-  counter-reset: item;
-  list-style-type: none;
-}
-
-.hot-top-10 li {
-  margin-bottom: 15px;
-  position: relative;
-  padding-left: 40px;
-  font-size: 18px;
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 10px;
-}
-
-.hot-top-10 li:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-  padding-bottom: 0;
-}
-
-.hot-top-10 li:before {
-  content: counter(item);
-  counter-increment: item;
-  background-color: var(--main-color);
-  color: white;
-  font-weight: bold;
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
-  text-align: center;
-  border-radius: 4px;
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.hot-top-10 li a {
-  color: var(--text-color);
-  text-decoration: none;
-  transition: color 0.3s ease;
-  display: block;
-}
-
-.hot-top-10 li a:hover {
-  color: var(--main-color);
-}
-
-/* Item Cards Styles */
-.item-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  margin: 30px 0;
-}
-
-.item-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.item-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.item-card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
-
-.item-info {
-  padding: 15px;
-}
-
-.item-name {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.seller-info {
-  font-size: 14px;
-  color: #666;
-}
-
-.seller-info a {
-  color: var(--main-color);
-  text-decoration: none;
-}
-
-/* View More Button Styles */
-.view-more-container {
-  text-align: center;
-  margin-top: 20px;
-  margin-bottom: 60px;
-}
-
-.view-more-btn {
-  background-color: var(--bg-color);
-  color: var(--main-color);
-  border: 2px solid var(--main-color);
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.view-more-btn:hover {
-  background-color: var(--main-color);
-  color: var(--bg-color);
-}
-
-/* Footer Styles */
-footer {
-  background-color: var(--footer-bg);
-  padding: 30px 0;
-  margin-top: auto;
-}
-
-.footer-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.footer-links {
-  display: flex;
-  gap: 20px;
-}
-
-.footer-links a {
-  color: var(--text-color);
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-  color: var(--main-color);
-}
-
-.footer-copyright {
-  margin-top: 20px;
-  text-align: center;
-  width: 100%;
-  font-size: 14px;
-  color: #666;
-}
-
-.no-items-message {
-  text-align: center;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  margin: 20px 0;
-  color: #666;
-  font-style: italic;
 }
 
 /* Dropdown Menu Styles */

@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div>
     <header>
       <div class="container header-content">
         <a href="/" class="logo">Hot Item Collector</a>
@@ -44,57 +44,18 @@
       </div>
     </nav>
 
-    <main class="container my-info">
-      <section class="profile-section">
-        <img :src="user.profileImage" alt="프로필 이미지" class="profile-image">
-        <div class="profile-details">
-          <h1 class="profile-name">{{ user.name }}</h1>
-          <p class="profile-bio">{{ user.bio }}</p>
-          <div class="profile-stats">
-            <span>팔로워: {{ user.followers }}</span>
-            <button @click="showFollowers">팔로워 목록</button>
-          </div>
+    <main class="container following-list">
+      <h1>팔로우 목록</h1>
+      <div v-for="user in followingUsers" :key="user.id" class="following-item" @click="goToUserProfile(user.id)">
+        <img :src="user.profileImage" :alt="user.name" class="following-profile-image">
+        <div class="following-info">
+          <div class="following-name">{{ user.name }}</div>
+          <div class="following-bio">{{ user.bio }}</div>
         </div>
-      </section>
-
-      <section class="product-section">
-        <h2 @click="goToRegisteredProducts">내가 등록한 상품</h2>
-        <div class="product-list">
-          <div v-for="product in registeredProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
-            <img :src="product.image" :alt="product.name" class="product-image">
-            <div class="product-info">
-              <div class="product-name">{{ product.name }}</div>
-              <div class="product-id">ID: {{ product.id }}</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="product-section">
-        <h2 @click="goToPurchasedProducts">내가 구매한 상품</h2>
-        <div class="product-list">
-          <div v-for="product in purchasedProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
-            <img :src="product.image" :alt="product.name" class="product-image">
-            <div class="product-info">
-              <div class="product-name">{{ product.name }}</div>
-              <div class="product-id">ID: {{ product.id }}</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="product-section">
-        <h2 @click="goToLikedProducts">내가 좋아요한 상품</h2>
-        <div class="product-list">
-          <div v-for="product in likedProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
-            <img :src="product.image" :alt="product.name" class="product-image">
-            <div class="product-info">
-              <div class="product-name">{{ product.name }}</div>
-              <div class="product-id">ID: {{ product.id }}</div>
-            </div>
-          </div>
-        </div>
-      </section>
+        <button @click.stop="toggleFollow(user)" :class="['toggle-follow', { following: user.isFollowing }]">
+          {{ user.isFollowing ? '팔로우 취소' : '팔로우' }}
+        </button>
+      </div>
     </main>
 
     <footer>
@@ -117,42 +78,49 @@
 import { ref } from 'vue'
 
 export default {
-  name: 'App',
   setup() {
     const searchType = ref('product')
     const searchQuery = ref('')
     const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
 
-    const user = ref({
-      name: '홍길동',
-      profileImage: 'https://example.com/profile.jpg',
-      bio: '안녕하세요, 핫아이템컬렉터에서 활동 중인 홍길동입니다. 수제 쿠키와 수공예품을 좋아하며, 다양한 핸드메이드 아이템을 수집하고 있습니다. 여러분의 특별한 아이템들을 기대하고 있어요!',
-      followers: 1234
-    })
-
-    const registeredProducts = ref([
-      { id: 'R001', name: '수제 쿠키', image: 'https://example.com/cookie.jpg' },
-      { id: 'R002', name: '손뜨개 목도리', image: 'https://example.com/scarf.jpg' },
-      { id: 'R003', name: '천연 비누', image: 'https://example.com/soap.jpg' },
-      { id: 'R004', name: '수제 캔들', image: 'https://example.com/candle.jpg' }
+    const followingUsers = ref([
+      {
+        id: 1,
+        name: '김민수',
+        profileImage: 'https://example.com/profile1.jpg',
+        bio: '수제 쿠키 전문가, 달콤한 행복을 나눕니다.',
+        isFollowing: true
+      },
+      {
+        id: 2,
+        name: '이지은',
+        profileImage: 'https://example.com/profile2.jpg',
+        bio: '핸드메이드 액세서리 디자이너, 특별한 아이템을 만듭니다.',
+        isFollowing: true
+      },
+      {
+        id: 3,
+        name: '박준호',
+        profileImage: 'https://example.com/profile3.jpg',
+        bio: '수제 가죽 제품 장인, 오래 사용할 수 있는 제품을 만듭니다.',
+        isFollowing: true
+      }
     ])
 
-    const purchasedProducts = ref([
-      { id: 'P001', name: '유기농 잼', image: 'https://example.com/jam.jpg' },
-      { id: 'P002', name: '핸드메이드 가방', image: 'https://example.com/bag.jpg' },
-      { id: 'P003', name: '아로마 오일', image: 'https://example.com/oil.jpg' },
-      { id: 'P004', name: '수제 초콜릿', image: 'https://example.com/chocolate.jpg' }
-    ])
+    const toggleFollow = (user) => {
+      user.isFollowing = !user.isFollowing
+    }
 
-    const likedProducts = ref([
-      { id: 'L001', name: '수제 마카롱', image: 'https://example.com/macaron.jpg' },
-      { id: 'L002', name: '핸드메이드 악세서리', image: 'https://example.com/accessory.jpg' },
-      { id: 'L003', name: '친환경 텀블러', image: 'https://example.com/tumbler.jpg' },
-      { id: 'L004', name: '수제 도자기', image: 'https://example.com/pottery.jpg' }
-    ])
+    const goToUserProfile = (userId) => {
+      alert(`사용자 ID ${userId}의 프로필 페이지로 이동합니다.`)
+    }
 
-    const showFollowers = () => {
-      alert('팔로워 목록 표시 기능은 아직 구현되지 않았습니다.')
+    const search = () => {
+      alert(`검색 유형: ${searchType.value}, 검색어: ${searchQuery.value}`)
+    }
+
+    const selectCategory = (category) => {
+      alert(`선택한 카테고리: ${category}`)
     }
 
     const goToProductRegistration = () => {
@@ -168,7 +136,7 @@ export default {
     }
 
     const viewMyInfo = () => {
-      alert('현재 페이지가 내정보 페이지입니다.')
+      alert('내 정보 페이지로 이동합니다.')
     }
 
     const editProfile = () => {
@@ -190,31 +158,15 @@ export default {
       alert('장바구니 페이지로 이동합니다.')
     }
 
-    const goToProduct = (productId) => {
-      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
-    }
-
-    const goToRegisteredProducts = () => {
-      alert('내가 등록한 상품 목록 페이지로 이동합니다.')
-    }
-
-    const goToPurchasedProducts = () => {
-      alert('내가 구매한 상품 목록 페이지로 이동합니다.')
-    }
-
-    const goToLikedProducts = () => {
-      alert('내가 좋아요한 상품 목록 페이지로 이동합니다.')
-    }
-
     return {
       searchType,
       searchQuery,
       categories,
-      user,
-      registeredProducts,
-      purchasedProducts,
-      likedProducts,
-      showFollowers,
+      followingUsers,
+      toggleFollow,
+      goToUserProfile,
+      search,
+      selectCategory,
       goToProductRegistration,
       goToProductManagement,
       goToOrderManagement,
@@ -222,23 +174,13 @@ export default {
       editProfile,
       logout,
       deleteAccount,
-      goToCart,
-      goToProduct,
-      goToRegisteredProducts,
-      goToPurchasedProducts,
-      goToLikedProducts,
-      search() {
-        alert(`검색 타입: ${searchType.value}, 검색어: ${searchQuery.value}`)
-      },
-      selectCategory(category) {
-        alert(`카테고리 선택됨: ${category}`)
-      }
+      goToCart
     }
   }
 }
 </script>
 
-<style>
+<style scoped>
 :root {
   --main-color: #FF0000;
   --text-color: #333;
@@ -416,128 +358,74 @@ header {
   color: var(--bg-color);
 }
 
-/* My Info Styles */
-.my-info {
+/* Following List Styles */
+.following-list {
   padding: 30px 0;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.profile-section {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 50px;
-  padding: 30px;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.profile-image {
-  width: 250px;
-  height: 250px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-right: 30px;
-}
-
-.profile-details {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.profile-name {
-  font-size: 32px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  color: #000000;
-}
-
-.profile-bio {
-  font-size: 18px;
-  margin-bottom: 20px;
-  max-width: 600px;
-  line-height: 1.6;
-}
-
-.profile-stats {
+.following-item {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
-}
-
-.profile-stats span {
-  margin-right: 20px;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.profile-stats button {
-  padding: 10px 20px;
-  background-color: var(--main-color);
-  color: var(--bg-color);
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  font-size: 16px;
-}
-
-.profile-stats button:hover {
-  background-color: var(--hover-color);
-}
-
-.product-section {
-  margin-bottom: 30px;
-}
-
-.product-section h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #000000;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.product-section h2:hover {
-  color: var(--main-color);
-}
-
-.product-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.product-card {
+  padding: 20px;
   border: 1px solid #e0e0e0;
-  border-radius: 5px;
-  overflow: hidden;
-  transition: box-shadow 0.3s ease;
+  border-radius: 10px;
+  margin-bottom: 20px;
   cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: var(--bg-color);
 }
 
-.product-card:hover {
+.following-item:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+  background-color: #f9f9f9;
 }
 
-.product-image {
-  width: 100%;
-  height: 200px;
+.following-profile-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
   object-fit: cover;
+  margin-right: 20px;
 }
 
-.product-info {
-  padding: 15px;
+.following-info {
+  flex-grow: 1;
 }
 
-.product-name {
+.following-name {
+  font-size: 18px;
   font-weight: bold;
   margin-bottom: 5px;
 }
 
-.product-id {
-  color: #666;
+.following-bio {
   font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.toggle-follow {
+  padding: 8px 16px;
+  background-color: var(--bg-color);
+  color: var(--main-color);
+  border: 2px solid var(--main-color);
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.toggle-follow:hover {
+  background-color: var(--main-color);
+  color: var(--bg-color);
+}
+
+.toggle-follow.following {
+  background-color: var(--main-color);
+  color: var(--bg-color);
 }
 
 /* Footer Styles */

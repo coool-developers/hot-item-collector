@@ -6,18 +6,22 @@ export default {
     const searchType = ref('product')
     const searchQuery = ref('')
     const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
-    const userInfo = ref({
-      username: 'johndoe',
-      loginId: 'johndoe123',
-      nickname: 'JohnD',
-      address: '서울특별시 강남구 테헤란로 123',
-      phoneNumber: '010-1234-5678',
-      info: '안녕하세요. 저는 Hot Item Collector의 열렬한 팬입니다!',
-      profileImage: 'https://example.com/profile-image.jpg'
+    const shippingInfo = ref({
+      name: '김철수',
+      phone: '010-1234-5678',
+      address: '서울특별시 강남구 테헤란로 123 아파트 456호'
     })
-
-    const showProfileImageModal = ref(false)
-    const tempProfileImage = ref(null)
+    const product = ref({
+      id: 1,
+      name: '수제 초콜릿',
+      price: 15000,
+      seller: '달콤공방',
+      sellerId: 101,
+      image: 'https://example.com/chocolate.jpg',
+      status: '배송완료'
+    })
+    const deliveryStatuses = ref(['결제완료', '상품준비중', '배송중', '배송완료'])
+    const currentStatusIndex = ref(0) // 현재 상태 (배송완료)
 
     const search = () => {
       alert(`검색 유형: ${searchType.value}, 검색어: ${searchQuery.value}`)
@@ -40,11 +44,11 @@ export default {
     }
 
     const viewMyInfo = () => {
-      alert('내 정보 페이지로 이동합니다.')
+      alert('내 정보 보기 페이지로 이동합니다.')
     }
 
     const editProfile = () => {
-      alert('프로필 수정 페이지로 이동합니다.')
+      alert('정보 수정 페이지로 이동합니다.')
     }
 
     const logout = () => {
@@ -62,44 +66,22 @@ export default {
       alert('장바구니 페이지로 이동합니다.')
     }
 
-    const openProfileImageModal = () => {
-      showProfileImageModal.value = true
+    const goToProductDetail = (productId) => {
+      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
     }
 
-    const closeProfileImageModal = () => {
-      showProfileImageModal.value = false
-      tempProfileImage.value = null
-    }
-
-    const onFileChange = (event) => {
-      const file = event.target.files[0]
-      if (file) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          tempProfileImage.value = e.target.result
-        }
-        reader.readAsDataURL(file)
-      }
-    }
-
-    const updateProfileImage = () => {
-      if (tempProfileImage.value) {
-        userInfo.value.profileImage = tempProfileImage.value
-        closeProfileImageModal()
-      }
-    }
-
-    const submitForm = () => {
-      alert('개인정보가 성공적으로 수정되었습니다.')
-      // 여기에서 서버로 데이터를 전송하는 로직을 구현합니다.
+    const goToSellerDetail = (sellerId) => {
+      alert(`판매자 ID ${sellerId}의 상세 페이지로 이동합니다.`)
     }
 
     return {
       searchType,
       searchQuery,
       categories,
-      userInfo,
-      showProfileImageModal,
+      shippingInfo,
+      product,
+      deliveryStatuses,
+      currentStatusIndex,
       search,
       selectCategory,
       goToProductRegistration,
@@ -110,11 +92,8 @@ export default {
       logout,
       deleteAccount,
       goToCart,
-      openProfileImageModal,
-      closeProfileImageModal,
-      onFileChange,
-      updateProfileImage,
-      submitForm
+      goToProductDetail,
+      goToSellerDetail
     }
   }
 }
@@ -159,59 +138,59 @@ export default {
     <nav class="categories">
       <div class="container">
         <div class="categories-container">
-          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#" class="category-item">
+          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#"
+             class="category-item">
             {{ category }}
           </a>
         </div>
       </div>
     </nav>
 
-    <main class="container edit-profile">
-      <h1>개인정보 수정</h1>
-      <form class="edit-profile-form" @submit.prevent="submitForm">
-        <div class="image-upload">
-          <img :src="userInfo.profileImage" alt="프로필 이미지" class="profile-image">
-          <button type="button" class="profile-image-change-btn" @click="openProfileImageModal">프로필 사진 변경</button>
+    <main class="container">
+      <div class="order-details">
+        <div class="shipping-info">
+          <h2>배송지 정보</h2>
+          <div class="info-group">
+            <label>이름:</label>
+            <span>{{ shippingInfo.name }}</span>
+          </div>
+          <div class="info-group">
+            <label>전화번호:</label>
+            <span>{{ shippingInfo.phone }}</span>
+          </div>
+          <div class="info-group">
+            <label>주소:</label>
+            <span>{{ shippingInfo.address }}</span>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="username">사용자 이름</label>
-          <input type="text" id="username" v-model="userInfo.username" readonly>
-        </div>
-        <div class="form-group">
-          <label for="loginId">로그인 ID</label>
-          <input type="text" id="loginId" v-model="userInfo.loginId" readonly>
-        </div>
-        <div class="form-group">
-          <label for="nickname">닉네임</label>
-          <input type="text" id="nickname" v-model="userInfo.nickname">
-        </div>
-        <div class="form-group">
-          <label for="address">주소</label>
-          <input type="text" id="address" v-model="userInfo.address">
-        </div>
-        <div class="form-group">
-          <label for="phoneNumber">전화번호</label>
-          <input type="tel" id="phoneNumber" v-model="userInfo.phoneNumber">
-        </div>
-        <div class="form-group">
-          <label for="info">자기소개</label>
-          <textarea id="info" v-model="userInfo.info"></textarea>
-        </div>
-        <button type="submit" class="submit-btn">수정 완료</button>
-      </form>
-    </main>
-
-    <!-- 프로필 이미지 변경 모달 -->
-    <div class="modal" v-if="showProfileImageModal">
-      <div class="modal-content">
-        <h2>프로필 사진 변경</h2>
-        <input type="file" @change="onFileChange" accept="image/*">
-        <div class="modal-buttons">
-          <button @click="closeProfileImageModal">취소</button>
-          <button @click="updateProfileImage">변경</button>
+        <div class="order-summary">
+          <h2>주문 상품 정보</h2>
+          <div class="delivery-status">
+            <h3>배송 상태</h3>
+            <div class="status-bar">
+              <div v-for="(status, index) in deliveryStatuses" :key="status"
+                   :class="['status-step', { active: index <= currentStatusIndex }]">
+                <div class="status-icon">{{ index + 1 }}</div>
+                <div class="status-label">{{ status }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="product-item" @click="goToProductDetail(product.id)">
+            <div class="product-content">
+              <img :src="product.image" :alt="product.name" class="product-image">
+              <div class="product-info">
+                <div>
+                  <div class="product-name">{{ product.name }}</div>
+                  <a :href="'/seller/' + product.sellerId" class="seller-name"
+                     @click.stop="goToSellerDetail(product.sellerId)">{{ product.seller }}</a>
+                </div>
+                <span>{{ product.price.toLocaleString() }}원</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </main>
 
     <footer>
       <div class="container footer-content">
@@ -228,6 +207,7 @@ export default {
     </footer>
   </div>
 </template>
+
 <style>
 :root {
   --main-color: #FF0000;
@@ -236,12 +216,11 @@ export default {
   --hover-color: #FF6666;
   --button-color: #FF4136;
   --footer-bg: #f8f8f8;
-  --light-gray: #f0f0f0;
-  --border-color: #ddd;
-  --modal-bg: rgba(0, 0, 0, 0.5);
-  --category-color: #f1f1f1;
-  --category-hover-color: #e0e0e0;
-  --button-hover-color: #FFCCCB;
+  --card-border: #e0e0e0;
+  --input-border: #ccc;
+  --section-border: #ddd;
+  --status-incomplete: #ccc;
+  --status-complete: #4CAF50;
 }
 
 body {
@@ -354,7 +333,7 @@ header {
   right: 0;
   background-color: var(--bg-color);
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
   border-radius: 5px;
 }
@@ -378,7 +357,7 @@ header {
 
 /* Categories Styles */
 .categories {
-  background-color: var(--category-color);
+  background-color: #f1f1f1;
   padding: 15px 0;
 }
 
@@ -408,146 +387,152 @@ header {
 }
 
 .category-item:hover {
-  background-color: var(--category-hover-color);
-  color: var(--text-color);
+  background-color: var(--hover-color);
+  color: var(--bg-color);
 }
 
-/* Edit Profile Styles */
-.edit-profile {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+/* Main Content Styles */
+main {
+  flex-grow: 1;
+  padding: 60px 0;
 }
 
-.edit-profile h1 {
-  color: var(--text-color);
-  margin-bottom: 20px;
-  font-size: 28px;
-  font-weight: bold;
-  text-align: center;
-}
-
-.edit-profile-form {
-  display: grid;
-  gap: 15px;
-}
-
-.form-group {
+.order-details {
   display: flex;
   flex-direction: column;
 }
 
-.form-group label {
-  margin-bottom: 5px;
-  font-weight: bold;
+.shipping-info,
+.order-summary {
+  width: 100%;
+  margin-bottom: 30px;
+  border: 1px solid var(--section-border);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.form-group input,
-.form-group textarea {
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  font-size: 16px;
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
 }
 
-.form-group input[readonly] {
-  background-color: var(--light-gray);
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.submit-btn,
-.profile-image-change-btn {
-  padding: 10px 20px;
-  background-color: var(--category-color);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.submit-btn:hover,
-.profile-image-change-btn:hover {
-  background-color: var(--button-hover-color);
-}
-
-.profile-image {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  object-fit: cover;
+.info-group {
   margin-bottom: 15px;
 }
 
-.image-upload {
+.info-group label {
+  font-weight: bold;
+  display: inline-block;
+  width: 100px;
+}
+
+.product-item {
   display: flex;
   flex-direction: column;
-  align-items: center;
-}
-
-/* Modal Styles */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--modal-bg);
-}
-
-.modal-content {
-  background-color: var(--bg-color);
-  margin: 15% auto;
   padding: 20px;
-  border-radius: 10px;
-  width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.modal h2 {
-  margin-top: 0;
-}
-
-.modal input {
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-}
-
-.modal-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-}
-
-.modal-buttons button {
-  margin-left: 10px;
-  padding: 10px 20px;
-  background-color: var(--category-color);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--card-border);
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 16px;
+}
+
+.product-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+}
+
+.product-content {
+  display: flex;
+  align-items: center;
+}
+
+.product-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  margin-right: 20px;
+}
+
+.product-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-grow: 1;
+}
+
+.product-name {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.seller-name {
+  color: var(--main-color);
+  text-decoration: none;
   font-weight: bold;
 }
 
-.modal-buttons button:hover {
-  background-color: var(--button-hover-color);
+.seller-name:hover {
+  text-decoration: underline;
+}
+
+.delivery-status {
+  margin-bottom: 20px;
+}
+
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.status-step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+
+.status-step::before {
+  content: '';
+  height: 3px;
+  width: 100%;
+  background-color: var(--status-incomplete);
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  z-index: 1;
+}
+
+.status-step:last-child::before {
+  display: none;
+}
+
+.status-step.active::before {
+  background-color: var(--status-complete);
+}
+
+.status-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: var(--status-incomplete);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  position: relative;
+  z-index: 2;
+}
+
+.status-step.active .status-icon {
+  background-color: var(--status-complete);
+}
+
+.status-label {
+  margin-top: 5px;
+  font-size: 12px;
 }
 
 /* Footer Styles */

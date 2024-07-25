@@ -1,30 +1,52 @@
 <script>
-import { ref } from 'vue';
+import { ref,computed } from 'vue';
 
 export default {
   setup() {
     const searchType = ref('product')
     const searchQuery = ref('')
     const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
-    const userInfo = ref({
-      username: 'johndoe',
-      loginId: 'johndoe123',
-      nickname: 'JohnD',
-      address: '서울특별시 강남구 테헤란로 123',
-      phoneNumber: '010-1234-5678',
-      info: '안녕하세요. 저는 Hot Item Collector의 열렬한 팬입니다!',
-      profileImage: 'https://example.com/profile-image.jpg'
+    const currentImageIndex = ref(0)
+
+    // 상품 상세 정보 (실제로는 API에서 가져와야 함)
+    const product = ref({
+      id: 1,
+      name: '수제 도자기 커피 머그컵',
+      category: '공예품',
+      description: '손으로 빚어 만든 아름다운 도자기 커피 머그컵입니다. 각각의 컵은 유니크한 패턴과 색상으로 제작되어 특별한 가치를 지닙니다. 커피 타임을 더욱 특별하게 만들어줄 아이템입니다.',
+      price: 25000,
+      likes: 42,
+      images: [
+        'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+        'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+        'https://images.unsplash.com/photo-1530968831187-a937ade474db?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
+      ],
+      sellerName: '도예장인',
+      sellerPhoto: 'https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=60&h=60&q=80'
     })
 
-    const showProfileImageModal = ref(false)
-    const tempProfileImage = ref(null)
+    const currentImage = computed(() => {
+      return product.value.images[currentImageIndex.value]
+    })
 
-    const search = () => {
-      alert(`검색 유형: ${searchType.value}, 검색어: ${searchQuery.value}`)
+    const formatPrice = (price) => {
+      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
     }
 
-    const selectCategory = (category) => {
-      alert(`선택한 카테고리: ${category}`)
+    const prevImage = () => {
+      if (currentImageIndex.value > 0) {
+        currentImageIndex.value--
+      } else {
+        currentImageIndex.value = product.value.images.length - 1
+      }
+    }
+
+    const nextImage = () => {
+      if (currentImageIndex.value < product.value.images.length - 1) {
+        currentImageIndex.value++
+      } else {
+        currentImageIndex.value = 0
+      }
     }
 
     const goToProductRegistration = () => {
@@ -40,11 +62,11 @@ export default {
     }
 
     const viewMyInfo = () => {
-      alert('내 정보 페이지로 이동합니다.')
+      alert('내 정보 보기 페이지로 이동합니다.')
     }
 
     const editProfile = () => {
-      alert('프로필 수정 페이지로 이동합니다.')
+      alert('정보 수정 페이지로 이동합니다.')
     }
 
     const logout = () => {
@@ -52,9 +74,8 @@ export default {
     }
 
     const deleteAccount = () => {
-      const confirmed = confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')
-      if (confirmed) {
-        alert('회원 탈퇴 처리되었습니다. 이용해 주셔서 감사합니다.')
+      if (confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+        alert('회원 탈퇴가 완료되었습니다.')
       }
     }
 
@@ -62,46 +83,19 @@ export default {
       alert('장바구니 페이지로 이동합니다.')
     }
 
-    const openProfileImageModal = () => {
-      showProfileImageModal.value = true
-    }
-
-    const closeProfileImageModal = () => {
-      showProfileImageModal.value = false
-      tempProfileImage.value = null
-    }
-
-    const onFileChange = (event) => {
-      const file = event.target.files[0]
-      if (file) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          tempProfileImage.value = e.target.result
-        }
-        reader.readAsDataURL(file)
-      }
-    }
-
-    const updateProfileImage = () => {
-      if (tempProfileImage.value) {
-        userInfo.value.profileImage = tempProfileImage.value
-        closeProfileImageModal()
-      }
-    }
-
-    const submitForm = () => {
-      alert('개인정보가 성공적으로 수정되었습니다.')
-      // 여기에서 서버로 데이터를 전송하는 로직을 구현합니다.
+    const buyNow = () => {
+      alert('상품정보 수정 페이지로 이동합니다.')
     }
 
     return {
       searchType,
       searchQuery,
       categories,
-      userInfo,
-      showProfileImageModal,
-      search,
-      selectCategory,
+      product,
+      currentImage,
+      formatPrice,
+      prevImage,
+      nextImage,
       goToProductRegistration,
       goToProductManagement,
       goToOrderManagement,
@@ -110,11 +104,7 @@ export default {
       logout,
       deleteAccount,
       goToCart,
-      openProfileImageModal,
-      closeProfileImageModal,
-      onFileChange,
-      updateProfileImage,
-      submitForm
+      buyNow
     }
   }
 }
@@ -159,59 +149,47 @@ export default {
     <nav class="categories">
       <div class="container">
         <div class="categories-container">
-          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#" class="category-item">
+          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#"
+             class="category-item">
             {{ category }}
           </a>
         </div>
       </div>
     </nav>
 
-    <main class="container edit-profile">
-      <h1>개인정보 수정</h1>
-      <form class="edit-profile-form" @submit.prevent="submitForm">
-        <div class="image-upload">
-          <img :src="userInfo.profileImage" alt="프로필 이미지" class="profile-image">
-          <button type="button" class="profile-image-change-btn" @click="openProfileImageModal">프로필 사진 변경</button>
+    <main class="container">
+      <section class="product-detail">
+        <div class="seller-info">
+          <img :src="product.sellerPhoto" :alt="product.sellerName" class="seller-photo">
+          <div class="seller-name-follow">
+            <span class="seller-name">{{ product.sellerName }}</span>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="username">사용자 이름</label>
-          <input type="text" id="username" v-model="userInfo.username" readonly>
+        <div class="product-info">
+          <div class="product-image-container">
+            <img :src="currentImage" :alt="product.name" class="product-image">
+            <button class="image-nav-button prev" @click="prevImage" v-if="product.images.length > 1">&lt;</button>
+            <button class="image-nav-button next" @click="nextImage" v-if="product.images.length > 1">&gt;</button>
+          </div>
+          <div class="product-details">
+            <div class="product-header">
+              <h1 class="product-name">{{ product.name }}</h1>
+              <div class="like-actions">
+                <span class="like-count">{{ product.likes }} 좋아요</span>
+              </div>
+            </div>
+            <p class="product-category">{{ product.category }}</p>
+            <p class="product-description">{{ product.description }}</p>
+            <div class="product-actions-container">
+              <p class="product-price">{{ formatPrice(product.price) }}원</p>
+              <div class="buy-actions">
+                <button class="buy-now" @click="buyNow">상품정보 수정</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="loginId">로그인 ID</label>
-          <input type="text" id="loginId" v-model="userInfo.loginId" readonly>
-        </div>
-        <div class="form-group">
-          <label for="nickname">닉네임</label>
-          <input type="text" id="nickname" v-model="userInfo.nickname">
-        </div>
-        <div class="form-group">
-          <label for="address">주소</label>
-          <input type="text" id="address" v-model="userInfo.address">
-        </div>
-        <div class="form-group">
-          <label for="phoneNumber">전화번호</label>
-          <input type="tel" id="phoneNumber" v-model="userInfo.phoneNumber">
-        </div>
-        <div class="form-group">
-          <label for="info">자기소개</label>
-          <textarea id="info" v-model="userInfo.info"></textarea>
-        </div>
-        <button type="submit" class="submit-btn">수정 완료</button>
-      </form>
+      </section>
     </main>
-
-    <!-- 프로필 이미지 변경 모달 -->
-    <div class="modal" v-if="showProfileImageModal">
-      <div class="modal-content">
-        <h2>프로필 사진 변경</h2>
-        <input type="file" @change="onFileChange" accept="image/*">
-        <div class="modal-buttons">
-          <button @click="closeProfileImageModal">취소</button>
-          <button @click="updateProfileImage">변경</button>
-        </div>
-      </div>
-    </div>
 
     <footer>
       <div class="container footer-content">
@@ -228,6 +206,7 @@ export default {
     </footer>
   </div>
 </template>
+
 <style>
 :root {
   --main-color: #FF0000;
@@ -236,12 +215,6 @@ export default {
   --hover-color: #FF6666;
   --button-color: #FF4136;
   --footer-bg: #f8f8f8;
-  --light-gray: #f0f0f0;
-  --border-color: #ddd;
-  --modal-bg: rgba(0, 0, 0, 0.5);
-  --category-color: #f1f1f1;
-  --category-hover-color: #e0e0e0;
-  --button-hover-color: #FFCCCB;
 }
 
 body {
@@ -378,7 +351,7 @@ header {
 
 /* Categories Styles */
 .categories {
-  background-color: var(--category-color);
+  background-color: #f1f1f1;
   padding: 15px 0;
 }
 
@@ -408,146 +381,196 @@ header {
 }
 
 .category-item:hover {
-  background-color: var(--category-hover-color);
-  color: var(--text-color);
+  background-color: var(--hover-color);
+  color: var(--bg-color);
 }
 
-/* Edit Profile Styles */
-.edit-profile {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+/* Product Detail Styles */
+.product-detail {
+  display: flex;
+  flex-direction: column;
+  padding: 30px 0;
 }
 
-.edit-profile h1 {
-  color: var(--text-color);
+.seller-info {
+  display: flex;
+  align-items: center;
   margin-bottom: 20px;
-  font-size: 28px;
-  font-weight: bold;
-  text-align: center;
 }
 
-.edit-profile-form {
-  display: grid;
+.seller-photo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 15px;
+}
+
+.seller-name-follow {
+  display: flex;
+  align-items: center;
   gap: 15px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  margin-bottom: 5px;
+.seller-name {
+  font-size: 18px;
   font-weight: bold;
 }
 
-.form-group input,
-.form-group textarea {
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-.form-group input[readonly] {
-  background-color: var(--light-gray);
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.submit-btn,
-.profile-image-change-btn {
-  padding: 10px 20px;
-  background-color: var(--category-color);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
+.follow-button {
+  padding: 5px 15px;
+  background-color: var(--main-color);
+  color: var(--bg-color);
+  border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.follow-button:hover {
+  background-color: var(--hover-color);
+}
+
+.product-info {
+  display: flex;
+  gap: 30px;
+}
+
+.product-image-container {
+  flex: 1;
+  max-width: 500px;
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.image-nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.image-nav-button:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.image-nav-button.prev {
+  left: 10px;
+}
+
+.image-nav-button.next {
+  right: 10px;
+}
+
+.product-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.product-name {
+  font-size: 24px;
   font-weight: bold;
 }
 
-.submit-btn:hover,
-.profile-image-change-btn:hover {
-  background-color: var(--button-hover-color);
-}
-
-.profile-image {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 15px;
-}
-
-.image-upload {
+.like-actions {
   display: flex;
-  flex-direction: column;
   align-items: center;
 }
 
-/* Modal Styles */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--modal-bg);
+.like-count {
+  font-size: 16px;
+  margin-right: 10px;
 }
 
-.modal-content {
-  background-color: var(--bg-color);
-  margin: 15% auto;
-  padding: 20px;
-  border-radius: 10px;
-  width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.like-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  padding: 0;
 }
 
-.modal h2 {
-  margin-top: 0;
+.product-category {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 20px;
 }
 
-.modal input {
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
+.product-description {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  flex-grow: 1;
 }
 
-.modal-buttons {
+.product-actions-container {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
+  flex-direction: column;
+  align-items: stretch;
 }
 
-.modal-buttons button {
-  margin-left: 10px;
-  padding: 10px 20px;
-  background-color: var(--category-color);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
+.product-price {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: var(--main-color);
+  text-align: right;
+}
+
+.buy-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.add-to-cart,
+.buy-now {
+  padding: 12px 24px;
+  font-size: 16px;
+  border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 16px;
-  font-weight: bold;
+  transition: background-color 0.3s ease;
+  flex: 1;
 }
 
-.modal-buttons button:hover {
-  background-color: var(--button-hover-color);
+.add-to-cart {
+  background-color: #f0f0f0;
+  color: var(--text-color);
+}
+
+.add-to-cart:hover {
+  background-color: #e0e0e0;
+}
+
+.buy-now {
+  background-color: var(--main-color);
+  color: var(--bg-color);
+}
+
+.buy-now:hover {
+  background-color: var(--hover-color);
 }
 
 /* Footer Styles */

@@ -1,15 +1,264 @@
+<script>
+import { ref,computed,onMounted } from 'vue';
+
+export default {
+  setup() {
+    const isLoggedIn = ref(false)
+    const searchType = ref('product')
+    const searchQuery = ref('')
+    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
+    const searchResults = ref([])
+    const currentPage = ref(1)
+    const totalPages = ref(1)
+    const itemsPerPage = 16
+    const pageMode = ref('search') // 'search', 'follow', 'category'
+    const selectedCategory = ref('')
+
+    const showLoginModal = ref(false)
+    const showSignupModal = ref(false)
+    const signupLoginId = ref('')
+    const signupPassword = ref('')
+    const username = ref('')
+    const nickname = ref('')
+    const loginId = ref('')
+    const password = ref('')
+    const loginIdError = ref('')
+    const passwordError = ref('')
+
+    const pageTitle = computed(() => {
+      switch (pageMode.value) {
+        case 'search':
+          return `(${searchQuery.value}) 제품 검색 결과`
+        case 'follow':
+          return '팔로우한 사용자의 판매 상품 목록'
+        case 'category':
+          return selectedCategory.value
+        default:
+          return '제품 목록'
+      }
+    })
+
+    const displayedItems = computed(() => {
+      const start = (currentPage.value - 1) * itemsPerPage
+      const end = start + itemsPerPage
+      return searchResults.value.slice(start, end)
+    })
+
+    const fetchSearchResults = async (page) => {
+      try {
+        // 실제 API 호출로 대체해야 합니다.
+        let url = ''
+        if (pageMode.value === 'search') {
+          url = `/api/search?query=${searchQuery.value}&type=${searchType.value}&page=${page}&limit=${itemsPerPage}`
+        } else if (pageMode.value === 'follow') {
+          url = `/api/follow/products?page=${page}&limit=${itemsPerPage}`
+        } else if (pageMode.value === 'category') {
+          url = `/api/category/${selectedCategory.value}?page=${page}&limit=${itemsPerPage}`
+        }
+        const response = await fetch(url)
+        const data = await response.json()
+        searchResults.value = data.items
+        totalPages.value = Math.ceil(data.total / itemsPerPage)
+      } catch (error) {
+        console.error('Failed to fetch results:', error)
+      }
+    }
+
+    const search = () => {
+      pageMode.value = 'search'
+      currentPage.value = 1
+      fetchSearchResults(currentPage.value)
+    }
+
+    const selectCategory = (category) => {
+      pageMode.value = 'category'
+      selectedCategory.value = category
+      currentPage.value = 1
+      fetchSearchResults(currentPage.value)
+    }
+
+    const showFollowedSellerProducts = () => {
+      pageMode.value = 'follow'
+      currentPage.value = 1
+      fetchSearchResults(currentPage.value)
+    }
+
+    const prevPage = () => {
+      if (currentPage.value > 1) {
+        currentPage.value--
+        fetchSearchResults(currentPage.value)
+      }
+    }
+
+    const nextPage = () => {
+      if (currentPage.value < totalPages.value) {
+        currentPage.value++
+        fetchSearchResults(currentPage.value)
+      }
+    }
+
+    const goToItemPage = (itemId) => {
+      window.location.href = `/item/${itemId}`
+    }
+
+    const goToSellerPage = (userId) => {
+      window.location.href = `/seller/${userId}`
+    }
+
+    const login = () => {
+      console.log('Login clicked')
+      // Implement login logic here
+      isLoggedIn.value = true
+      showLoginModal.value = false
+    }
+
+    const register = () => {
+      console.log('Register clicked')
+      // Implement registration logic here
+      isLoggedIn.value = true
+      showSignupModal.value = false
+    }
+
+    const validateLoginId = () => {
+      const loginIdRegex = /^[a-z0-9]{4,10}$/
+      if (!loginIdRegex.test(signupLoginId.value)) {
+        loginIdError.value = '아이디는 4~10자의 영문 소문자와 숫자만 사용 가능합니다.'
+      } else {
+        loginIdError.value = ''
+      }
+    }
+
+    const validatePassword = () => {
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/
+      if (!passwordRegex.test(signupPassword.value)) {
+        passwordError.value = '비밀번호는 8~15자의 영문 대/소문자, 숫자, 특수문자를 포함해야 합니다.'
+      } else {
+        passwordError.value = ''
+      }
+    }
+
+    const isSignupFormValid = computed(() => {
+      return signupLoginId.value && signupPassword.value && username.value && nickname.value && !loginIdError.value && !passwordError.value
+    })
+
+    const kakaoLogin = () => {
+      console.log('Kakao Login clicked')
+      // Implement Kakao login logic here
+    }
+
+    const switchToLogin = () => {
+      showSignupModal.value = false
+      showLoginModal.value = true
+    }
+
+    const switchToSignup = () => {
+      showLoginModal.value = false
+      showSignupModal.value = true
+    }
+
+    const goToProductRegistration = () => {
+      console.log('Going to product registration')
+    }
+
+    const goToProductManagement = () => {
+      console.log('Going to product management')
+    }
+
+    const goToOrderManagement = () => {
+      console.log('Going to order management')
+    }
+
+    const viewMyInfo = () => {
+      console.log('Going to my info')
+    }
+
+    const editProfile = () => {
+      console.log('Going to edit profile')
+    }
+
+    const logout = () => {
+      console.log('Logging out')
+      isLoggedIn.value = false
+    }
+
+    const deleteAccount = () => {
+      if (confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+        console.log('Deleting account')
+        isLoggedIn.value = false
+      }
+    }
+
+    const goToCart = () => {
+      console.log('Going to cart')
+    }
+
+    onMounted(() => {
+      // 초기 검색 결과를 위한 더미 데이터
+      searchResults.value = Array.from({ length: 64 }, (_, i) => ({
+        id: i + 1,
+        name: `검색 결과 상품 ${i + 1}`,
+        image: `https://via.placeholder.com/300x200?text=Item+${i + 1}`,
+        userId: Math.floor(Math.random() * 1000) + 1,
+        userName: `판매자${Math.floor(Math.random() * 100) + 1}`
+      }))
+      totalPages.value = Math.ceil(searchResults.value.length / itemsPerPage)
+    })
+
+    return {
+      isLoggedIn,
+      searchType,
+      searchQuery,
+      categories,
+      displayedItems,
+      currentPage,
+      totalPages,
+      pageTitle,
+      showLoginModal,
+      showSignupModal,
+      signupLoginId,
+      signupPassword,
+      username,
+      nickname,
+      loginId,
+      password,
+      loginIdError,
+      passwordError,
+      search,
+      selectCategory,
+      showFollowedSellerProducts,
+      prevPage,
+      nextPage,
+      goToItemPage,
+      goToSellerPage,
+      login,
+      register,
+      validateLoginId,
+      validatePassword,
+      isSignupFormValid,
+      kakaoLogin,
+      switchToLogin,
+      switchToSignup,
+      goToProductRegistration,
+      goToProductManagement,
+      goToOrderManagement,
+      viewMyInfo,
+      editProfile,
+      logout,
+      deleteAccount,
+      goToCart
+    }
+  }
+}
+</script>
+
 <template>
   <div id="app">
     <header>
-      <div class="container header-content">
-        <a href="/" class="logo">Hot Item Collector</a>
-        <div class="search-bar">
-          <select v-model="searchType">
-            <option value="product">상품명</option>
-            <option value="seller">판매자명</option>
-          </select>
-          <input type="text" v-model="searchQuery" placeholder="검색어를 입력하세요">
-          <button @click="search">검색</button>
+      <div class="container header-content"><a href="/" class="logo">Hot Item Collector</a>
+        <div class="search-bar"><select v-model="searchType">
+          <option value="product">상품명</option>
+          <option value="seller">판매자명</option>
+        </select><input type="text" v-model="searchQuery" placeholder="검색어를 입력하세요"><button @click="search">검색</button>
         </div>
         <div class="user-actions">
           <template v-if="isLoggedIn">
@@ -41,48 +290,31 @@
     </header>
     <nav class="categories">
       <div class="container">
-        <div class="categories-container">
-          <a v-for="category in categories" :key="category" :href="'/category/' + category" class="category-item">{{ category }}</a>
-        </div>
+        <div class="categories-container"><a v-for="category in categories" :key="category"
+                                             @click.prevent="selectCategory(category)" href="#" class="category-item">
+          {{ category }}
+        </a></div>
       </div>
     </nav>
     <main class="container">
-      <section class="hot-top-10">
-        <h2>Hot Top 10 Items</h2>
-        <ol>
-          <li v-for="item in hotTopItems" :key="item.id"><a :href="'/item/' + item.id">{{ item.name }}</a></li>
-        </ol>
-      </section>
-      <section class="new-items">
-        <h2>새로 등록된 상품</h2>
-        <div v-if="newItems.length > 0" class="item-cards">
-          <div v-for="item in newItems" :key="item.id" class="item-card">
-            <img :src="item.image" :alt="item.name">
+      <section class="search-results">
+        <h2>{{ pageTitle }}</h2>
+        <div class="item-grid">
+          <div v-for="item in displayedItems" :key="item.id" class="item-card" @click="goToItemPage(item.id)"><img
+              :src="item.image" :alt="item.name">
             <div class="item-info">
               <div class="item-name">{{ item.name }}</div>
-              <div class="seller-info">판매자: <a :href="'/seller/' + item.userId">{{ item.userName }}</a></div>
+              <div class="item-seller">
+                판매자: <a @click.stop="goToSellerPage(item.userId)" :href="'/seller/' + item.userId">{{ item.userName
+                }}</a>
+              </div>
             </div>
           </div>
         </div>
-        <div v-else class="no-items-message">등록된 상품이 없습니다.</div>
-        <div v-if="newItems.length > 0" class="view-more-container">
-          <button @click="viewMoreNewItems" class="view-more-btn">상품 더보기</button>
-        </div>
-      </section>
-      <section v-if="isLoggedIn" class="followed-users-items">
-        <h2>팔로우한 사용자의 상품</h2>
-        <div v-if="followedUsersItems.length > 0" class="item-cards">
-          <div v-for="item in followedUsersItems" :key="item.id" class="item-card">
-            <img :src="item.image" :alt="item.name">
-            <div class="item-info">
-              <div class="item-name">{{ item.name }}</div>
-              <div class="seller-info">판매자: <a :href="'/seller/' + item.userId">{{ item.userName }}</a></div>
-            </div>
-          </div>
-        </div>
-        <div v-else class="no-items-message">팔로우한 사용자의 상품이 없습니다.</div>
-        <div v-if="followedUsersItems.length > 0" class="view-more-container">
-          <button @click="viewMoreFollowedItems" class="view-more-btn">상품 더보기</button>
+        <div class="pagination">
+          <button @click="prevPage" :disabled="currentPage === 1">&lt; 이전</button>
+          <span class="page-number">{{ currentPage }} / {{ totalPages }}</span>
+          <button @click="nextPage" :disabled="currentPage === totalPages">다음 &gt;</button>
         </div>
       </section>
     </main>
@@ -97,6 +329,7 @@
         <div class="footer-copyright">&copy; 2023 Hot Item Collector. All rights reserved.</div>
       </div>
     </footer>
+
     <!-- 회원가입 모달 -->
     <div v-if="showSignupModal" class="modal-overlay" @click.self="showSignupModal = false">
       <div class="modal-container">
@@ -134,6 +367,7 @@
         </div>
       </div>
     </div>
+
     <!-- 로그인 모달 -->
     <div v-if="showLoginModal" class="modal-overlay" @click.self="showLoginModal = false">
       <div class="modal-container">
@@ -164,178 +398,7 @@
   </div>
 </template>
 
-<script>
-import { ref, computed } from 'vue';
-
-export default {
-  setup() {
-    const isLoggedIn = ref(false);
-    const searchType = ref('product');
-    const searchQuery = ref('');
-    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물']);
-    const hotTopItems = ref([
-      { id: 1, name: '초특가 스마트폰' },
-      { id: 2, name: '인기 노트북' },
-      { id: 3, name: '베스트셀러 도서' },
-    ]);
-    const newItems = ref([
-      { id: 101, name: '새 상품 1', image: 'https://via.placeholder.com/250x200', userId: 1001, userName: '판매자1' },
-    ]);
-    const followedUsersItems = ref([
-      { id: 201, name: '팔로우 상품 1', image: 'https://via.placeholder.com/250x200', userId: 2001, userName: '팔로우판매자1' },
-    ]);
-
-    const showLoginModal = ref(false);
-    const showSignupModal = ref(false);
-    const signupLoginId = ref('');
-    const signupPassword = ref('');
-    const username = ref('');
-    const nickname = ref('');
-    const loginId = ref('');
-    const password = ref('');
-    const loginIdError = ref('');
-    const passwordError = ref('');
-
-    const search = () => {
-      console.log(`Searching for ${searchQuery.value} in ${searchType.value}`);
-    };
-
-    const login = () => {
-      console.log('Login clicked');
-      isLoggedIn.value = true;
-      showLoginModal.value = false;
-    };
-
-    const register = () => {
-      console.log('Register clicked');
-      isLoggedIn.value = true;
-      showSignupModal.value = false;
-    };
-
-    const goToProductRegistration = () => {
-      console.log('Going to product registration');
-    };
-
-    const goToProductManagement = () => {
-      console.log('Going to product management');
-    };
-
-    const goToOrderManagement = () => {
-      console.log('Going to order management');
-    };
-
-    const viewMyInfo = () => {
-      console.log('Going to my info');
-    };
-
-    const editProfile = () => {
-      console.log('Going to edit profile');
-    };
-
-    const logout = () => {
-      console.log('Logging out');
-      isLoggedIn.value = false;
-    };
-
-    const deleteAccount = () => {
-      if (confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-        console.log('Deleting account');
-        isLoggedIn.value = false;
-      }
-    };
-
-    const goToCart = () => {
-      console.log('Going to cart');
-    };
-
-    const viewMoreNewItems = () => {
-      console.log('View more new items');
-      window.location.href = '/new-items';
-    };
-
-    const viewMoreFollowedItems = () => {
-      console.log('View more followed items');
-      window.location.href = '/followed-items';
-    };
-
-    const validateLoginId = () => {
-      const loginIdRegex = /^[a-z0-9]{4,10}$/;
-      if (!loginIdRegex.test(signupLoginId.value)) {
-        loginIdError.value = '아이디는 4~10자의 영문 소문자와 숫자만 사용 가능합니다.';
-      } else {
-        loginIdError.value = '';
-      }
-    };
-
-    const validatePassword = () => {
-      if (signupPassword.value.length < 6) {
-        passwordError.value = '비밀번호는 최소 6자 이상이어야 합니다.';
-      } else {
-        passwordError.value = '';
-      }
-    };
-
-    const isSignupFormValid = computed(() => {
-      return signupLoginId.value && signupPassword.value && username.value && nickname.value && !loginIdError.value && !passwordError.value;
-    });
-
-    const switchToLogin = () => {
-      showSignupModal.value = false;
-      showLoginModal.value = true;
-    };
-
-    const switchToSignup = () => {
-      showLoginModal.value = false;
-      showSignupModal.value = true;
-    };
-
-    const kakaoLogin = () => {
-      console.log('Kakao login clicked');
-    };
-
-    return {
-      isLoggedIn,
-      searchType,
-      searchQuery,
-      categories,
-      hotTopItems,
-      newItems,
-      followedUsersItems,
-      showLoginModal,
-      showSignupModal,
-      signupLoginId,
-      signupPassword,
-      username,
-      nickname,
-      loginId,
-      password,
-      loginIdError,
-      passwordError,
-      search,
-      login,
-      register,
-      goToProductRegistration,
-      goToProductManagement,
-      goToOrderManagement,
-      viewMyInfo,
-      editProfile,
-      logout,
-      deleteAccount,
-      goToCart,
-      viewMoreNewItems,
-      viewMoreFollowedItems,
-      validateLoginId,
-      validatePassword,
-      isSignupFormValid,
-      switchToLogin,
-      switchToSignup,
-      kakaoLogin,
-    };
-  },
-};
-</script>
-
-<style scoped>
+<style>
 :root {
   --main-color: #FF0000;
   --text-color: #333;
@@ -628,78 +691,22 @@ header {
   color: var(--bg-color);
 }
 
-/* Hot Top 10 Styles */
-.hot-top-10 {
-  margin: 30px auto;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
-  border: 2px solid var(--main-color);
+/* Search Results Styles */
+.search-results {
+  margin-top: 30px;
+  flex-grow: 1;
 }
 
-.hot-top-10 h2 {
-  color: var(--main-color);
-  text-align: center;
+.search-results h2 {
+  font-size: 24px;
   margin-bottom: 20px;
 }
 
-.hot-top-10 ol {
-  padding-left: 0;
-  counter-reset: item;
-  list-style-type: none;
-}
-
-.hot-top-10 li {
-  margin-bottom: 15px;
-  position: relative;
-  padding-left: 40px;
-  font-size: 18px;
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 10px;
-}
-
-.hot-top-10 li:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-  padding-bottom: 0;
-}
-
-.hot-top-10 li:before {
-  content: counter(item);
-  counter-increment: item;
-  background-color: var(--main-color);
-  color: white;
-  font-weight: bold;
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
-  text-align: center;
-  border-radius: 4px;
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.hot-top-10 li a {
-  color: var(--text-color);
-  text-decoration: none;
-  transition: color 0.3s ease;
-  display: block;
-}
-
-.hot-top-10 li a:hover {
-  color: var(--main-color);
-}
-
-/* Item Cards Styles */
-.item-cards {
+.item-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  margin: 30px 0;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  margin-bottom: 30px;
 }
 
 .item-card {
@@ -707,6 +714,7 @@ header {
   border-radius: 8px;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 }
 
 .item-card:hover {
@@ -727,39 +735,55 @@ header {
 .item-name {
   font-weight: bold;
   margin-bottom: 10px;
+  font-size: 16px;
 }
 
-.seller-info {
+.item-seller {
   font-size: 14px;
   color: #666;
 }
 
-.seller-info a {
+.item-seller a {
   color: var(--main-color);
   text-decoration: none;
 }
 
-/* View More Button Styles */
-.view-more-container {
-  text-align: center;
-  margin-top: 20px;
+.item-seller a:hover {
+  text-decoration: underline;
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
   margin-bottom: 60px;
 }
 
-.view-more-btn {
+.pagination button {
   background-color: var(--bg-color);
   color: var(--main-color);
-  border: 2px solid var(--main-color);
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 5px;
+  border: 1px solid var(--main-color);
+  padding: 10px 15px;
+  margin: 0 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.view-more-btn:hover {
+.pagination button:hover {
   background-color: var(--main-color);
   color: var(--bg-color);
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination .page-number {
+  font-weight: bold;
+  margin: 0 10px;
 }
 
 /* Footer Styles */
@@ -797,16 +821,6 @@ footer {
   width: 100%;
   font-size: 14px;
   color: #666;
-}
-
-.no-items-message {
-  text-align: center;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  margin: 20px 0;
-  color: #666;
-  font-style: italic;
 }
 
 /* Dropdown Menu Styles */

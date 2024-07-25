@@ -1,7 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import MainPage from '@/components/MainPage.vue';
-import ProfileUpdate from '@/components/ProfileUpdate.vue';
-import Profile from "@/components/Profile.vue";
+import ConfirmPassword from "@/components/ConfirmPassword.vue";
+import MyProfilePage from "@/components/MyProfilePage.vue";
+import FollowList from "@/components/FollowList.vue";
+import DetailProductPage from "@/components/DetailProductPage.vue";
+import CartPage from "@/components/CartPage.vue";
+import OrderPage from "@/components/OrderPage.vue";
+import ManageOrder from "@/components/ManageOrder.vue";
+import DetailOrder from "@/components/DetailOrder.vue";
+import ProductUpdate from "@/components/ProductUpdate.vue";
+import SearchPage from "@/components/SearchPage.vue";
+import ProfileUpdate from "@/components/ProfileUpdate.vue";
+import OrderItem from "@/components/OrderItem.vue";
+import OtherProfilePage from "@/components/OtherProfilePage.vue";
 
 const routes = [
   {
@@ -10,14 +21,69 @@ const routes = [
     component: MainPage,
   },
   {
-    path: '/profile-update',
+    path: '/profile/update/password',
+    name: 'ConfirmPassword',
+    component: ConfirmPassword,
+  },
+  {
+    path: '/profile',
+    name: 'MyProfilePage',
+    component: MyProfilePage,
+  },
+  {
+    path: '/profile/follow',
+    name: 'FollowList',
+    component: FollowList,
+  },
+  {
+    path: '/product/detail',
+    name: 'DetailProductPage',
+    component: DetailProductPage,
+  },
+  {
+    path: '/cart',
+    name: 'CartPage',
+    component: CartPage,
+  },
+  {
+    path: '/order',
+    name: 'OrderPage',
+    component: OrderPage,
+  },
+  {
+    path: '/order/manage',
+    name: 'ManageOrder',
+    component: ManageOrder,
+  },
+  {
+    path: '/order/detail',
+    name: 'DetailOrder',
+    component: DetailOrder,
+  },
+  {
+    path: '/product/update',
+    name: 'ProductUpdate',
+    component: ProductUpdate,
+  },
+  {
+    path: '/search',
+    name: 'SearchPage',
+    component: SearchPage,
+  },
+  {
+    path: '/profile/update',
     name: 'ProfileUpdate',
     component: ProfileUpdate,
   },
   {
-    path: '/profile',
-    name: 'Profile',
-    component: Profile,
+    path: '/profile/order',
+    name: 'OrderItem',
+    component: OrderItem,
+  },
+  {
+    path: '/profile/other',
+    name: 'OtherProfilePage',
+    component: OtherProfilePage,
   },
 ];
 

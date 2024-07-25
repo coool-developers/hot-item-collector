@@ -3,21 +3,15 @@ import { ref } from 'vue';
 
 export default {
   setup() {
-    const searchType = ref('product')
     const searchQuery = ref('')
+    const searchType = ref('product')
     const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
-    const userInfo = ref({
-      username: 'johndoe',
-      loginId: 'johndoe123',
-      nickname: 'JohnD',
-      address: '서울특별시 강남구 테헤란로 123',
-      phoneNumber: '010-1234-5678',
-      info: '안녕하세요. 저는 Hot Item Collector의 열렬한 팬입니다!',
-      profileImage: 'https://example.com/profile-image.jpg'
-    })
-
-    const showProfileImageModal = ref(false)
-    const tempProfileImage = ref(null)
+    const deliveryStatuses = ref(['결제완료', '상품준비중', '배송중', '배송완료'])
+    const statusFilter = ref('')
+    const orders = ref([])
+    const today = new Date().toISOString().split('T')[0]
+    const startDate = ref(new Date(new Date().setMonth(new Date().getMonth() - 3)).toISOString().split('T')[0])
+    const endDate = ref(today)
 
     const search = () => {
       alert(`검색 유형: ${searchType.value}, 검색어: ${searchQuery.value}`)
@@ -40,11 +34,11 @@ export default {
     }
 
     const viewMyInfo = () => {
-      alert('내 정보 페이지로 이동합니다.')
+      alert('내 정보 보기 페이지로 이동합니다.')
     }
 
     const editProfile = () => {
-      alert('프로필 수정 페이지로 이동합니다.')
+      alert('정보 수정 페이지로 이동합니다.')
     }
 
     const logout = () => {
@@ -62,44 +56,56 @@ export default {
       alert('장바구니 페이지로 이동합니다.')
     }
 
-    const openProfileImageModal = () => {
-      showProfileImageModal.value = true
+    const searchOrders = () => {
+      // API 요청 시뮬레이션
+      console.log(`검색 기간: ${startDate.value} ~ ${endDate.value}, 배송상태: ${statusFilter.value}`)
+      // 실제 구현에서는 여기에 API 호출 코드가 들어갑니다.
     }
 
-    const closeProfileImageModal = () => {
-      showProfileImageModal.value = false
-      tempProfileImage.value = null
+    const updateStatus = (order) => {
+      alert(`주문 #${order.id}의 배송상태가 ${order.status}(으)로 변경되었습니다.`)
+      // 실제 구현에서는 여기에 API 호출 코드가 들어갑니다.
     }
 
-    const onFileChange = (event) => {
-      const file = event.target.files[0]
-      if (file) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          tempProfileImage.value = e.target.result
-        }
-        reader.readAsDataURL(file)
-      }
-    }
 
-    const updateProfileImage = () => {
-      if (tempProfileImage.value) {
-        userInfo.value.profileImage = tempProfileImage.value
-        closeProfileImageModal()
-      }
-    }
+      // 초기 데이터 로드 (실제 구현에서는 API 호출로 대체)
+      orders.value = [
+        {
+          id: 1,
+          customerName: '김철수',
+          customerPhone: '010-1234-5678',
+          customerAddress: '서울시 강남구 테헤란로 123',
+          productName: '수제 초콜릿',
+          productPrice: 15000,
+          productImage: 'https://example.com/chocolate.jpg',
+          buyerName: '김철수',
+          status: '결제완료'
+        },
+        {
+          id: 2,
+          customerName: '이영희',
+          customerPhone: '010-9876-5432',
+          customerAddress: '부산시 해운대구 해운대해변로 456',
+          productName: '핸드메이드 비누',
+          productPrice: 8000,
+          productImage: 'https://example.com/soap.jpg',
+          buyerName: '이영희',
+          status: '배송중'
+        },
+        // 추가 주문 데이터...
+      ]
 
-    const submitForm = () => {
-      alert('개인정보가 성공적으로 수정되었습니다.')
-      // 여기에서 서버로 데이터를 전송하는 로직을 구현합니다.
-    }
 
     return {
-      searchType,
       searchQuery,
+      searchType,
       categories,
-      userInfo,
-      showProfileImageModal,
+      deliveryStatuses,
+      statusFilter,
+      orders,
+      today,
+      startDate,
+      endDate,
       search,
       selectCategory,
       goToProductRegistration,
@@ -110,11 +116,8 @@ export default {
       logout,
       deleteAccount,
       goToCart,
-      openProfileImageModal,
-      closeProfileImageModal,
-      onFileChange,
-      updateProfileImage,
-      submitForm
+      searchOrders,
+      updateStatus
     }
   }
 }
@@ -166,52 +169,47 @@ export default {
       </div>
     </nav>
 
-    <main class="container edit-profile">
-      <h1>개인정보 수정</h1>
-      <form class="edit-profile-form" @submit.prevent="submitForm">
-        <div class="image-upload">
-          <img :src="userInfo.profileImage" alt="프로필 이미지" class="profile-image">
-          <button type="button" class="profile-image-change-btn" @click="openProfileImageModal">프로필 사진 변경</button>
-        </div>
-        <div class="form-group">
-          <label for="username">사용자 이름</label>
-          <input type="text" id="username" v-model="userInfo.username" readonly>
-        </div>
-        <div class="form-group">
-          <label for="loginId">로그인 ID</label>
-          <input type="text" id="loginId" v-model="userInfo.loginId" readonly>
-        </div>
-        <div class="form-group">
-          <label for="nickname">닉네임</label>
-          <input type="text" id="nickname" v-model="userInfo.nickname">
-        </div>
-        <div class="form-group">
-          <label for="address">주소</label>
-          <input type="text" id="address" v-model="userInfo.address">
-        </div>
-        <div class="form-group">
-          <label for="phoneNumber">전화번호</label>
-          <input type="tel" id="phoneNumber" v-model="userInfo.phoneNumber">
-        </div>
-        <div class="form-group">
-          <label for="info">자기소개</label>
-          <textarea id="info" v-model="userInfo.info"></textarea>
-        </div>
-        <button type="submit" class="submit-btn">수정 완료</button>
-      </form>
-    </main>
-
-    <!-- 프로필 이미지 변경 모달 -->
-    <div class="modal" v-if="showProfileImageModal">
-      <div class="modal-content">
-        <h2>프로필 사진 변경</h2>
-        <input type="file" @change="onFileChange" accept="image/*">
-        <div class="modal-buttons">
-          <button @click="closeProfileImageModal">취소</button>
-          <button @click="updateProfileImage">변경</button>
+    <main class="container">
+      <h1>주문 관리</h1>
+      <div class="search-filters">
+        <input type="date" v-model="startDate" :max="today">
+        <input type="date" v-model="endDate" :max="today">
+        <select v-model="statusFilter">
+          <option value="">전체</option>
+          <option v-for="status in deliveryStatuses" :key="status" :value="status">
+            {{ status }}
+          </option>
+        </select>
+        <button @click="searchOrders">검색</button>
+      </div>
+      <div class="order-cards">
+        <div v-for="order in orders" :key="order.id" class="order-card">
+          <div class="customer-info">
+            <p><strong>주문자:</strong> {{ order.customerName }}</p>
+            <p><strong>연락처:</strong> {{ order.customerPhone }}</p>
+            <p><strong>주소:</strong> {{ order.customerAddress }}</p>
+          </div>
+          <div class="order-details">
+            <div class="order-info">
+              <img :src="order.productImage" :alt="order.productName" class="product-image">
+              <div>
+                <p><strong>상품명:</strong> {{ order.productName }}</p>
+                <p><strong>가격:</strong> {{ order.productPrice.toLocaleString() }}원</p>
+                <p><strong>구매자:</strong> {{ order.buyerName }}</p>
+              </div>
+            </div>
+            <div class="status-update">
+              <select v-model="order.status" class="status-dropdown">
+                <option v-for="status in deliveryStatuses" :key="status" :value="status">
+                  {{ status }}
+                </option>
+              </select>
+              <button @click="updateStatus(order)" class="update-status">배송상태 변경</button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </main>
 
     <footer>
       <div class="container footer-content">
@@ -228,6 +226,7 @@ export default {
     </footer>
   </div>
 </template>
+
 <style>
 :root {
   --main-color: #FF0000;
@@ -236,12 +235,8 @@ export default {
   --hover-color: #FF6666;
   --button-color: #FF4136;
   --footer-bg: #f8f8f8;
-  --light-gray: #f0f0f0;
-  --border-color: #ddd;
-  --modal-bg: rgba(0, 0, 0, 0.5);
-  --category-color: #f1f1f1;
-  --category-hover-color: #e0e0e0;
-  --button-hover-color: #FFCCCB;
+  --card-border: #e0e0e0;
+  --input-border: #ccc;
 }
 
 body {
@@ -378,7 +373,7 @@ header {
 
 /* Categories Styles */
 .categories {
-  background-color: var(--category-color);
+  background-color: #f1f1f1;
   padding: 15px 0;
 }
 
@@ -408,146 +403,114 @@ header {
 }
 
 .category-item:hover {
-  background-color: var(--category-hover-color);
-  color: var(--text-color);
+  background-color: var(--hover-color);
+  color: var(--bg-color);
 }
 
-/* Edit Profile Styles */
-.edit-profile {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+/* Main Content Styles */
+main {
+  flex-grow: 1;
+  padding: 30px 0;
 }
 
-.edit-profile h1 {
-  color: var(--text-color);
+.search-filters {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
   margin-bottom: 20px;
-  font-size: 28px;
-  font-weight: bold;
-  text-align: center;
+  gap: 10px;
 }
 
-.edit-profile-form {
-  display: grid;
-  gap: 15px;
+.search-filters input,
+.search-filters select {
+  padding: 8px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.form-group input,
-.form-group textarea {
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-.form-group input[readonly] {
-  background-color: var(--light-gray);
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.submit-btn,
-.profile-image-change-btn {
-  padding: 10px 20px;
-  background-color: var(--category-color);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
+.search-filters button {
+  padding: 8px 15px;
+  background-color: var(--button-color);
+  color: var(--bg-color);
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 16px;
-  font-weight: bold;
+  transition: background-color 0.3s ease;
 }
 
-.submit-btn:hover,
-.profile-image-change-btn:hover {
-  background-color: var(--button-hover-color);
+.search-filters button:hover {
+  background-color: var(--hover-color);
 }
 
-.profile-image {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 15px;
-}
-
-.image-upload {
+.order-cards {
   display: flex;
   flex-direction: column;
+  gap: 20px;
+}
+
+.order-card {
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 15px;
+  background-color: var(--bg-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.customer-info {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.customer-info p,
+.order-info p {
+  margin: 5px 0;
+}
+
+.order-details {
+  display: flex;
+  justify-content: space-between;
+}
+
+.order-info {
+  flex: 1;
+  display: flex;
   align-items: center;
 }
 
-/* Modal Styles */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--modal-bg);
+.product-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 15px;
 }
 
-.modal-content {
-  background-color: var(--bg-color);
-  margin: 15% auto;
-  padding: 20px;
-  border-radius: 10px;
-  width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.modal h2 {
-  margin-top: 0;
-}
-
-.modal input {
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-}
-
-.modal-buttons {
+.status-update {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
+  align-items: center;
+  gap: 10px;
 }
 
-.modal-buttons button {
-  margin-left: 10px;
-  padding: 10px 20px;
-  background-color: var(--category-color);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
+.status-dropdown {
+  padding: 8px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  width: 150px;
+}
+
+.update-status {
+  padding: 8px 15px;
+  background-color: var(--button-color);
+  color: var(--bg-color);
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 16px;
-  font-weight: bold;
+  transition: background-color 0.3s ease;
 }
 
-.modal-buttons button:hover {
-  background-color: var(--button-hover-color);
+.update-status:hover {
+  background-color: var(--hover-color);
 }
 
 /* Footer Styles */
