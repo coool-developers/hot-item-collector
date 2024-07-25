@@ -3,7 +3,7 @@ POST http://localhost:8080/users/signup
 Content-Type: application/json
 
 {
-  "loginId": "testUser",
+  "loginId": "user1",
   "password" : "passWord123!",
   "username": "김아무개",
   "nickname": "someone Kim"
@@ -14,7 +14,7 @@ POST http://localhost:8080/users/signup
 Content-Type: application/json
 
 {
-  "loginId": "testUser2",
+  "loginId": "user2",
   "password" : "passWord123!",
   "username": "이아무개",
   "nickname": "someone Lee"
@@ -25,7 +25,7 @@ POST http://localhost:8080/users/login
 Content-Type: application/json
 
 {
-  "loginId": "testUser",
+  "loginId": "user1",
   "password": "passWord123!"
 }
 
@@ -42,7 +42,6 @@ Authorization: {{access_token}}
 {
   "name" : "CD",
   "category": "HOME_LIVING",
-  "image": "temp_image.url",
   "price": 100,
   "info": "CD를 요새 누가 씀"
 }
@@ -65,7 +64,7 @@ POST http://localhost:8080/users/login
 Content-Type: application/json
 
 {
-  "loginId": "testUser2",
+  "loginId": "user2",
   "password": "passWord123!"
 }
 
@@ -90,7 +89,7 @@ Content-Type: application/json
 Authorization: {{access_token}}
 
 {
-  "cartItemList": [1],
+  "cartItemList": [1,2],
   "buyerName": "김원기",
   "buyerTel": "010-4242-4242",
   "buyerAddr": "서울특별시 강남구 신사동"

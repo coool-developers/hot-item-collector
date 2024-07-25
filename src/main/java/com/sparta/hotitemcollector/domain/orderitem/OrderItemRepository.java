@@ -12,4 +12,6 @@ import com.sparta.hotitemcollector.domain.order.OrderStatus;
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 	Page<OrderItem> findAllByProductIn(List<Product> productList, Pageable pageable);
 	Page<OrderItem> findAllByStatusAndProductIn(OrderStatus status, List<Product> productList, Pageable pageable);
+
+	List<OrderItem> findByOrderId(Long id);
 }

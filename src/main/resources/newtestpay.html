@@ -23,9 +23,9 @@
         methods: {
             requestPay: function () {
                 console.log("api 진입 전");
-                axios.get('http://localhost:8080/prepare/payment?orderId=1', {
+                axios.get('http://localhost:8080/prepare/payment?orderId=15', {
                     headers: {
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0VXNlcjIiLCJhdXRoIjoiVVNFUiIsImlhdCI6MTcyMTgwNTMxNywiZXhwIjoxNzIxODA1OTE3fQ.I00-Km9fOR3H2PGQQAKOKrtw1oUNFuMmwyx3jchXCk4'
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImF1dGgiOiJVU0VSIiwiaWF0IjoxNzIxODgyMTUzLCJleHAiOjE3MjE4ODI3NTN9.0EYjrLC6Tr0H0aC_Xe2R1Med6lRaQU4_o6hSdt7uhWc'
                     }
                 })
                     .then(response => {
@@ -48,6 +48,21 @@
                         }, function (rsp) { // callback
                             if (rsp.success) {
                                 console.log("결제 성공");
+                                axios.post('http://localhost:8080/payments/verify', {
+                                    impUid: rsp.imp_uid,
+                                    merchantUid: rsp.merchant_uid,
+                                    amount: rsp.paid_amount // 결제 완료 금액
+                                }, {
+                                    headers: {
+                                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImF1dGgiOiJVU0VSIiwiaWF0IjoxNzIxODgyMTUzLCJleHAiOjE3MjE4ODI3NTN9.0EYjrLC6Tr0H0aC_Xe2R1Med6lRaQU4_o6hSdt7uhWc'
+                                    }
+                                })
+                                    .then(response => {
+                                        console.log('결제 검증 성공:', response.data);
+                                    })
+                                    .catch(error => {
+                                        console.log('결제 검증 실패:', error);
+                                    });
                             } else {
                                 console.log("결제 실패");
                             }

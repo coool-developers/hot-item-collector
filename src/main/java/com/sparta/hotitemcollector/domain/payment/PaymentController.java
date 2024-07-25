@@ -1,5 +1,6 @@
 package com.sparta.hotitemcollector.domain.payment;
 
+import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.sparta.hotitemcollector.domain.payment.dto.OrderPrepareRequestDto;
 import com.sparta.hotitemcollector.domain.payment.dto.PaymentRequestDto;
 import com.sparta.hotitemcollector.domain.payment.dto.PaymentVerificationDto;
@@ -11,14 +12,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PostMapping("/api/payments/verify")
-    public ResponseEntity<CommonResponse<String>> verifyPayment(@RequestBody PaymentVerificationDto verificationDto) {
+    @PostMapping("/payments/verify")
+    public ResponseEntity<CommonResponse<String>> verifyPayment(@RequestBody PaymentVerificationDto verificationDto) throws IamportResponseException, IOException {
         paymentService.verifyPayment(verificationDto);
         return ResponseEntity.ok(new CommonResponse<>("결제 검증 완료", 200, "결제 검증 성공"));
     }

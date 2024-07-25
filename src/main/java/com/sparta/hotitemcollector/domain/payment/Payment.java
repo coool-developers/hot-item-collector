@@ -44,12 +44,8 @@ public class Payment {
     @JoinColumn(name = "order_id", nullable = false)
     private Orders order;
 
-    @ManyToOne
-    @JoinColumn(name = "order_item_id",nullable = false)
-    private OrderItem orderItem;
-
     @Builder
-    public Payment(String merchantUid, String impUid, String payMethod, Long amount, String status, LocalDateTime paidAt, Orders order, OrderItem orderItem) {
+    public Payment(String merchantUid, String impUid, String payMethod, Long amount, String status, LocalDateTime paidAt, Orders order) {
         this.merchantUid = merchantUid;
         this.impUid = impUid;
         this.payMethod = payMethod;
@@ -57,7 +53,6 @@ public class Payment {
         this.status = status;
         this.paidAt = paidAt;
         this.order = order;
-        this.orderItem = orderItem;
     }
 
     public void updatePayment(String impUid, String status, LocalDateTime paidAt) {

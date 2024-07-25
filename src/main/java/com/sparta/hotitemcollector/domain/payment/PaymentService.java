@@ -12,9 +12,8 @@ import com.sparta.hotitemcollector.domain.orderitem.OrderItemRepository;
 import com.sparta.hotitemcollector.domain.payment.dto.OrderPrepareRequestDto;
 import com.sparta.hotitemcollector.domain.payment.dto.PaymentRequestDto;
 import com.sparta.hotitemcollector.domain.payment.dto.PaymentVerificationDto;
-import com.sparta.hotitemcollector.domain.product.Product;
-import com.sparta.hotitemcollector.domain.product.ProductRepository;
-import com.sparta.hotitemcollector.domain.product.ProductService;
+import com.sparta.hotitemcollector.domain.product.entity.Product;
+import com.sparta.hotitemcollector.domain.product.service.ProductService;
 import com.sparta.hotitemcollector.domain.user.User;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
@@ -25,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -58,34 +58,39 @@ public class PaymentService {
                 .address(requestDto.getBuyerAddr())
                 .phoneNumber(requestDto.getBuyerTel())
                 .userName(requestDto.getBuyerName())
-                .status(OrderStatus.ORDERED)
                 .build();
         orderRepository.save(order);
 
-        // 임시 결제 테이블 생성
-        requestDto.getCartItemList().forEach(itemId -> {
-            Product product = cartItemRepository.findById(itemId).get().getProduct();
+        long totalAmount = 0; // 총 결제 금액을 저장할 변수
+
+        for (Long itemId : requestDto.getCartItemList()) {
+            Product product = cartItemRepository.findById(itemId)
+                    .orElseThrow(() -> new IllegalArgumentException("아이템을 찾을 수 없습니다: " + itemId))
+                    .getProduct();
 
             OrderItem orderItem = OrderItem.builder()
                     .order(order)
                     .product(product)
+                    .status(OrderStatus.ORDERED)
                     .build();
 
             orderItemRepository.save(orderItem);
+            order.addOrderItem(orderItem);
 
-            // 각 itemId로 제품 정보를 조회하여 Payment 생성
-            Payment payment = Payment.builder()
-                    .merchantUid("merchant_" + System.currentTimeMillis())
-                    .impUid(uid)
-                    .payMethod("card")
-                    .amount(product.getPrice())
-                    .status("READY")
-                    .paidAt(null)
-                    .order(order)
-                    .orderItem(orderItem)
-                    .build();
-            paymentRepository.save(payment);
-        });
+            totalAmount += product.getPrice();
+        }
+
+        // 하나의 결제 레코드를 생성
+        Payment payment = Payment.builder()
+                .merchantUid("merchant_" + System.currentTimeMillis())
+                .impUid("pending") // 결제 후 업데이트
+                .payMethod("card")
+                .amount(totalAmount) // 총 결제 금액
+                .status("READY")
+                .paidAt(null)
+                .order(order)
+                .build();
+        paymentRepository.save(payment);
 
         return order.getId();
     }
@@ -95,41 +100,54 @@ public class PaymentService {
                 .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다: " + orderId));
 
         List<Payment> payments = paymentRepository.findByOrderId(orderId);
-        Payment payment = payments.get(0);
+        Long totalAmount = payments.stream()
+                .mapToLong(Payment::getAmount)
+                .sum();
+
+        String productName = payments.stream()
+                .map(payment -> payment.getOrder().getOrderItems().get(0).getProduct().getName())
+                .collect(Collectors.joining(", "));
 
         return PaymentRequestDto.builder()
                 .pg("html5_inicis")
-                .payMethod(payment.getPayMethod())
-                .merchantUid(payment.getMerchantUid())
-                .amount(payment.getAmount())
-                .name(payment.getOrderItem().getProduct().getName())
+                .payMethod("card")
+                .merchantUid(payments.get(0).getMerchantUid())
+                .amount(totalAmount)
+                .name(productName)
                 .buyerName(order.getUserName())
                 .buyerAddr(order.getAddress())
                 .buyerTel(order.getPhoneNumber())
                 .build();
     }
 
+    @Transactional
+    public void verifyPayment(PaymentVerificationDto verificationDto) throws IamportResponseException, IOException {
+        // Iamport 결제 검증
+        IamportResponse<com.siot.IamportRestClient.response.Payment> iamportResponse = iamportClient.paymentByImpUid(verificationDto.getImpUid());
+        com.siot.IamportRestClient.response.Payment iamportPayment = iamportResponse.getResponse();
 
-    public void verifyPayment(PaymentVerificationDto verificationDto) {
-//        try {
-//            IamportResponse<com.siot.IamportRestClient.response.Payment> response = iamportClient.paymentByImpUid(verificationDto.getImpUid());
-//            com.siot.IamportRestClient.response.Payment paymentResponse = response.getResponse();
-//
-//            Payment payment = paymentRepository.findByImpUid(verificationDto.getImpUid())
-//                    .orElseThrow(() -> new IllegalArgumentException("결제를 찾을 수 없습니다: " + verificationDto.getImpUid()));
-//
-//            if (paymentResponse.getStatus().equals("paid") && paymentResponse.getAmount().equals(payment.getAmount())) {
-//                payment.setStatus("PAID");
-//                payment.setImpUid(verificationDto.getImpUid());
-//                payment.setPaidAt(LocalDateTime.now());
-//                paymentRepository.save(payment);
-//            } else {
-//                throw new IllegalStateException("결제 검증 실패");
-//            }
-//        } catch (IamportResponseException | IOException e) {
-//            throw new IllegalStateException("결제 검증 중 오류 발생", e);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
+        if (iamportPayment.getAmount().equals(verificationDto.getAmount())) {
+            // 결제 완료 처리
+            Payment payment = paymentRepository.findByMerchantUid(verificationDto.getMerchantUid())
+                    .orElseThrow(() -> new IllegalArgumentException("결제를 찾을 수 없습니다: " + verificationDto.getMerchantUid()));
+
+            payment.updatePayment(verificationDto.getImpUid(), "PAID", LocalDateTime.now());
+            paymentRepository.save(payment);
+
+            // 해당 Order의 모든 Payment 상태를 변경
+            List<Payment> payments = paymentRepository.findByOrderId(payment.getOrder().getId());
+            payments.forEach(p -> {
+                p.updatePayment(p.getImpUid(), "PAID", LocalDateTime.now());
+            });
+            paymentRepository.saveAll(payments);
+
+            // 해당 Order의 모든 OrderItem 상태를 변경
+            List<OrderItem> orderItems = orderItemRepository.findByOrderId(payment.getOrder().getId());
+            orderItems.forEach(orderItem -> orderItem.updateOrderItemStatus(OrderStatus.PAID));
+            orderItemRepository.saveAll(orderItems);
+
+        } else {
+            throw new IllegalArgumentException("결제 금액이 일치하지 않습니다.");
+        }
     }
 }
