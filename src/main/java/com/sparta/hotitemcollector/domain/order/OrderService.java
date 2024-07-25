@@ -20,6 +20,7 @@ import com.sparta.hotitemcollector.domain.order.dto.OrderResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.hotitemcollector.domain.orderitem.OrderItem;
 import com.sparta.hotitemcollector.domain.orderitem.OrderItemRepository;
+import com.sparta.hotitemcollector.domain.payment.dto.OrderPrepareRequestDto;
 import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
 import com.sparta.hotitemcollector.domain.product.service.ProductService;
@@ -36,41 +37,6 @@ public class OrderService {
 	private final OrderItemRepository orderItemRepository;
 	private final ProductService productService;
 	private final CartService cartService;
-
-	@Transactional
-	public OrderResponseDto createOrder(OrderRequestDto orderRequestDto, User user) {
-
-		Orders order = Orders.builder()
-			.userName(orderRequestDto.getUserName())
-			.address(orderRequestDto.getAddress())
-			.user(user)
-			.phoneNumber(orderRequestDto.getPhoneNumber())
-			.build();
-		orderRepository.save(order);
-
-		orderRequestDto.getOrderItemsId().forEach(id -> {
-			Product product = productService.findById(id);
-
-			if (user.getId().equals(product.getUser().getId())) {
-				throw new CustomException(ErrorCode.SAME_USER_PRODUCT);
-			}
-			if (product.getStatus() == ProductStatus.SOLD_OUT) {
-				throw new CustomException(ErrorCode.ALREADY_SOLD_OUT);
-			}
-
-			OrderItem orderItem = OrderItem.builder()
-				.product(product)
-				.order(order)
-				.status(SHIPMENT_START)
-				.build();
-			orderItemRepository.save(orderItem);
-			order.addOrderItem(orderItem);
-			cartService.deleteCartItem(user, id);
-			productService.updateStatus(product.getId());
-		});
-
-		return new OrderResponseDto(order);
-	}
 
 	@Transactional(readOnly = true)
 	public List<OrderResponseDto> getOrdersAllByBuyer(int page, int size, LocalDateTime startDate, LocalDateTime endDate, User user) {
@@ -128,6 +94,34 @@ public class OrderService {
 		OrderStatus status = orderStatusRequestDto.getStatus();
 		orderItem.updateOrderItemStatus(status);
 
+	}
+
+	@Transactional
+	public Orders createOrder(User user, OrderPrepareRequestDto requestDto) {
+
+		Orders order = Orders.builder()
+			.user(user)
+			.address(requestDto.getBuyerAddr())
+			.phoneNumber(requestDto.getBuyerTel())
+			.userName(requestDto.getBuyerName())
+			.build();
+
+		orderRepository.save(order);
+		return order;
+	}
+
+	@Transactional
+	public OrderItem createOrderItem(Orders order, Product product) {
+		OrderItem orderItem = OrderItem.builder()
+			.order(order)
+			.product(product)
+			.status(OrderStatus.ORDERED)
+			.build();
+
+		orderItemRepository.save(orderItem);
+		order.addOrderItem(orderItem);
+
+		return orderItem;
 	}
 
 	public Orders findOrderById(Long orderId) {

@@ -30,15 +30,15 @@ import lombok.RequiredArgsConstructor;
 public class OrderController {
 	private final OrderService orderService;
 
-	@PostMapping("/buy")
-	public ResponseEntity<CommonResponse<OrderResponseDto>> createOrder(@RequestBody OrderRequestDto orderRequestDto,
-		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		OrderResponseDto responseDto = orderService.createOrder(orderRequestDto,
-			userDetails.getUser());
-
-		CommonResponse<OrderResponseDto> response = new CommonResponse("주문이 완료되었습니다.", 201, responseDto);
-		return new ResponseEntity<>(response, HttpStatus.CREATED);
-	}
+	// @PostMapping("/buy")
+	// public ResponseEntity<CommonResponse<OrderResponseDto>> createOrder(@RequestBody OrderRequestDto orderRequestDto,
+	// 	@AuthenticationPrincipal UserDetailsImpl userDetails) {
+	// 	OrderResponseDto responseDto = orderService.createOrder(orderRequestDto,
+	// 		userDetails.getUser());
+	//
+	// 	CommonResponse<OrderResponseDto> response = new CommonResponse("주문이 완료되었습니다.", 201, responseDto);
+	// 	return new ResponseEntity<>(response, HttpStatus.CREATED);
+	// }
 
 	@GetMapping("/buy")
 	public ResponseEntity<CommonResponse<List<OrderResponseDto>>> getOrdersAllByBuyer(
