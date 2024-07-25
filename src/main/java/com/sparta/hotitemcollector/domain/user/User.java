@@ -38,8 +38,9 @@ public class User extends Timestamped {
     private String address;
 
     @Setter
-    @Column
-    private String profileImage;
+    @OneToOne
+    @JoinColumn(name = "image_id")
+    private ProfileImage profileImage;
 
     @Setter
     @Column
