@@ -10,15 +10,15 @@ public class ProfileResponseDto {
     private String phoneNumber;
     private String address;
     private String info;
-    private String profileImage;
+    private ProfileImageResponseDto profileImage;
 
-    public ProfileResponseDto(User user) {
+    public ProfileResponseDto(User user,ProfileImageResponseDto profileImage) {
         this.id = user.getId();
         this.nickname = user.getNickname();
         this.phoneNumber = user.getPhoneNumber();
         this.address = user.getAddress();
         this.info = user.getInfo();
-        this.profileImage = user.getProfileImage();
+        this.profileImage = profileImage;
     }
 }
 
