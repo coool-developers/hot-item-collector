@@ -8,7 +8,7 @@ import com.sparta.hotitemcollector.domain.product.dto.ProductSimpleResponseDto;
 import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.entity.ProductCategory;
 import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
-import com.sparta.hotitemcollector.domain.product.service.ProductImageService;
+import com.sparta.hotitemcollector.domain.s3.service.ImageService;
 import com.sparta.hotitemcollector.domain.product.service.ProductService;
 import com.sparta.hotitemcollector.domain.product.service.SearchService;
 import com.sparta.hotitemcollector.domain.s3.service.S3Service;
@@ -42,7 +42,7 @@ public class ProductController {
     private final ProductService productService;
     private final SearchService searchService;
     private final S3Service s3Service;
-    private final ProductImageService productImageService;
+    private final ImageService imageService;
 
     @PostMapping
     public ResponseEntity<CommonResponse<ProductResponseDto>> createProduct(
@@ -52,7 +52,7 @@ public class ProductController {
 
         // 크기제한, 확장자 확인
         for (MultipartFile file : files) {
-            productImageService.validateFile(file);
+            imageService.validateFile(file);
         }
         // S3에 파일 업로드
         List<ProductImageRequestDto> images = s3Service.uploadFiles(files);
@@ -82,7 +82,7 @@ public class ProductController {
 
         // 크기제한, 확장자 확인
         for (MultipartFile file : files) {
-            productImageService.validateFile(file);
+            imageService.validateFile(file);
         }
         // S3에 파일 업로드
         List<ProductImageRequestDto> images = s3Service.uploadFiles(files);

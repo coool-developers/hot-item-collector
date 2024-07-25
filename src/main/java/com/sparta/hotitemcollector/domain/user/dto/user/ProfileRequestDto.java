@@ -8,5 +8,9 @@ public class ProfileRequestDto {
     private String phoneNumber;
     private String address;
     private String info;
-    private String profileImage;
+    private ProfileImageRequestDto profileImage;
+
+    public void addImage(ProfileImageRequestDto image) {
+        this.profileImage=image;
+    }
 }
