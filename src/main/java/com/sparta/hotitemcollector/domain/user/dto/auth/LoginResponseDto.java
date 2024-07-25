@@ -1,4 +1,4 @@
-package com.sparta.hotitemcollector.domain.user.dto;
+package com.sparta.hotitemcollector.domain.user.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

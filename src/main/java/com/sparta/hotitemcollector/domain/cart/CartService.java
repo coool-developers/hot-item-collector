@@ -1,24 +1,25 @@
 package com.sparta.hotitemcollector.domain.cart;
 
+import com.sparta.hotitemcollector.domain.cart.dto.CartItemResponseDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductImageResponseDto;
+import com.sparta.hotitemcollector.domain.product.entity.Product;
+import com.sparta.hotitemcollector.domain.product.service.ProductService;
+import com.sparta.hotitemcollector.domain.user.User;
+import com.sparta.hotitemcollector.domain.user.UserService;
+import com.sparta.hotitemcollector.global.exception.CustomException;
+import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import java.util.Collections;
+import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.sparta.hotitemcollector.domain.cart.dto.CartItemResponseDto;
-import com.sparta.hotitemcollector.domain.product.Product;
-import com.sparta.hotitemcollector.domain.product.ProductService;
-import com.sparta.hotitemcollector.domain.user.User;
-import com.sparta.hotitemcollector.domain.user.UserService;
-import com.sparta.hotitemcollector.global.exception.CustomException;
-import com.sparta.hotitemcollector.global.exception.ErrorCode;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -32,11 +33,6 @@ public class CartService {
 	public CartItemResponseDto createCartItem(User user, Long productId) {
 		Product product = productService.findById(productId);
 
-		CartItem cartItem = CartItem.builder()
-			.product(product)
-			.user(user)
-			.build();
-
 		if (user.getId().equals(product.getUser().getId())) {
 			throw new CustomException(ErrorCode.SAME_USER_PRODUCT);
 		}
@@ -45,18 +41,14 @@ public class CartService {
 			throw new CustomException(ErrorCode.ALREADY_EXIST_CARTITEM);
 		}
 
+		CartItem cartItem = CartItem.builder()
+			.product(product)
+			.user(user)
+			.build();
+
 		cartItemRepository.save(cartItem);
 
-		return CartItemResponseDto.builder()
-			.id(cartItem.getId())
-			.productId(cartItem.getProduct().getId())
-			.productName(cartItem.getProduct().getName())
-			.productImage(cartItem.getProduct().getImage())
-			.price(cartItem.getProduct().getPrice())
-			.productInfo(cartItem.getProduct().getInfo())
-			.userId(cartItem.getUser().getId())
-			.createdAt(cartItem.getCreatedAt())
-			.build();
+		return new CartItemResponseDto(cartItem);
 	}
 
 	@Transactional
@@ -68,27 +60,16 @@ public class CartService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<CartItemResponseDto> getCart(int page, User user) {
+	public List<CartItemResponseDto> getCart(int page, User user) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 		Pageable pageable = PageRequest.of(page - 1, 10, sort);
 
-		Page<CartItem> cartItemList = cartItemRepository.findAllByUserId(user.getId(), pageable);
+		Page<CartItem> cartItemPage = cartItemRepository.findAllByUserId(user.getId(), pageable);
 
-		if (cartItemList.isEmpty()) {
-			return new PageImpl<>(Collections.emptyList());
-		}
-
-		return cartItemList.map(cartItem -> CartItemResponseDto.builder()
-			.id(cartItem.getId())
-			.productId(cartItem.getProduct().getId())
-			.productName(cartItem.getProduct().getName())
-			.productImage(cartItem.getProduct().getImage())
-			.price(cartItem.getProduct().getPrice())
-			.productInfo(cartItem.getProduct().getInfo())
-			.productStatus(cartItem.getProduct().getStatus())
-			.userId(cartItem.getUser().getId())
-			.createdAt(cartItem.getCreatedAt())
-			.build());
+		return cartItemPage.getContent()
+			.stream()
+			.map(CartItemResponseDto::new)
+			.collect(Collectors.toList());
 	}
 
 	public CartItem findCartItemByProductIdAndUserId(Long productId, Long userId) {

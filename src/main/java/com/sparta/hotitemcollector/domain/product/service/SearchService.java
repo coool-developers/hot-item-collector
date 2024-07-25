@@ -1,5 +1,9 @@
-package com.sparta.hotitemcollector.domain.product;
+package com.sparta.hotitemcollector.domain.product.service;
 
+import com.sparta.hotitemcollector.domain.product.repository.ProductRepository;
+import com.sparta.hotitemcollector.domain.product.dto.ProductSimpleResponseDto;
+import com.sparta.hotitemcollector.domain.product.entity.Product;
+import com.sparta.hotitemcollector.domain.product.entity.ProductCategory;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.domain.user.UserService;
 import java.util.List;
@@ -25,12 +29,12 @@ public class SearchService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage = Page.empty(pageable);
 
-        /*if (nickname != null && !nickname.isEmpty()) {
+        if (nickname != null && !nickname.isEmpty()) {
             List<User> userList = userService.findByNicknameContainingIgnoreCase(nickname);
             if (!userList.isEmpty()) {
                 productPage = productRepository.findByUserIn(userList, pageable);
             }
-        }*/
+        }
 
         if (productName != null && !productName.isEmpty()) {
             productPage = productRepository.findByNameContainingIgnoreCase(productName, pageable);

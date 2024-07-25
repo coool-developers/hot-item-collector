@@ -61,6 +61,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users/profile/**").permitAll()
                         .requestMatchers(permittedUrls.toArray(new String[0])).permitAll()
                         .requestMatchers("/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()

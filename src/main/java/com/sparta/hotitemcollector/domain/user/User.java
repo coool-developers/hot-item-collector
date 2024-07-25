@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Entity
@@ -21,27 +22,33 @@ public class User extends Timestamped {
     @Column(name = "login_id",nullable = false)
     private String loginId;
 
+    @Setter
     @Column
     private String nickname;
 
+    @Setter
     @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
     private UserRole role;
 
+    @Setter
     @Column
     private String address;
 
+    @Setter
     @Column
     private String profileImage;
 
+    @Setter
     @Column
     private String phoneNumber;
 
     @Column(nullable = false)
     private UserStatus userStatus;
 
+    @Setter
     @Column
     private String info;
 

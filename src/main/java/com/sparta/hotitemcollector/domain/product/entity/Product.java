@@ -1,11 +1,15 @@
-package com.sparta.hotitemcollector.domain.product;
+package com.sparta.hotitemcollector.domain.product.entity;
 
+import com.sparta.hotitemcollector.domain.product.dto.ProductRequestDto;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 
 @Getter
@@ -22,8 +26,8 @@ public class Product extends Timestamped {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private String image;
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductImage> images = new ArrayList<>();
 
     @Column(nullable = false)
     private Long price;
@@ -49,7 +53,6 @@ public class Product extends Timestamped {
     @Builder
     public Product(ProductRequestDto requestDto, User user) {
         this.name = requestDto.getName();
-        this.image = requestDto.getImage();
         this.price = requestDto.getPrice();
         this.info = requestDto.getInfo();
         this.category = requestDto.getCategory();
@@ -60,10 +63,14 @@ public class Product extends Timestamped {
 
     public void updateProduct(ProductRequestDto requestDto) {
         this.name = requestDto.getName();
-        this.image = requestDto.getImage();
         this.price = requestDto.getPrice();
         this.info = requestDto.getInfo();
         this.category = requestDto.getCategory();
+    }
+
+    public void addImage(ProductImage image) {
+        images.add(image);
+        image.setProduct(this);
     }
 
     public void increaseLikes() {
@@ -72,5 +79,9 @@ public class Product extends Timestamped {
 
     public void decreaseLikes() {
         this.likes--;
+    }
+
+    public void updateStatus() {
+        this.status = ProductStatus.SOLD_OUT;
     }
 }
