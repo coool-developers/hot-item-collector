@@ -265,5 +265,7 @@ public class UserService {
         return userRepository.findByNicknameContainingIgnoreCase(nickname);
     }
 
-
+    public User findByUserId(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+    }
 }
