@@ -1,5 +1,6 @@
 package com.sparta.hotitemcollector.domain.user;
 
+import com.sparta.hotitemcollector.domain.user.dto.user.ProfileImageRequestDto;
 import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,4 +29,9 @@ public class ProfileImage extends Timestamped {
     @JoinColumn(name = "user_id")
     private User user;
 
+    public ProfileImage(ProfileImageRequestDto profileImage,User user) {
+        this.filename=profileImage.getFilename();
+        this.imageUrl= profileImage.getImageUrl();
+        this.user=user;
+    }
 }

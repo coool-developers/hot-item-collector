@@ -186,8 +186,9 @@ public class UserService {
         if (requestDto.getInfo() != null) {
             findUser.setInfo(requestDto.getInfo());
         }
+        ProfileImage profileImage = new ProfileImage(requestDto.getProfileImage(),findUser);
         if(requestDto.getProfileImage() != null){
-            findUser.setProfileImage(requestDto.getProfileImage());
+            findUser.setProfileImage(profileImage);
         }
         // 유저 저장
         User saveUser = userRepository.save(findUser);
