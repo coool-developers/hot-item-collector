@@ -13,6 +13,8 @@ import SearchPage from "@/components/SearchPage.vue";
 import ProfileUpdate from "@/components/ProfileUpdate.vue";
 import OrderItem from "@/components/OrderItem.vue";
 import OtherProfilePage from "@/components/OtherProfilePage.vue";
+import UploadProduct from "@/components/UploadProduct.vue";
+import SaleProductPage from "@/components/SaleProductPage.vue";
 
 const routes = [
   {
@@ -84,6 +86,16 @@ const routes = [
     path: '/profile/other',
     name: 'OtherProfilePage',
     component: OtherProfilePage,
+  },
+  {
+    path: '/product/upload',
+    name: 'UploadProduct',
+    component: UploadProduct,
+  },
+  {
+    path: '/product/sale',
+    name: 'SaleProductPage',
+    component: SaleProductPage,
   },
 ];
 
