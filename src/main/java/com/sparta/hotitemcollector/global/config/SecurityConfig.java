@@ -63,6 +63,10 @@ public class SecurityConfig {
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/profile/**").permitAll()
                         .requestMatchers(permittedUrls.toArray(new String[0])).permitAll()
+                        .requestMatchers("/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/prepare/order").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/prepare/payment").permitAll()
                         .anyRequest().authenticated()
         );
 

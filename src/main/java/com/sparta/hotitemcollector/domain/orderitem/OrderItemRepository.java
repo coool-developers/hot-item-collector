@@ -11,7 +11,14 @@ import com.sparta.hotitemcollector.domain.order.OrderStatus;
 import com.sparta.hotitemcollector.domain.product.entity.Product;
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
+
+	Page<OrderItem> findAllByProductIn(List<Product> productList, Pageable pageable);
+	Page<OrderItem> findAllByStatusAndProductIn(OrderStatus status, List<Product> productList, Pageable pageable);
+
+	List<OrderItem> findByOrderId(Long id);
+
 	Page<OrderItem> findAllByCreatedAtBetweenAndProductIn(LocalDateTime startDate, LocalDateTime endDate, List<Product> productList, Pageable pageable);
 
 	Page<OrderItem> findAllByStatusAndCreatedAtBetweenAndProductIn(OrderStatus status, LocalDateTime startDate, LocalDateTime endDate, List<Product> productList, Pageable pageable);
+
 }

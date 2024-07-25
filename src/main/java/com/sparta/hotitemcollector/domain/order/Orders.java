@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sparta.hotitemcollector.domain.orderitem.OrderItem;
+import com.sparta.hotitemcollector.domain.payment.Payment;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.Timestamped;
 
@@ -19,6 +20,8 @@ import jakarta.persistence.OneToMany;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @Entity
@@ -45,6 +48,9 @@ public class Orders extends Timestamped {
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<OrderItem> orderItems = new ArrayList<>();
 
+    @OneToMany(mappedBy = "order")
+    private List<Payment> paymentList;
+
 	@Builder
 	public Orders(User user, String address, String phoneNumber, String userName) {
 		this.user = user;
@@ -56,4 +62,5 @@ public class Orders extends Timestamped {
 	public void addOrderItem(OrderItem orderItem) {
 		orderItems.add(orderItem);
 	}
+
 }

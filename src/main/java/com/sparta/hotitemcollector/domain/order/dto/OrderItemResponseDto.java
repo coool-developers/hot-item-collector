@@ -5,13 +5,15 @@ import com.sparta.hotitemcollector.domain.orderitem.OrderItem;
 import com.sparta.hotitemcollector.domain.product.dto.ProductImageResponseDto;
 import lombok.Getter;
 
+import java.math.BigDecimal;
+
 @Getter
 public class OrderItemResponseDto {
 
 	private Long productId;
 	private String productName;
 	private ProductImageResponseDto productImage;
-	private Long price;
+	private BigDecimal price;
 	private String orderStatus;
 
 	public OrderItemResponseDto(OrderItem orderItem) {

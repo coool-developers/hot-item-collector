@@ -4,6 +4,8 @@ import com.sparta.hotitemcollector.domain.product.dto.ProductRequestDto;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
@@ -30,7 +32,7 @@ public class Product extends Timestamped {
     private List<ProductImage> images = new ArrayList<>();
 
     @Column(nullable = false)
-    private Long price;
+    private BigDecimal price;
 
     @Column(nullable = false)
     private String info;
@@ -53,7 +55,7 @@ public class Product extends Timestamped {
     @Builder
     public Product(ProductRequestDto requestDto, User user) {
         this.name = requestDto.getName();
-        this.price = requestDto.getPrice();
+        this.price = BigDecimal.valueOf(requestDto.getPrice());
         this.info = requestDto.getInfo();
         this.category = requestDto.getCategory();
         this.likes = 0L;
@@ -63,7 +65,7 @@ public class Product extends Timestamped {
 
     public void updateProduct(ProductRequestDto requestDto) {
         this.name = requestDto.getName();
-        this.price = requestDto.getPrice();
+        this.price = BigDecimal.valueOf(requestDto.getPrice());
         this.info = requestDto.getInfo();
         this.category = requestDto.getCategory();
     }

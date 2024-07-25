@@ -1,6 +1,8 @@
 package com.sparta.hotitemcollector.domain.order.dto;
 
 import com.sparta.hotitemcollector.domain.product.dto.ProductImageResponseDto;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.sparta.hotitemcollector.domain.orderitem.OrderItem;
@@ -13,7 +15,7 @@ public class OrderItemBySellerResponseDto {
 	private Long productId;
 	private String productName;
 	private ProductImageResponseDto productImage;
-	private Long price;
+	private BigDecimal price;
 	private String orderStatus;
 
 	private Long orderId;
