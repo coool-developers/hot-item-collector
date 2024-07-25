@@ -80,6 +80,8 @@ public class UserController {
         imageService.validateFile(file);
         // S3에 파일 업로드
         ProfileImageRequestDto image = s3Service.uploadFile(file);
+
+        requestDto.addImage(image);
         ProfileResponseDto responseDto = userService.updateProfile(requestDto,userDetails.getUser());
         CommonResponse response = new CommonResponse<>("회원 정보 수정 성공",200,responseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
