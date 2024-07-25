@@ -1,6 +1,5 @@
-package com.sparta.hotitemcollector.domain.product.service;
+package com.sparta.hotitemcollector.domain.s3.service;
 
-import com.sparta.hotitemcollector.domain.product.repository.ProductImageRepository;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -9,9 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
-public class ProductImageService {
-
-    private final ProductImageRepository productImageRepository;
+public class ImageService {
 
     public void validateFile(MultipartFile file) {
         String filename = file.getOriginalFilename();
