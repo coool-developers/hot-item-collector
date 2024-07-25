@@ -2,6 +2,8 @@ package com.sparta.hotitemcollector.domain.product.dto;
 
 import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.entity.ProductCategory;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Getter;
@@ -13,7 +15,7 @@ public class ProductResponseDto {
     private String name;
     private ProductCategory category;
     private List<ProductImageResponseDto> images;
-    private Long price;
+    private BigDecimal price;
     private String info;
     private Long likes;
     private Long userId;

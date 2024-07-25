@@ -23,9 +23,9 @@
         methods: {
             requestPay: function () {
                 console.log("api 진입 전");
-                axios.get('http://localhost:8080/prepare/payment?orderId=15', {
+                axios.get('http://localhost:8080/prepare/payment?orderId=7', {
                     headers: {
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImF1dGgiOiJVU0VSIiwiaWF0IjoxNzIxODgyMTUzLCJleHAiOjE3MjE4ODI3NTN9.0EYjrLC6Tr0H0aC_Xe2R1Med6lRaQU4_o6hSdt7uhWc'
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImF1dGgiOiJVU0VSIiwiaWF0IjoxNzIxODkzODkyLCJleHAiOjE3MjE4OTQ0OTJ9.l4DFvy_RJAVlQtRELS9_dcVTPTSkVh2Us06ZBqhRqXY'
                     }
                 })
                     .then(response => {
@@ -54,7 +54,7 @@
                                     amount: rsp.paid_amount // 결제 완료 금액
                                 }, {
                                     headers: {
-                                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImF1dGgiOiJVU0VSIiwiaWF0IjoxNzIxODgyMTUzLCJleHAiOjE3MjE4ODI3NTN9.0EYjrLC6Tr0H0aC_Xe2R1Med6lRaQU4_o6hSdt7uhWc'
+                                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImF1dGgiOiJVU0VSIiwiaWF0IjoxNzIxODkzODkyLCJleHAiOjE3MjE4OTQ0OTJ9.l4DFvy_RJAVlQtRELS9_dcVTPTSkVh2Us06ZBqhRqXY'
                                     }
                                 })
                                     .then(response => {

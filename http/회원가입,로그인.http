@@ -54,7 +54,6 @@ Authorization: {{access_token}}
 {
   "name" : "TAPE",
   "category": "HOME_LIVING",
-  "image": "temp_image.url",
   "price": 100,
   "info": "TAPE는 쓰지"
 }
@@ -89,7 +88,7 @@ Content-Type: application/json
 Authorization: {{access_token}}
 
 {
-  "cartItemList": [1,2],
+  "cartItemList": [2],
   "buyerName": "김원기",
   "buyerTel": "010-4242-4242",
   "buyerAddr": "서울특별시 강남구 신사동"

@@ -32,7 +32,7 @@ public class Payment {
     private String payMethod;
 
     @Column(name = "amount", nullable = false)
-    private Long amount;
+    private BigDecimal amount;
 
     @Column(name = "status", nullable = false)
     private String status; // 결제 상태
@@ -45,7 +45,7 @@ public class Payment {
     private Orders order;
 
     @Builder
-    public Payment(String merchantUid, String impUid, String payMethod, Long amount, String status, LocalDateTime paidAt, Orders order) {
+    public Payment(String merchantUid, String impUid, String payMethod, BigDecimal amount, String status, LocalDateTime paidAt, Orders order) {
         this.merchantUid = merchantUid;
         this.impUid = impUid;
         this.payMethod = payMethod;

@@ -15,6 +15,8 @@ import com.sparta.hotitemcollector.domain.payment.dto.PaymentVerificationDto;
 import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.service.ProductService;
 import com.sparta.hotitemcollector.domain.user.User;
+import com.sparta.hotitemcollector.global.exception.CustomException;
+import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,7 +64,7 @@ public class PaymentService {
                 .build();
         orderRepository.save(order);
 
-        long totalAmount = 0; // 총 결제 금액을 저장할 변수
+        BigDecimal totalAmount = BigDecimal.ZERO; // 총 결제 금액을 저장할 변수
 
         for (Long itemId : requestDto.getCartItemList()) {
             Product product = cartItemRepository.findById(itemId)
@@ -77,14 +80,14 @@ public class PaymentService {
             orderItemRepository.save(orderItem);
             order.addOrderItem(orderItem);
 
-            totalAmount += product.getPrice();
+            totalAmount = totalAmount.add(product.getPrice());
         }
 
         // 하나의 결제 레코드를 생성
         Payment payment = Payment.builder()
                 .merchantUid("merchant_" + System.currentTimeMillis())
-                .impUid("pending") // 결제 후 업데이트
                 .payMethod("card")
+                .impUid("imp_" + System.currentTimeMillis()) // 임시 값이며 결제가 끝날 경우 아임포트에서 제공하는 값으로 변경 됨
                 .amount(totalAmount) // 총 결제 금액
                 .status("READY")
                 .paidAt(null)
@@ -100,9 +103,9 @@ public class PaymentService {
                 .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다: " + orderId));
 
         List<Payment> payments = paymentRepository.findByOrderId(orderId);
-        Long totalAmount = payments.stream()
-                .mapToLong(Payment::getAmount)
-                .sum();
+        BigDecimal totalAmount = payments.stream()
+                .map(Payment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         String productName = payments.stream()
                 .map(payment -> payment.getOrder().getOrderItems().get(0).getProduct().getName())
@@ -129,22 +132,22 @@ public class PaymentService {
         if (iamportPayment.getAmount().equals(verificationDto.getAmount())) {
             // 결제 완료 처리
             Payment payment = paymentRepository.findByMerchantUid(verificationDto.getMerchantUid())
-                    .orElseThrow(() -> new IllegalArgumentException("결제를 찾을 수 없습니다: " + verificationDto.getMerchantUid()));
+                    .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PAYMENT));
 
             payment.updatePayment(verificationDto.getImpUid(), "PAID", LocalDateTime.now());
             paymentRepository.save(payment);
 
             // 해당 Order의 모든 Payment 상태를 변경
-            List<Payment> payments = paymentRepository.findByOrderId(payment.getOrder().getId());
-            payments.forEach(p -> {
+            List<Payment> paymentList = paymentRepository.findByOrderId(payment.getOrder().getId());
+            paymentList.forEach(p -> {
                 p.updatePayment(p.getImpUid(), "PAID", LocalDateTime.now());
             });
-            paymentRepository.saveAll(payments);
+            paymentRepository.saveAll(paymentList);
 
             // 해당 Order의 모든 OrderItem 상태를 변경
-            List<OrderItem> orderItems = orderItemRepository.findByOrderId(payment.getOrder().getId());
-            orderItems.forEach(orderItem -> orderItem.updateOrderItemStatus(OrderStatus.PAID));
-            orderItemRepository.saveAll(orderItems);
+            List<OrderItem> orderItemList = orderItemRepository.findByOrderId(payment.getOrder().getId());
+            orderItemList.forEach(orderItem -> orderItem.updateOrderItemStatus(OrderStatus.PAID));
+            orderItemRepository.saveAll(orderItemList);
 
         } else {
             throw new IllegalArgumentException("결제 금액이 일치하지 않습니다.");
