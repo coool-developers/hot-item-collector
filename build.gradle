@@ -44,6 +44,9 @@ dependencies {
 
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3'
 
+    // S3
+    implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.4'
+
 }
 
 tasks.named('test') {

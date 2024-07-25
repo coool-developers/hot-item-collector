@@ -1,17 +1,17 @@
 package com.sparta.hotitemcollector.domain.cart.dto;
 
-import java.time.LocalDateTime;
-
 import com.sparta.hotitemcollector.domain.cart.CartItem;
-
+import com.sparta.hotitemcollector.domain.product.dto.ProductImageResponseDto;
+import java.time.LocalDateTime;
 import lombok.Getter;
 
 @Getter
 public class CartItemResponseDto {
+
 	private Long id;
 	private Long productId;
 	private String productName;
-	private String productImage;
+	private ProductImageResponseDto productImage;
 	private Long price;
 	private String productInfo;
 	private String productStatus;
@@ -22,11 +22,13 @@ public class CartItemResponseDto {
 		this.id = cartItem.getId();
 		this.productId = cartItem.getProduct().getId();
 		this.productName = cartItem.getProduct().getName();
-		this.productImage = cartItem.getProduct().getImage();
+		this.productImage = cartItem.getProduct().getImages().isEmpty() ? null
+			: new ProductImageResponseDto(cartItem.getProduct().getImages().get(0));
 		this.price = cartItem.getProduct().getPrice();
 		this.productInfo = cartItem.getProduct().getInfo();
 		this.productStatus = cartItem.getProduct().getStatus().getStatus();
 		this.userId = cartItem.getUser().getId();
 		this.createdAt = cartItem.getCreatedAt();
 	}
+
 }

@@ -1,10 +1,24 @@
-package com.sparta.hotitemcollector.domain.product;
+package com.sparta.hotitemcollector.domain.product.controller;
 
+import com.sparta.hotitemcollector.domain.product.dto.HotProductResponseDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductImageRequestDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductRequestDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductResponseDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductSimpleResponseDto;
+import com.sparta.hotitemcollector.domain.product.entity.Product;
+import com.sparta.hotitemcollector.domain.product.entity.ProductCategory;
+import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
+import com.sparta.hotitemcollector.domain.product.service.ProductImageService;
+import com.sparta.hotitemcollector.domain.product.service.ProductService;
+import com.sparta.hotitemcollector.domain.product.service.SearchService;
+import com.sparta.hotitemcollector.domain.s3.service.S3Service;
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
+import com.sparta.hotitemcollector.global.exception.CustomException;
+import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import java.util.List;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +28,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("products")
@@ -26,11 +41,23 @@ public class ProductController {
 
     private final ProductService productService;
     private final SearchService searchService;
+    private final S3Service s3Service;
+    private final ProductImageService productImageService;
 
     @PostMapping
     public ResponseEntity<CommonResponse<ProductResponseDto>> createProduct(
-        @Valid @RequestBody ProductRequestDto requestDto,
-        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        @Valid @RequestPart("requestDto") ProductRequestDto requestDto,
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
+        @RequestPart("files") List<MultipartFile> files) throws IOException {
+
+        // 크기제한, 확장자 확인
+        for (MultipartFile file : files) {
+            productImageService.validateFile(file);
+        }
+        // S3에 파일 업로드
+        List<ProductImageRequestDto> images = s3Service.uploadFiles(files);
+
+        requestDto.addImages(images);
         ProductResponseDto responseDto = productService.createProduct(requestDto,
             userDetails.getUser());
         CommonResponse response = new CommonResponse("상품 등록 성공", 201, responseDto);
@@ -40,13 +67,38 @@ public class ProductController {
     @PutMapping("/{productId}")
     public ResponseEntity<CommonResponse<ProductResponseDto>> updateProduct(
         @PathVariable(name = "productId") Long productId,
-        @Valid @RequestBody ProductRequestDto requestDto,
-        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        @Valid @RequestPart("requestDto") ProductRequestDto requestDto,
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
+        @RequestPart(value = "files", required = false) List<MultipartFile> files)
+        throws IOException {
+
+        // 현재 제품 정보를 조회
+        Product product = productService.findById(productId);
+
+        // 사용자 권한 확인
+        if (!product.getUser().getId().equals(userDetails.getUser().getId())) {
+            throw new CustomException(ErrorCode.NOT_SAME_USER);
+        }
+
+        // 크기제한, 확장자 확인
+        for (MultipartFile file : files) {
+            productImageService.validateFile(file);
+        }
+        // S3에 파일 업로드
+        List<ProductImageRequestDto> images = s3Service.uploadFiles(files);
+
+        requestDto.addImages(images);
+
+        // 제품 업데이트
         ProductResponseDto responseDto = productService.updateProduct(productId, requestDto,
             userDetails.getUser());
-        CommonResponse response = new CommonResponse("상품 수정 성공", 200, responseDto);
+
+        // 응답 반환
+        CommonResponse<ProductResponseDto> response = new CommonResponse<>("상품 수정 성공", 200,
+            responseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<CommonResponse> deleteProduct(

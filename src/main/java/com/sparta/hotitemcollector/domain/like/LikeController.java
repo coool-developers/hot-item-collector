@@ -1,6 +1,6 @@
 package com.sparta.hotitemcollector.domain.like;
 
-import com.sparta.hotitemcollector.domain.product.ProductSimpleResponseDto;
+import com.sparta.hotitemcollector.domain.product.dto.ProductSimpleResponseDto;
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
