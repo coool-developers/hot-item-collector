@@ -1,7 +1,5 @@
 package com.sparta.hotitemcollector.domain.order;
 
-import static com.sparta.hotitemcollector.domain.order.OrderStatus.SHIPMENT_START;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.hotitemcollector.domain.cart.CartService;
 import com.sparta.hotitemcollector.domain.order.dto.OrderItemBySellerResponseDto;
-import com.sparta.hotitemcollector.domain.order.dto.OrderRequestDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.hotitemcollector.domain.orderitem.OrderItem;
@@ -134,6 +131,10 @@ public class OrderService {
 		return orderItemRepository.findById(orderItemId).orElseThrow(
 			() -> new CustomException(ErrorCode.NOT_FOUND_ORDERITEM)
 		);
+	}
+
+	public List<OrderItem> findOrderItemsByOrderId(Long orderId) {
+		return orderItemRepository.findByOrderId(orderId);
 	}
 
 }

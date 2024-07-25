@@ -37,9 +37,6 @@ public class PaymentService {
 	private final ProductService productService;
 	private IamportClient iamportClient;
 
-	// private final CartItemRepository cartItemRepository;
-	//  private final OrderRepository orderRepository;
-	//  private final OrderItemRepository orderItemRepository;
 	private final OrderService orderService;
 	private final CartService cartService;
 
@@ -87,9 +84,7 @@ public class PaymentService {
 	}
 
 	public PaymentRequestDto getPaymentRequestDataByOrderId(Long orderId) {
-		Orders order = orderRepository.findById(orderId)
-			.orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다: " + orderId));
-
+		Orders order = orderService.findOrderById(orderId);
 		List<Payment> payments = paymentRepository.findByOrderId(orderId);
 		BigDecimal totalAmount = payments.stream()
 			.map(Payment::getAmount)
@@ -133,9 +128,9 @@ public class PaymentService {
 			paymentRepository.saveAll(paymentList);
 
 			// 해당 Order의 모든 OrderItem 상태를 변경
-			List<OrderItem> orderItemList = orderItemRepository.findByOrderId(payment.getOrder().getId());
+			List<OrderItem> orderItemList = orderService.findOrderItemsByOrderId(payment.getOrder().getId());
 			orderItemList.forEach(orderItem -> orderItem.updateOrderItemStatus(OrderStatus.PAID));
-			orderItemRepository.saveAll(orderItemList);
+			//orderItemRepository.saveAll(orderItemList);
 
 		} else {
 			throw new IllegalArgumentException("결제 금액이 일치하지 않습니다.");
