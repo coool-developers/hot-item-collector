@@ -1,7 +1,9 @@
 package com.sparta.hotitemcollector.domain.follow;
 
+import com.sparta.hotitemcollector.domain.user.ProfileImage;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.domain.user.UserRepository;
+import com.sparta.hotitemcollector.domain.user.dto.user.ProfileImageResponseDto;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -48,13 +50,18 @@ public class FollowService {
         List<Follow> followList = getAllFollowers(user);
 
         return followList.stream()
-                .map(follow -> new GetAllFollowsResponseDto(
-                        follow.getFollowing().getId(),
-                        follow.getFollowing().getProfileImage(),
-                        follow.getFollowing().getInfo(),
-                        follow.getFollowing().getNickname()
-                ))
-                .toList();
+            .map(follow -> {
+                User followingUser = follow.getFollowing();
+                ProfileImage profileImage = followingUser.getProfileImage();
+                ProfileImageResponseDto profileImageDto = new ProfileImageResponseDto(profileImage);
+                return new GetAllFollowsResponseDto(
+                    followingUser.getId(),
+                    profileImageDto,
+                    followingUser.getInfo(),
+                    followingUser.getNickname()
+                );
+            })
+            .toList();
     }
 
     public boolean checkFollowAlready(User followerUser, User followingUser) {
