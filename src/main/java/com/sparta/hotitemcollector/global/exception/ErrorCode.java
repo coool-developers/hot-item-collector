@@ -51,6 +51,7 @@ public enum ErrorCode {
 	// Follow
 	ALREADY_EXIST_FOLLOW(HttpStatus.CONFLICT, "ALREADY_EXIST FOLLOW"),
 	NOT_FOUND_FOLLOW(HttpStatus.NOT_FOUND, "NOT FOUND FOLLOW"),
+	ALREADY_UNFOLLOWED(HttpStatus.CONFLICT, "ALREADY_UNFOLLOW"),
 
     // S3
     EXCEED_MAX_COUNT(HttpStatus.BAD_REQUEST,"파일 업로드는 최대 5개까지 허용됩니다."),
