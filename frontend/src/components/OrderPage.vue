@@ -1,5 +1,5 @@
 <script>
-import { ref, computed } from 'vue';
+import {ref, computed, onMounted} from 'vue';
 
 export default {
   setup() {
@@ -11,10 +11,23 @@ export default {
       phone: '',
       address: ''
     })
-    const cartItems = ref([
-      { id: 1, name: '수제 초콜릿', price: 15000, seller: '달콤공방', image: 'https://example.com/chocolate.jpg' },
-      { id: 2, name: '핸드메이드 비누', price: 8000, seller: '향기나라', image: 'https://example.com/soap.jpg' }
-    ])
+    const cartItems = ref([])
+
+    const loadCartItems = () => {
+      // 아까 저장했던 정보들이 storedData로 들어옴.
+      const storedData = sessionStorage.getItem('orderData')
+      const orderDataArray = JSON.parse(storedData)
+
+      orderDataArray.forEach(orderData => {
+        cartItems.value.push({
+          id: orderData.id,
+          productName: orderData.productName,
+          price: orderData.price,
+          seller: orderData.seller,
+          productImage: orderData.productImage
+        })
+      })
+    }
 
     const totalAmount = computed(() => {
       return cartItems.value.reduce((total, item) => total + item.price, 0)
@@ -90,6 +103,10 @@ export default {
       }
       alert('결제가 완료되었습니다. 감사합니다!')
     }
+
+    onMounted(() => {
+      loadCartItems(); // 컴포넌트가 마운트될 때 API 호출
+    });
 
     return {
       searchQuery,
@@ -184,15 +201,16 @@ export default {
         <div class="order-summary">
           <h2>주문 상품 정보</h2>
           <div v-for="product in cartItems" :key="product.id" class="product-item">
-            <img :src="product.image" :alt="product.name" class="product-image">
+            <img :src="product.productImage.imageUrl" :alt="product.productName" class="product-image">
             <div class="product-info">
-              <h3>{{ product.name }}</h3>
-              <p>가격: {{ product.price.toLocaleString() }}원</p>
+              <h3>{{ product.productName }}</h3>
+              <p>가격: {{ product.price }}원</p>
               <p>판매자: {{ product.seller }}</p>
             </div>
           </div>
           <div class="total-amount">
-            최종 결제금액: {{ totalAmount.toLocaleString() }}원
+            <!--             최종 결제금액: {{ totalAmount.toLocaleString() }}원-->
+            최종 결제금액: {{ totalAmount }}원
           </div>
           <button class="checkout-button" @click="checkout">결제하기</button>
         </div>
@@ -338,7 +356,7 @@ header {
   right: 0;
   background-color: var(--bg-color);
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
   border-radius: 5px;
 }
@@ -399,7 +417,7 @@ header {
 /* Main Content Styles */
 main {
   flex-grow: 1;
-  padding: 60px 0;  /* 상하 패딩 더 증가 */
+  padding: 60px 0; /* 상하 패딩 더 증가 */
 }
 
 .order-details {
@@ -413,7 +431,7 @@ main {
   border: 1px solid var(--section-border);
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 h2 {

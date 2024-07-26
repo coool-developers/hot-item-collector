@@ -1,6 +1,7 @@
 <script>
 import {ref, computed, onMounted} from 'vue';
 import axios from "axios";
+import {useRouter} from "vue-router";
 
 export default {
   setup() {
@@ -62,11 +63,19 @@ export default {
       alert('현재 장바구니 페이지입니다.')
     }
 
+    const router = useRouter();
+
     const buyItem = (item) => {
-      alert(`${item.productName}을(를) 구매합니다.`)
+      const orderData = [item]
+      sessionStorage.setItem('orderData', JSON.stringify(orderData));
+      router.push({name: 'OrderPage'})
     }
 
     const removeItem = (item) => {
+      const userConfirmed = confirm(`${item.productName}을(를) 장바구니에서 삭제하시겠습니까?`)
+      if (!userConfirmed) {
+        return;
+      }
       axios.delete(`http://localhost:8080/cart/${item.productId}`, {
         headers: {
           'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImF1dGgiOiJVU0VSIiwiaWF0IjoxNzIxOTkxMTUyLCJleHAiOjE5MDE5OTExNTJ9.TTHc4NohF1RfgUQurvHc32VsZWUq1FF6kLK2wvxi-Do'
@@ -161,7 +170,7 @@ export default {
         <div v-for="item in cartItems" :key="item.id" class="cart-item">
           <div class="cart-item-left">
             <input type="checkbox" v-model="item.selected" class="cart-item-checkbox">
-            <img :src="item.image" :alt="item.name" class="cart-item-image">
+            <img :src="item.productImage.imageUrl" :alt="item.productImage.filename" class="cart-item-image">
             <div class="cart-item-details">
               <div class="cart-item-name">{{ item.productName }}</div>
               <div class="cart-item-price">{{ item.price }}원</div>
