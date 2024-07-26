@@ -83,7 +83,7 @@ export default {
         });
 
         // 응답 데이터 매핑
-        hotTopItems.value = response.data.responseDtoList.map((item, index) => ({
+        hotTopItems.value = response.data.result.map((item, index) => ({
           id: item.id,
           name: `${index + 1}위: ${item.name}`,
         }));
