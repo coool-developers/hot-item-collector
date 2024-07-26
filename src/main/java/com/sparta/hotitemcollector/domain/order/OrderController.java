@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.hotitemcollector.domain.order.dto.OrderItemBySellerResponseDto;
-import com.sparta.hotitemcollector.domain.order.dto.OrderItemPrepareResponseDto;
-import com.sparta.hotitemcollector.domain.order.dto.OrderItemsRequestDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
@@ -27,16 +25,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderController {
 	private final OrderService orderService;
-
-	@GetMapping("prepare/order")
-	public ResponseEntity<CommonResponse<List<OrderItemPrepareResponseDto>>> getOrderPrepare(@RequestBody OrderItemsRequestDto orderItemsRequestDto,
-		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		List<OrderItemPrepareResponseDto> responseDto = orderService.getOrderPrepare(orderItemsRequestDto,
-			userDetails.getUser());
-
-		CommonResponse<List<OrderItemPrepareResponseDto>> response = new CommonResponse("주문입력페이지 조회를 성공했습니다.", 200, responseDto);
-		return new ResponseEntity<>(response, HttpStatus.OK);
-	}
 
 	@GetMapping("/orders/buy")
 	public ResponseEntity<CommonResponse<List<OrderResponseDto>>> getOrdersAllByBuyer(

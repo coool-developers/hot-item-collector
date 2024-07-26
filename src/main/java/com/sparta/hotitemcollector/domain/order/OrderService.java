@@ -13,8 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.hotitemcollector.domain.cart.CartService;
 import com.sparta.hotitemcollector.domain.order.dto.OrderItemBySellerResponseDto;
-import com.sparta.hotitemcollector.domain.order.dto.OrderItemPrepareResponseDto;
-import com.sparta.hotitemcollector.domain.order.dto.OrderItemsRequestDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.hotitemcollector.domain.orderitem.OrderItem;
@@ -36,20 +34,6 @@ public class OrderService {
 	private final OrderItemRepository orderItemRepository;
 	private final ProductService productService;
 	private final CartService cartService;
-
-	@Transactional(readOnly = true)
-	public List<OrderItemPrepareResponseDto> getOrderPrepare(OrderItemsRequestDto orderItemsRequestDto, User user) {
-
-		List<OrderItemPrepareResponseDto> orderItemResponseDtoList = orderItemsRequestDto.getOrderItemsId()
-			.stream()
-			.map(id -> {
-				Product product = productService.findById(id);
-				return new OrderItemPrepareResponseDto(product);
-			})
-			.collect(Collectors.toList());
-
-		return orderItemResponseDtoList;
-	}
 
 	@Transactional(readOnly = true)
 	public List<OrderResponseDto> getOrdersAllByBuyer(int page, int size, LocalDateTime startDate, LocalDateTime endDate, User user) {
