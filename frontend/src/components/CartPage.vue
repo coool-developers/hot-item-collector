@@ -12,7 +12,7 @@ export default {
     const loadCartItems = () => {
       axios.get('http://localhost:8080/cart', {
         headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImF1dGgiOiJVU0VSIiwiaWF0IjoxNzIxOTgzMjQ3LCJleHAiOjE5MDE5ODMyNDd9.fKbY0Qna2pbgTNfRcLpj_n40NjHKGxmYmmC0cd_W2Xw'
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImF1dGgiOiJVU0VSIiwiaWF0IjoxNzIxOTkxMTUyLCJleHAiOjE5MDE5OTExNTJ9.TTHc4NohF1RfgUQurvHc32VsZWUq1FF6kLK2wvxi-Do'
         }
       }).then(response => {
         cartItems.value = response.data.result; // 응답 데이터를 상태에 저장
@@ -63,21 +63,22 @@ export default {
     }
 
     const buyItem = (item) => {
-      alert(`${item.name}을(를) 구매합니다.`)
+      alert(`${item.productName}을(를) 구매합니다.`)
     }
 
     const removeItem = (item) => {
-      const index = cartItems.value.findIndex(i => i.id === item.id)
-      if (index !== -1) {
-        cartItems.value.splice(index, 1)
-      }
+      axios.delete(`http://localhost:8080/cart/${item.productId}`, {
+        headers: {
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImF1dGgiOiJVU0VSIiwiaWF0IjoxNzIxOTkxMTUyLCJleHAiOjE5MDE5OTExNTJ9.TTHc4NohF1RfgUQurvHc32VsZWUq1FF6kLK2wvxi-Do'
+        }
+      }).then(response => {
+        if (response.status == 200) {
+          window.location.reload();
+        }
+      }).catch(error => {
+        console.error(error);
+      })
     }
-
-    // const removeItem = (item)=>{
-    //   axios.delete(`/cart/${item.id}`).then(()=>{
-    //     load();
-    //   })
-    // }
 
     const orderItems = () => {
       const selectedItems = cartItems.value.filter(item => item.selected)
