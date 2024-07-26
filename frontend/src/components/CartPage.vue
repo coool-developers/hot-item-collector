@@ -1,24 +1,25 @@
 <script>
-import {ref, computed} from 'vue';
+import {ref, computed, onMounted} from 'vue';
+import axios from "axios";
 
 export default {
   setup() {
     const searchType = ref('product')
     const searchQuery = ref('')
     const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
+    const cartItems = ref([]); // 장바구니 항목을 저장할 상태
 
-    const cartItems = ref([
-      {
-        id: 1,
-        name: '수제 초콜릿',
-        price: 15000,
-        seller: '달콤공방',
-        image: 'https://example.com/chocolate.jpg',
-        selected: false
-      },
-      {id: 2, name: '핸드메이드 비누', price: 8000, seller: '아로마테라피', image: 'https://example.com/soap.jpg', selected: false},
-      {id: 3, name: '니트 머플러', price: 25000, seller: '따뜻한손길', image: 'https://example.com/scarf.jpg', selected: false},
-    ])
+    const loadCartItems = () => {
+      axios.get('http://localhost:8080/cart', {
+        headers: {
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImF1dGgiOiJVU0VSIiwiaWF0IjoxNzIxOTgzMjQ3LCJleHAiOjE5MDE5ODMyNDd9.fKbY0Qna2pbgTNfRcLpj_n40NjHKGxmYmmC0cd_W2Xw'
+        }
+      }).then(response => {
+        cartItems.value = response.data.result; // 응답 데이터를 상태에 저장
+      }).catch(error => {
+        console.error(error); // 에러 처리
+      });
+    };
 
     const totalPrice = computed(() => {
       return cartItems.value.reduce((total, item) => {
@@ -72,6 +73,12 @@ export default {
       }
     }
 
+    // const removeItem = (item)=>{
+    //   axios.delete(`/cart/${item.id}`).then(()=>{
+    //     load();
+    //   })
+    // }
+
     const orderItems = () => {
       const selectedItems = cartItems.value.filter(item => item.selected)
       if (selectedItems.length > 0) {
@@ -80,6 +87,10 @@ export default {
         alert('선택한 상품이 없습니다.')
       }
     }
+
+    onMounted(() => {
+      loadCartItems(); // 컴포넌트가 마운트될 때 API 호출
+    });
 
     return {
       searchType,
@@ -151,7 +162,7 @@ export default {
             <input type="checkbox" v-model="item.selected" class="cart-item-checkbox">
             <img :src="item.image" :alt="item.name" class="cart-item-image">
             <div class="cart-item-details">
-              <div class="cart-item-name">{{ item.name }}</div>
+              <div class="cart-item-name">{{ item.productName }}</div>
               <div class="cart-item-price">{{ item.price }}원</div>
               <div class="cart-item-seller">판매자: {{ item.seller }}</div>
             </div>

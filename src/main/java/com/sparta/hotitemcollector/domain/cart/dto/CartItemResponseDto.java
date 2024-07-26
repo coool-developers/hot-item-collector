@@ -18,6 +18,7 @@ public class CartItemResponseDto {
 	private String productInfo;
 	private String productStatus;
 	private Long userId;
+	private String seller;
 	private LocalDateTime createdAt;
 
 	public CartItemResponseDto(CartItem cartItem) {
@@ -30,6 +31,7 @@ public class CartItemResponseDto {
 		this.productInfo = cartItem.getProduct().getInfo();
 		this.productStatus = cartItem.getProduct().getStatus().getStatus();
 		this.userId = cartItem.getUser().getId();
+		this.seller = cartItem.getUser().getUsername();
 		this.createdAt = cartItem.getCreatedAt();
 	}
 
