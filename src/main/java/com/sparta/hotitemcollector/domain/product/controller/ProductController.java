@@ -160,4 +160,13 @@ public class ProductController {
             "검색을 통한 상품 목록 조회 성공", 200, responseDtoList);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    @GetMapping("/new")
+    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getNewProduct(
+        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size){
+        List<ProductSimpleResponseDto> responseDtoList = productService.getNewProduct(page-1,size);
+        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
+            "새로 등록된 상품 목록 조회 성공",200,responseDtoList
+        );
+          return new ResponseEntity<>(response,HttpStatus.OK);
+    }
 }
