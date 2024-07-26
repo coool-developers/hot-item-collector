@@ -9,11 +9,13 @@ export default {
     const searchQuery = ref('')
     const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
     const cartItems = ref([]); // 장바구니 항목을 저장할 상태
+    const token = process.env.VUE_APP_ACCESS_TOKEN
 
     const loadCartItems = () => {
+
       axios.get('http://localhost:8080/cart', {
         headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImF1dGgiOiJVU0VSIiwiaWF0IjoxNzIxOTkxMTUyLCJleHAiOjE5MDE5OTExNTJ9.TTHc4NohF1RfgUQurvHc32VsZWUq1FF6kLK2wvxi-Do'
+          'Authorization': token
         }
       }).then(response => {
         cartItems.value = response.data.result; // 응답 데이터를 상태에 저장
@@ -78,7 +80,7 @@ export default {
       }
       axios.delete(`http://localhost:8080/cart/${item.productId}`, {
         headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImF1dGgiOiJVU0VSIiwiaWF0IjoxNzIxOTkxMTUyLCJleHAiOjE5MDE5OTExNTJ9.TTHc4NohF1RfgUQurvHc32VsZWUq1FF6kLK2wvxi-Do'
+          'Authorization': token
         }
       }).then(response => {
         if (response.status == 200) {
