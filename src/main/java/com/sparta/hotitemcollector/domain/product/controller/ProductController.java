@@ -18,6 +18,7 @@ import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -121,6 +122,11 @@ public class ProductController {
     public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getFollowProduct(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+        if (userDetails == null) {
+            CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
+                "인증되지 않은 사용자입니다.", 401, new ArrayList<>());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
         List<ProductSimpleResponseDto> responseDtoList = productService.getFollowProduct(
             userDetails.getUser(), page - 1, size);
         CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(

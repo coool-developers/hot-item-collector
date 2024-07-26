@@ -5,17 +5,17 @@
       <section class="hot-top-10">
         <h2>Hot Top 10 Items</h2>
         <ol>
-          <li v-for="item in hotTopItems" :key="item.id"><a :href="'/item/' + item.id">{{ item.name }}</a></li>
+          <li v-for="item in hotTopItems" :key="item.id"><a :href="'/products/' + item.id">{{ item.name }}</a></li>
         </ol>
       </section>
       <section class="new-items">
         <h2>새로 등록된 상품</h2>
         <div v-if="newItems.length > 0" class="item-cards">
           <div v-for="item in newItems" :key="item.id" class="item-card">
-            <img :src="item.image" :alt="item.name">
+            <img :src="item.image.imageUrl" :alt="item.name">
             <div class="item-info">
               <div class="item-name">{{ item.name }}</div>
-              <div class="seller-info">판매자: <a :href="'/seller/' + item.userId">{{ item.userName }}</a></div>
+              <div class="seller-info">판매자: <a :href="'/products/' + item.userId">{{ item.userName }}</a></div>
             </div>
           </div>
         </div>
@@ -28,10 +28,10 @@
         <h2>팔로우한 사용자의 상품</h2>
         <div v-if="followedUsersItems.length > 0" class="item-cards">
           <div v-for="item in followedUsersItems" :key="item.id" class="item-card">
-            <img :src="item.image" :alt="item.name">
+            <img :src="item.image.imageUrl" :alt="item.name">
             <div class="item-info">
               <div class="item-name">{{ item.name }}</div>
-              <div class="seller-info">판매자: <a :href="'/seller/' + item.userId">{{ item.userName }}</a></div>
+              <div class="seller-info">판매자: <a :href="'/products/' + item.userId">{{ item.userName }}</a></div>
             </div>
           </div>
         </div>
@@ -92,14 +92,85 @@ export default {
       }
     };
 
-    // 컴포넌트가 마운트될 때 데이터를 가져옵니다
     onMounted(fetchHotTopItems);
-    const newItems = ref([
-      { id: 101, name: '새 상품 1', image: 'https://via.placeholder.com/250x200', userId: 1001, userName: '판매자1' },
-    ]);
-    const followedUsersItems = ref([
-      { id: 201, name: '팔로우 상품 1', image: 'https://via.placeholder.com/250x200', userId: 2001, userName: '팔로우판매자1' },
-    ]);
+
+    // 신제품 목록 조회
+    const fetchNewItems = async () => {
+      try {
+
+        const response = await axios.get('/products/new',{
+          params: {
+            page: 1,
+            size: 4,
+          },
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.data && response.data.result) {
+          newItems.value = response.data.result;
+        } else {
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (error) {
+
+        console.error('Error fetching new items:', error);
+      }
+    };
+
+    onMounted(fetchNewItems);
+
+    const newItems = ref([]);
+
+    const followedUsersItems = ref([]);
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) {
+        return decodeURIComponent(parts.pop().split(';').shift());
+      }
+      return null;
+    }
+
+    const fetchFollowedProducts = async () => {
+      try {
+        let token = getCookie('access_token');
+        if (!token) {
+          console.error('No token found');
+          return;
+        }
+        // Bearer 접두사 제거
+        if (token.startsWith('Bearer ')) {
+          token = token.substring(7);
+        }
+
+        if (!token) {
+          console.error('Token is empty after processing');
+          return;
+        }
+
+        const response = await axios.get('/products/follow', {
+          params: {
+            page: 1,
+            size: 4,
+          },
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        followedUsersItems.value = response.data.result;
+      } catch (error) {
+        console.error('Error fetching followed users items:', error);
+        if (error.response) {
+          console.error('Server responded with:', error.response.data);
+        }
+      }
+    };
+
+    onMounted(fetchFollowedProducts);
 
     const showLoginModal = ref(false);
     const showSignupModal = ref(false);
@@ -121,6 +192,13 @@ export default {
       isLoggedIn.value = true;
       showLoginModal.value = false;
     };
+
+    const checkLoginStatus = () => {
+      const token = getCookie('access_token'); // 쿠키에서 토큰 가져오기
+      isLoggedIn.value = Boolean(token); // 토큰이 있으면 로그인 상태로 간주
+    };
+
+    onMounted(checkLoginStatus);
 
     const register = () => {
       console.log('Register clicked');
