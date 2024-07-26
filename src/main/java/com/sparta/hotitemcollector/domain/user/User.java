@@ -47,6 +47,7 @@ public class User extends Timestamped {
     private String phoneNumber;
 
     @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
     private UserStatus userStatus;
 
     @Setter
