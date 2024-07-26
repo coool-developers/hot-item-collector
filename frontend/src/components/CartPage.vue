@@ -90,9 +90,11 @@ export default {
     }
 
     const orderItems = () => {
-      const selectedItems = cartItems.value.filter(item => item.selected)
-      if (selectedItems.length > 0) {
-        alert(`선택한 상품 ${selectedItems.length}개를 주문합니다. 총 금액: ${totalPrice.value}원`)
+      const orderData = cartItems.value.filter(item => item.selected)
+      if (orderData.length > 0) {
+
+        sessionStorage.setItem('orderData', JSON.stringify(orderData));
+        router.push({name: 'OrderPage'})
       } else {
         alert('선택한 상품이 없습니다.')
       }
