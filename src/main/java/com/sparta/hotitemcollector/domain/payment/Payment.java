@@ -62,4 +62,8 @@ public class Payment {
         this.status = status;
         this.paidAt = paidAt;
     }
+
+    public void updatePayment(OrderStatus status) {
+        this.status = status;
+    }
 }
