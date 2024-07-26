@@ -5,10 +5,6 @@ import java.util.List;
 import lombok.Getter;
 
 @Getter
-public class OrderRequestDto {
-	private String userName;
-	private String address;
-	private String phoneNumber;
-
+public class OrderItemsRequestDto {
 	private List<Long> orderItemsId;
 }

@@ -31,7 +31,7 @@ public class CartItemResponseDto {
 		this.productInfo = cartItem.getProduct().getInfo();
 		this.productStatus = cartItem.getProduct().getStatus().getStatus();
 		this.userId = cartItem.getUser().getId();
-		this.seller = cartItem.getUser().getUsername();
+		this.seller = cartItem.getUser().getNickname();
 		this.createdAt = cartItem.getCreatedAt();
 	}
 
