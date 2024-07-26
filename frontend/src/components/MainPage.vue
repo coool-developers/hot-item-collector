@@ -5,18 +5,20 @@
       <section class="hot-top-10">
         <h2>Hot Top 10 Items</h2>
         <ol>
-          <li v-for="item in hotTopItems" :key="item.id"><a :href="'/products/' + item.id">{{ item.name }}</a></li>
+          <li v-for="item in hotTopItems" :key="item.id"><a :href="'/items/' + item.id">{{ item.name }}</a></li>
         </ol>
       </section>
       <section class="new-items">
         <h2>새로 등록된 상품</h2>
         <div v-if="newItems.length > 0" class="item-cards">
           <div v-for="item in newItems" :key="item.id" class="item-card">
+            <a :href="'/items/' + item.id">
             <img :src="item.image.imageUrl" :alt="item.name">
             <div class="item-info">
               <div class="item-name">{{ item.name }}</div>
-              <div class="seller-info">판매자: <a :href="'/products/' + item.userId">{{ item.userName }}</a></div>
+              <div class="seller-info">판매자: <a :href="'/seller/' + item.userId">{{ item.userName }}</a></div>
             </div>
+            </a>
           </div>
         </div>
         <div v-else class="no-items-message">등록된 상품이 없습니다.</div>
@@ -28,11 +30,13 @@
         <h2>팔로우한 사용자의 상품</h2>
         <div v-if="followedUsersItems.length > 0" class="item-cards">
           <div v-for="item in followedUsersItems" :key="item.id" class="item-card">
+            <a :href="'/items/' + item.id">
             <img :src="item.image.imageUrl" :alt="item.name">
             <div class="item-info">
               <div class="item-name">{{ item.name }}</div>
-              <div class="seller-info">판매자: <a :href="'/products/' + item.userId">{{ item.userName }}</a></div>
+              <div class="seller-info">판매자: <a :href="'/seller/' + item.userId">{{ item.userName }}</a></div>
             </div>
+            </a>
           </div>
         </div>
         <div v-else class="no-items-message">팔로우한 사용자의 상품이 없습니다.</div>

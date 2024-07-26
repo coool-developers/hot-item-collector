@@ -132,7 +132,6 @@ import axios from "axios";
 
 export default {
   components: {Header},
-  name: 'DetailProductPage',
   props: {
     productId: {
       type: Number,
@@ -159,20 +158,24 @@ export default {
     const passwordError = ref('')
 
     const product = ref(null);
+    console.log(props);
 
     const fetchProduct = async () => {
+      console.log('fetchProduct 함수가 실행됩니다'); // 로그 추가
       try {
         const response = await axios.get(`/products/${props.productId}`,{
           headers: {
             'Content-Type': 'application/json',
           },
         });
+        console.log('API response:', response);
         product.value = response.data.result;
       } catch (error) {
         console.error('Error fetching product:', error);
       }
     };
     onMounted(() => {
+      console.log('컴포넌트가 마운트되었습니다'); // 로그 추가
       fetchProduct();
     });
 

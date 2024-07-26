@@ -89,7 +89,7 @@ export default {
     };
 
     const goToItemPage = (itemId) => {
-      window.location.href = `/item/${itemId}`;
+      window.location.href = `/products/${itemId}`;
     };
 
     const goToSellerPage = (userId) => {
