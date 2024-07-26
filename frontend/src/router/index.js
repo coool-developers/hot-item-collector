@@ -15,6 +15,8 @@ import OrderItem from "@/components/OrderItem.vue";
 import OtherProfilePage from "@/components/OtherProfilePage.vue";
 import UploadProduct from "@/components/UploadProduct.vue";
 import SaleProductPage from "@/components/SaleProductPage.vue";
+import FollowItemPage from "@/components/FollowItemPage.vue";
+import NewItemPage from "@/components/NewItemPage.vue";
 
 const routes = [
   {
@@ -97,6 +99,16 @@ const routes = [
     path: '/product/sale',
     name: 'SaleProductPage',
     component: SaleProductPage,
+  },
+  {
+    path: '/followed-items',
+    name: 'FollowItemPage',
+    component: FollowItemPage,
+  },
+  {
+    path: '/new-items',
+    name: 'NewItemPage',
+    component: NewItemPage,
   },
 ];
 
