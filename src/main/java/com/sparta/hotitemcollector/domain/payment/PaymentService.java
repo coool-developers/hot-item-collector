@@ -74,7 +74,7 @@ public class PaymentService {
 			.payMethod("card")
 			.impUid("imp_" + System.currentTimeMillis()) // 임시 값이며 결제가 끝날 경우 아임포트에서 제공하는 값으로 변경 됨
 			.amount(totalAmount) // 총 결제 금액
-			.status("READY")
+			.status(OrderStatus.PAID_READY)
 			.paidAt(null)
 			.order(order)
 			.build();
@@ -117,13 +117,13 @@ public class PaymentService {
 			Payment payment = paymentRepository.findByMerchantUid(verificationDto.getMerchantUid())
 				.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_PAYMENT));
 
-			payment.updatePayment(verificationDto.getImpUid(), "PAID", LocalDateTime.now());
+			payment.updatePayment(verificationDto.getImpUid(), OrderStatus.PAID, LocalDateTime.now());
 			paymentRepository.save(payment);
 
 			// 해당 Order의 모든 Payment 상태를 변경
 			List<Payment> paymentList = paymentRepository.findByOrderId(payment.getOrder().getId());
 			paymentList.forEach(p -> {
-				p.updatePayment(p.getImpUid(), "PAID", LocalDateTime.now());
+				p.updatePayment(p.getImpUid(), OrderStatus.PAID, LocalDateTime.now());
 			});
 			paymentRepository.saveAll(paymentList);
 
