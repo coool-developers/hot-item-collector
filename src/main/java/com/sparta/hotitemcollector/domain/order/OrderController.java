@@ -9,14 +9,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.hotitemcollector.domain.order.dto.OrderItemBySellerResponseDto;
-import com.sparta.hotitemcollector.domain.order.dto.OrderRequestDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
@@ -29,16 +27,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderController {
 	private final OrderService orderService;
-
-	@PostMapping("/buy")
-	public ResponseEntity<CommonResponse<OrderResponseDto>> createOrder(@RequestBody OrderRequestDto orderRequestDto,
-		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		OrderResponseDto responseDto = orderService.createOrder(orderRequestDto,
-			userDetails.getUser());
-
-		CommonResponse<OrderResponseDto> response = new CommonResponse("주문이 완료되었습니다.", 201, responseDto);
-		return new ResponseEntity<>(response, HttpStatus.CREATED);
-	}
 
 	@GetMapping("/buy")
 	public ResponseEntity<CommonResponse<List<OrderResponseDto>>> getOrdersAllByBuyer(
