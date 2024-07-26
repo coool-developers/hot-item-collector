@@ -1,5 +1,6 @@
 package com.sparta.hotitemcollector.domain.payment;
 
+import com.sparta.hotitemcollector.domain.order.OrderStatus;
 import com.sparta.hotitemcollector.domain.order.Orders;
 import com.sparta.hotitemcollector.domain.orderitem.OrderItem;
 import com.sparta.hotitemcollector.domain.user.User;
@@ -35,7 +36,8 @@ public class Payment {
     private BigDecimal amount;
 
     @Column(name = "status", nullable = false)
-    private String status; // 결제 상태
+    @Enumerated(value = EnumType.STRING)
+    private OrderStatus status; // 결제 상태
 
     @Column(name = "paid_at")
     private LocalDateTime paidAt; // 지불 일자
@@ -45,7 +47,7 @@ public class Payment {
     private Orders order;
 
     @Builder
-    public Payment(String merchantUid, String impUid, String payMethod, BigDecimal amount, String status, LocalDateTime paidAt, Orders order) {
+    public Payment(String merchantUid, String impUid, String payMethod, BigDecimal amount, OrderStatus status, LocalDateTime paidAt, Orders order) {
         this.merchantUid = merchantUid;
         this.impUid = impUid;
         this.payMethod = payMethod;
@@ -55,9 +57,13 @@ public class Payment {
         this.order = order;
     }
 
-    public void updatePayment(String impUid, String status, LocalDateTime paidAt) {
+    public void updatePayment(String impUid, OrderStatus status, LocalDateTime paidAt) {
         this.impUid = impUid;
         this.status = status;
         this.paidAt = paidAt;
+    }
+
+    public void updatePayment(OrderStatus status) {
+        this.status = status;
     }
 }

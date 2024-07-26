@@ -1,8 +1,6 @@
 package com.sparta.hotitemcollector.domain.follow;
 
 import com.sparta.hotitemcollector.domain.user.dto.user.ProfileImageResponseDto;
-
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter

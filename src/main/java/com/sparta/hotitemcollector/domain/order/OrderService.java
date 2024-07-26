@@ -2,6 +2,7 @@ package com.sparta.hotitemcollector.domain.order;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -137,4 +138,9 @@ public class OrderService {
 		return orderItemRepository.findByOrderId(orderId);
 	}
 
+	public Orders findById(Long orderId) {
+		return orderRepository.findById(orderId)
+				.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ORDER));
+
+	}
 }
