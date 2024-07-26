@@ -23,7 +23,7 @@ export default {
     const loginIdError = ref('');
     const passwordError = ref('');
 
-    const pageTitle = computed(() => '상품 목록');
+    const pageTitle = computed(() => '새로 등록된 상품 목록');
 
     const displayedItems = computed(() => {
       if (!Array.isArray(products.value)) {

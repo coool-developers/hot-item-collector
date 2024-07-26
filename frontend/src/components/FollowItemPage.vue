@@ -23,7 +23,7 @@ export default {
     const loginIdError = ref('');
     const passwordError = ref('');
 
-    const pageTitle = computed(() => '상품 목록');
+    const pageTitle = computed(() => '팔로우 사용자 상품 목록');
 
     const displayedItems = computed(() => {
       if (!Array.isArray(products.value)) {
