@@ -56,8 +56,9 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
 import Header from './AppHeader.vue';
+import { ref, computed,onMounted } from 'vue';
+import axios from 'axios';
 
 export default {
   components: {Header},
@@ -66,11 +67,33 @@ export default {
     const searchType = ref('product');
     const searchQuery = ref('');
     const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물']);
-    const hotTopItems = ref([
-      { id: 1, name: '초특가 스마트폰' },
-      { id: 2, name: '인기 노트북' },
-      { id: 3, name: '베스트셀러 도서' },
-    ]);
+    const hotTopItems = ref([]);
+
+    // API 요청을 통해 데이터를 가져오는 함수
+    const fetchHotTopItems = async () => {
+      try {
+        const response = await axios.get('/products/hot', {
+          params: {
+            page: 1,
+            size: 10,
+          },
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        // 응답 데이터 매핑
+        hotTopItems.value = response.data.responseDtoList.map((item, index) => ({
+          id: item.id,
+          name: `${index + 1}위: ${item.name}`,
+        }));
+      } catch (error) {
+        console.error('Failed to fetch hot top items', error);
+      }
+    };
+
+    // 컴포넌트가 마운트될 때 데이터를 가져옵니다
+    onMounted(fetchHotTopItems);
     const newItems = ref([
       { id: 101, name: '새 상품 1', image: 'https://via.placeholder.com/250x200', userId: 1001, userName: '판매자1' },
     ]);
