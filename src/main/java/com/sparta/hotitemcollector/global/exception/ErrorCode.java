@@ -26,7 +26,8 @@ public enum ErrorCode {
 	UNMATCHED_TOKEN(HttpStatus.BAD_REQUEST, "일치하지 않는 토큰입니다."),
 
 	// Auth
-	DUPLICATE_USER(HttpStatus.CONFLICT, "이미 등록된 사용자 입니다."),
+	DUPLICATE_USER(HttpStatus.CONFLICT, "이미 존재하는 아이디입니다."),
+	DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
 	INCORRECT_PASSWORD(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다."),
 	WITHDRAW_USER(HttpStatus.BAD_REQUEST, "탈퇴한 회원입니다."),
 
