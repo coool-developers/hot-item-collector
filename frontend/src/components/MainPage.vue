@@ -1,51 +1,6 @@
 <template>
   <div id="app">
-    <header>
-      <div class="container header-content">
-        <a href="/" class="logo">Hot Item Collector</a>
-        <div class="search-bar">
-          <select v-model="searchType">
-            <option value="product">상품명</option>
-            <option value="seller">판매자명</option>
-          </select>
-          <input type="text" v-model="searchQuery" placeholder="검색어를 입력하세요">
-          <button @click="search">검색</button>
-        </div>
-        <div class="user-actions">
-          <template v-if="isLoggedIn">
-            <div class="dropdown">
-              <button>상품</button>
-              <div class="dropdown-content">
-                <a href="#" @click="goToProductRegistration">상품 등록</a>
-                <a href="#" @click="goToProductManagement">판매 물품 관리</a>
-                <a href="#" @click="goToOrderManagement">주문 관리</a>
-              </div>
-            </div>
-            <div class="dropdown">
-              <button>내정보</button>
-              <div class="dropdown-content">
-                <a href="#" @click="viewMyInfo">내정보 보기</a>
-                <a href="#" @click="editProfile">정보 수정</a>
-                <a href="#" @click="logout">로그아웃</a>
-                <a href="#" @click="deleteAccount">회원 탈퇴</a>
-              </div>
-            </div>
-            <button @click="goToCart">장바구니</button>
-          </template>
-          <template v-else>
-            <button @click="showLoginModal = true">로그인</button>
-            <button @click="showSignupModal = true">회원가입</button>
-          </template>
-        </div>
-      </div>
-    </header>
-    <nav class="categories">
-      <div class="container">
-        <div class="categories-container">
-          <a v-for="category in categories" :key="category" :href="'/category/' + category" class="category-item">{{ category }}</a>
-        </div>
-      </div>
-    </nav>
+    <Header />
     <main class="container">
       <section class="hot-top-10">
         <h2>Hot Top 10 Items</h2>
@@ -97,77 +52,15 @@
         <div class="footer-copyright">&copy; 2023 Hot Item Collector. All rights reserved.</div>
       </div>
     </footer>
-    <!-- 회원가입 모달 -->
-    <div v-if="showSignupModal" class="modal-overlay" @click.self="showSignupModal = false">
-      <div class="modal-container">
-        <button class="close-btn" @click="showSignupModal = false">&times;</button>
-        <h1>회원가입</h1>
-        <form @submit.prevent="register">
-          <div class="form-group">
-            <label for="auth-signupLoginId">아이디</label>
-            <input type="text" id="auth-signupLoginId" v-model="signupLoginId" @input="validateLoginId" required>
-            <div class="error" v-if="loginIdError">{{ loginIdError }}</div>
-          </div>
-          <div class="form-group">
-            <label for="auth-signupPassword">비밀번호</label>
-            <input type="password" id="auth-signupPassword" v-model="signupPassword" @input="validatePassword" required>
-            <div class="error" v-if="passwordError">{{ passwordError }}</div>
-          </div>
-          <div class="form-group">
-            <label for="auth-username">이름</label>
-            <input type="text" id="auth-username" v-model="username" required>
-          </div>
-          <div class="form-group">
-            <label for="auth-nickname">닉네임</label>
-            <input type="text" id="auth-nickname" v-model="nickname" required>
-          </div>
-          <button type="submit" :disabled="!isSignupFormValid">회원가입</button>
-        </form>
-        <div class="social-login">
-          <div class="social-login-divider">
-            <span>또는</span>
-          </div>
-          <button @click="kakaoLogin" class="kakao-login-btn">카카오톡으로 회원가입</button>
-        </div>
-        <div class="login-link">
-          이미 계정이 있으신가요? <a @click="switchToLogin">로그인</a>
-        </div>
-      </div>
-    </div>
-    <!-- 로그인 모달 -->
-    <div v-if="showLoginModal" class="modal-overlay" @click.self="showLoginModal = false">
-      <div class="modal-container">
-        <button class="close-btn" @click="showLoginModal = false">&times;</button>
-        <h1>로그인</h1>
-        <form @submit.prevent="login">
-          <div class="form-group">
-            <label for="auth-loginId">아이디</label>
-            <input type="text" id="auth-loginId" v-model="loginId" required>
-          </div>
-          <div class="form-group">
-            <label for="auth-password">비밀번호</label>
-            <input type="password" id="auth-password" v-model="password" required>
-          </div>
-          <button type="submit">로그인</button>
-        </form>
-        <div class="social-login">
-          <div class="social-login-divider">
-            <span>또는</span>
-          </div>
-          <button @click="kakaoLogin" class="kakao-login-btn">카카오톡으로 로그인</button>
-        </div>
-        <div class="signup-link">
-          계정이 없으신가요? <a @click="switchToSignup">회원가입</a>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
 import { ref, computed } from 'vue';
+import Header from './AppHeader.vue';
 
 export default {
+  components: {Header},
   setup() {
     const isLoggedIn = ref(false);
     const searchType = ref('product');
