@@ -16,7 +16,7 @@
   </footer>
 </template>
 
-<style scoped>
+<style>
 footer {
   background-color: var(--footer-bg);
   padding: 30px 0;

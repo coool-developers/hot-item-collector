@@ -1,213 +1,4 @@
-<script>
-import { ref,computed } from 'vue';
-
-export default {
-  setup() {
-    const searchType = ref('product')
-    const searchQuery = ref('')
-    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
-    const currentImageIndex = ref(0)
-
-    // 상품 상세 정보 (실제로는 API에서 가져와야 함)
-    const product = ref({
-      id: 1,
-      name: '수제 도자기 커피 머그컵',
-      category: '공예품',
-      description: '손으로 빚어 만든 아름다운 도자기 커피 머그컵입니다. 각각의 컵은 유니크한 패턴과 색상으로 제작되어 특별한 가치를 지닙니다. 커피 타임을 더욱 특별하게 만들어줄 아이템입니다.',
-      price: 25000,
-      likes: 42,
-      images: [
-        'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-        'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
-        'https://images.unsplash.com/photo-1530968831187-a937ade474db?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'
-      ],
-      sellerName: '도예장인',
-      sellerPhoto: 'https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=60&h=60&q=80'
-    })
-
-    const currentImage = computed(() => {
-      return product.value.images[currentImageIndex.value]
-    })
-
-    const formatPrice = (price) => {
-      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-    }
-
-    const prevImage = () => {
-      if (currentImageIndex.value > 0) {
-        currentImageIndex.value--
-      } else {
-        currentImageIndex.value = product.value.images.length - 1
-      }
-    }
-
-    const nextImage = () => {
-      if (currentImageIndex.value < product.value.images.length - 1) {
-        currentImageIndex.value++
-      } else {
-        currentImageIndex.value = 0
-      }
-    }
-
-    const goToProductRegistration = () => {
-      alert('상품 등록 페이지로 이동합니다.')
-    }
-
-    const goToProductManagement = () => {
-      alert('판매 물품 관리 페이지로 이동합니다.')
-    }
-
-    const goToOrderManagement = () => {
-      alert('주문 관리 페이지로 이동합니다.')
-    }
-
-    const viewMyInfo = () => {
-      alert('내 정보 보기 페이지로 이동합니다.')
-    }
-
-    const editProfile = () => {
-      alert('정보 수정 페이지로 이동합니다.')
-    }
-
-    const logout = () => {
-      alert('로그아웃 되었습니다.')
-    }
-
-    const deleteAccount = () => {
-      if (confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-        alert('회원 탈퇴가 완료되었습니다.')
-      }
-    }
-
-    const goToCart = () => {
-      alert('장바구니 페이지로 이동합니다.')
-    }
-
-    const buyNow = () => {
-      alert('상품정보 수정 페이지로 이동합니다.')
-    }
-
-    return {
-      searchType,
-      searchQuery,
-      categories,
-      product,
-      currentImage,
-      formatPrice,
-      prevImage,
-      nextImage,
-      goToProductRegistration,
-      goToProductManagement,
-      goToOrderManagement,
-      viewMyInfo,
-      editProfile,
-      logout,
-      deleteAccount,
-      goToCart,
-      buyNow
-    }
-  }
-}
-</script>
-
-<template>
-  <div id="app">
-    <header>
-      <div class="container header-content">
-        <a href="/" class="logo">Hot Item Collector</a>
-        <div class="search-bar">
-          <select v-model="searchType">
-            <option value="product">상품명</option>
-            <option value="seller">판매자명</option>
-          </select>
-          <input type="text" v-model="searchQuery" placeholder="검색어를 입력하세요">
-          <button @click="search">검색</button>
-        </div>
-        <div class="user-actions">
-          <div class="dropdown">
-            <button>상품</button>
-            <div class="dropdown-content">
-              <a href="#" @click="goToProductRegistration">상품 등록</a>
-              <a href="#" @click="goToProductManagement">판매 물품 관리</a>
-              <a href="#" @click="goToOrderManagement">주문 관리</a>
-            </div>
-          </div>
-          <div class="dropdown">
-            <button>내정보</button>
-            <div class="dropdown-content">
-              <a href="#" @click="viewMyInfo">내정보 보기</a>
-              <a href="#" @click="editProfile">정보 수정</a>
-              <a href="#" @click="logout">로그아웃</a>
-              <a href="#" @click="deleteAccount">회원 탈퇴</a>
-            </div>
-          </div>
-          <button @click="goToCart">장바구니</button>
-        </div>
-      </div>
-    </header>
-
-    <nav class="categories">
-      <div class="container">
-        <div class="categories-container">
-          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#"
-             class="category-item">
-            {{ category }}
-          </a>
-        </div>
-      </div>
-    </nav>
-
-    <main class="container">
-      <section class="product-detail">
-        <div class="seller-info">
-          <img :src="product.sellerPhoto" :alt="product.sellerName" class="seller-photo">
-          <div class="seller-name-follow">
-            <span class="seller-name">{{ product.sellerName }}</span>
-          </div>
-        </div>
-        <div class="product-info">
-          <div class="product-image-container">
-            <img :src="currentImage" :alt="product.name" class="product-image">
-            <button class="image-nav-button prev" @click="prevImage" v-if="product.images.length > 1">&lt;</button>
-            <button class="image-nav-button next" @click="nextImage" v-if="product.images.length > 1">&gt;</button>
-          </div>
-          <div class="product-details">
-            <div class="product-header">
-              <h1 class="product-name">{{ product.name }}</h1>
-              <div class="like-actions">
-                <span class="like-count">{{ product.likes }} 좋아요</span>
-              </div>
-            </div>
-            <p class="product-category">{{ product.category }}</p>
-            <p class="product-description">{{ product.description }}</p>
-            <div class="product-actions-container">
-              <p class="product-price">{{ formatPrice(product.price) }}원</p>
-              <div class="buy-actions">
-                <button class="buy-now" @click="buyNow">상품정보 수정</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      <div class="container footer-content">
-        <div class="footer-links">
-          <a href="/about">회사 소개</a>
-          <a href="/terms">이용약관</a>
-          <a href="/privacy">개인정보처리방침</a>
-          <a href="/contact">고객센터</a>
-        </div>
-        <div class="footer-copyright">
-          &copy; 2023 Hot Item Collector. All rights reserved.
-        </div>
-      </div>
-    </footer>
-  </div>
-</template>
-
-<style>
+<style scoped>
 :root {
   --main-color: #FF0000;
   --text-color: #333;
@@ -232,157 +23,6 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
-}
-
-/* Header Styles */
-header {
-  background-color: var(--main-color);
-  padding: 15px 0;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--bg-color);
-  text-decoration: none;
-  margin-right: 20px;
-}
-
-.search-bar {
-  display: flex;
-  align-items: stretch;
-  flex-grow: 1;
-  margin: 10px 0;
-  max-width: 600px;
-}
-
-.search-bar select {
-  padding: 10px;
-  font-size: 16px;
-  border: none;
-  border-radius: 5px 0 0 5px;
-}
-
-.search-bar input {
-  padding: 10px;
-  font-size: 16px;
-  border: none;
-  flex-grow: 1;
-  min-width: 200px;
-}
-
-.search-bar button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: var(--button-color);
-  color: var(--bg-color);
-  border: none;
-  cursor: pointer;
-  border-radius: 0 5px 5px 0;
-  transition: background-color 0.3s ease;
-}
-
-.search-bar button:hover {
-  background-color: var(--hover-color);
-}
-
-.user-actions {
-  display: flex;
-  align-items: center;
-}
-
-.user-actions button {
-  margin-left: 10px;
-  padding: 10px 20px;
-  background-color: transparent;
-  color: var(--bg-color);
-  border: 2px solid var(--bg-color);
-  cursor: pointer;
-  border-radius: 5px;
-  font-weight: bold;
-  transition: all 0.3s ease;
-}
-
-.user-actions button:hover {
-  background-color: var(--bg-color);
-  color: var(--main-color);
-}
-
-/* Dropdown Menu Styles */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  right: 0;
-  background-color: var(--bg-color);
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-  border-radius: 5px;
-}
-
-.dropdown-content a {
-  color: var(--text-color);
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-  transition: background-color 0.3s ease;
-}
-
-.dropdown-content a:hover {
-  background-color: var(--hover-color);
-  color: var(--bg-color);
-}
-
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-
-/* Categories Styles */
-.categories {
-  background-color: #f1f1f1;
-  padding: 15px 0;
-}
-
-.categories-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: var(--bg-color);
-  border-radius: 5px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.category-item {
-  flex: 1;
-  text-align: center;
-  padding: 15px 0;
-  color: var(--text-color);
-  text-decoration: none;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  border-right: 1px solid #e0e0e0;
-}
-
-.category-item:last-child {
-  border-right: none;
-}
-
-.category-item:hover {
-  background-color: var(--hover-color);
-  color: var(--bg-color);
 }
 
 /* Product Detail Styles */
@@ -417,19 +57,6 @@ header {
   font-weight: bold;
 }
 
-.follow-button {
-  padding: 5px 15px;
-  background-color: var(--main-color);
-  color: var(--bg-color);
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.follow-button:hover {
-  background-color: var(--hover-color);
-}
 
 .product-info {
   display: flex;
@@ -504,14 +131,6 @@ header {
   margin-right: 10px;
 }
 
-.like-button {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 24px;
-  padding: 0;
-}
-
 .product-category {
   font-size: 16px;
   color: #666;
@@ -544,8 +163,7 @@ header {
   gap: 10px;
 }
 
-.add-to-cart,
-.buy-now {
+.edit-now {
   padding: 12px 24px;
   font-size: 16px;
   border: none;
@@ -555,58 +173,132 @@ header {
   flex: 1;
 }
 
-.add-to-cart {
-  background-color: #f0f0f0;
-  color: var(--text-color);
-}
 
-.add-to-cart:hover {
-  background-color: #e0e0e0;
-}
-
-.buy-now {
+.edit-now {
   background-color: var(--main-color);
   color: var(--bg-color);
 }
 
-.buy-now:hover {
+.edit-now:hover {
   background-color: var(--hover-color);
 }
-
-/* Footer Styles */
-footer {
-  background-color: var(--footer-bg);
-  padding: 30px 0;
-  margin-top: auto;
-}
-
-.footer-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.footer-links {
-  display: flex;
-  gap: 20px;
-}
-
-.footer-links a {
-  color: var(--text-color);
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-  color: var(--main-color);
-}
-
-.footer-copyright {
-  margin-top: 20px;
-  text-align: center;
-  width: 100%;
-  font-size: 14px;
-  color: #666;
-}
 </style>
+
+<template>
+  <div id="app">
+    <Header />
+
+    <main class="container">
+      <section class="product-detail">
+        <div class="seller-info">
+          <img :src="product.sellerPhoto" :alt="product.sellerName" class="seller-photo">
+          <div class="seller-name-follow">
+            <span class="seller-name">{{ product.sellerName }}</span>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-image-container">
+            <img :src="currentImage" :alt="product.name" class="product-image">
+            <button class="image-nav-button prev" @click="prevImage" v-if="product.images.length > 1">&lt;</button>
+            <button class="image-nav-button next" @click="nextImage" v-if="product.images.length > 1">&gt;</button>
+          </div>
+          <div class="product-details">
+            <div class="product-header">
+              <h1 class="product-name">{{ product.name }}</h1>
+              <div class="like-actions">
+                <span class="like-count">{{ product.likes }} 좋아요</span>
+              </div>
+            </div>
+            <p class="product-category">{{ product.category }}</p>
+            <p class="product-description">{{ product.description }}</p>
+            <div class="product-actions-container">
+              <p class="product-price">{{ formatPrice(product.price) }}원</p>
+              <div class="buy-actions">
+                <button class="edit-now" @click="editProduct">상품정보 수정</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <AppFooter />
+
+  </div>
+</template>
+<script>
+import { ref, computed, onMounted  } from 'vue';
+import Header from './AppHeader.vue';
+import AppFooter from './AppFooter.vue';
+import { useRoute } from 'vue-router';
+import axios from "axios";
+
+export default {
+  components: {AppFooter, Header},
+
+  setup() {
+    const route = useRoute(); // useRoute를 통해 현재 라우트에 접근
+    const productId = route.params.productId; // 라우트 파라미터에서 productId를 가져옴
+    const currentImageIndex = ref(0);
+
+    // 상품 상세 정보 (실제로는 API에서 가져와야 함)
+    const product = ref({
+      id: null,
+      name: '',
+      category: '',
+      images: [],
+      price: 0,
+      info: '',
+      likes: 0
+    });
+
+    const currentImage = computed(() => {
+      return product.value.images.length > 0 ? product.value.images[currentImageIndex.value].imageUrl : '';
+    });
+
+    const formatPrice = (price) => {
+      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+    }
+
+    const prevImage = () => {
+      if (currentImageIndex.value > 0) {
+        currentImageIndex.value--
+      } else {
+        currentImageIndex.value = product.value.images.length - 1
+      }
+    }
+
+    const nextImage = () => {
+      if (currentImageIndex.value < product.value.images.length - 1) {
+        currentImageIndex.value++
+      } else {
+        currentImageIndex.value = 0
+      }
+    }
+
+    const fetchProduct = async () => {
+      if (productId) {
+        try {
+          const response = await axios.get(`http://localhost:8080/products/${productId}`);
+          console.log(response.data.result);
+
+          product.value = response.data.result;
+        } catch (error) {
+          console.error('Failed to fetch product data:', error);
+        }
+      } else {
+        console.error('Product ID is missing in route parameters');
+      }
+    };
+
+    onMounted(fetchProduct);
+
+    return {
+      product,
+      currentImage,
+      formatPrice,
+      prevImage,
+      nextImage,
+    }
+  }
+}
+</script>

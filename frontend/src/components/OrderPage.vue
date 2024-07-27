@@ -233,7 +233,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style scoped>
 :root {
   --main-color: #FF0000;
   --text-color: #333;
