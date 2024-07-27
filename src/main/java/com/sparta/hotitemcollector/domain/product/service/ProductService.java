@@ -187,6 +187,17 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
+    public List<ProductSimpleResponseDto> getNewProduct(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Product> productPage = productRepository.findAll(pageable);
+
+        return productPage.getContent()
+            .stream()
+            .map(ProductSimpleResponseDto::new)
+            .collect(Collectors.toList());
+    }
+
     public Product findById(Long productId) {
         return productRepository.findById(productId).orElseThrow(
             () -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT)

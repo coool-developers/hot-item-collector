@@ -68,7 +68,7 @@ public class UserController {
     public ResponseEntity<CommonResponse> refreshToken(@RequestBody RefreshRequestDto refreshRequestDto) {
         LoginResponseDto responseDto = userService.refreshToken(refreshRequestDto);
 
-        CommonResponse response = new CommonResponse<>("access 토큰 재발급 성공",204,"");
+        CommonResponse response = new CommonResponse<>("access 토큰 재발급 성공",200,responseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

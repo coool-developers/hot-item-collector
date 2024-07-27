@@ -18,6 +18,7 @@ import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -120,7 +121,7 @@ public class ProductController {
     @GetMapping("/follow")
     public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getFollowProduct(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "16") int size) {
         List<ProductSimpleResponseDto> responseDtoList = productService.getFollowProduct(
             userDetails.getUser(), page - 1, size);
         CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
@@ -159,5 +160,14 @@ public class ProductController {
         CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
             "검색을 통한 상품 목록 조회 성공", 200, responseDtoList);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @GetMapping("/new")
+    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getNewProduct(
+        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size){
+        List<ProductSimpleResponseDto> responseDtoList = productService.getNewProduct(page-1,size);
+        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
+            "새로 등록된 상품 목록 조회 성공",200,responseDtoList
+        );
+          return new ResponseEntity<>(response,HttpStatus.OK);
     }
 }
