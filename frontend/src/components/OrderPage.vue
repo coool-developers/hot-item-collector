@@ -1,29 +1,26 @@
 <script>
 import axios from 'axios';
 import {ref, computed, onMounted} from 'vue';
+import {useRouter} from "vue-router";
 
 export default {
   setup() {
-    // Load jQuery
     const jQueryScript = document.createElement('script');
     jQueryScript.src = 'https://code.jquery.com/jquery-1.12.4.min.js';
     jQueryScript.type = 'text/javascript';
     document.head.appendChild(jQueryScript);
 
-    // Load Iamport Payment
     const IamportScript = document.createElement('script');
     IamportScript.src = 'https://cdn.iamport.kr/js/iamport.payment-1.1.8.js';
     IamportScript.type = 'text/javascript';
     document.head.appendChild(IamportScript);
 
     IamportScript.onload = () => {
-      // Ensure that Iamport script is loaded before using it
-      console.log('Iamport script loaded');
+      console.log('Iamport script 로드');
     };
 
     jQueryScript.onload = () => {
-      // Ensure that jQuery script is loaded before using it
-      console.log('jQuery script loaded');
+      console.log('jQuery script 로드');
     };
 
     const searchQuery = ref('')
@@ -120,6 +117,8 @@ export default {
       }
     }
 
+    const router = useRouter();
+
     const prepareAndPay = async () => {
       if (!shippingInfo.value.name || !shippingInfo.value.phone || !shippingInfo.value.address) {
         alert('배송지 정보를 모두 입력해주세요.');
@@ -178,6 +177,7 @@ export default {
               });
 
               alert('결제 검증 성공');
+              router.push({name: 'DetailOrder'})
               console.log('결제 검증 성공:', verifyResponse.data);
             } catch (error) {
               alert('결제 검증 실패');
