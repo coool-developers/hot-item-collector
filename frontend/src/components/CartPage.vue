@@ -1,98 +1,130 @@
 <script>
-import { ref, computed } from 'vue';
+import {ref, computed, onMounted} from 'vue';
+import axios from "axios";
+import {useRouter} from "vue-router";
 
 export default {
   setup() {
-  const searchType = ref('product')
-  const searchQuery = ref('')
-  const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
+    const searchType = ref('product')
+    const searchQuery = ref('')
+    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
+    const cartItems = ref([]); // 장바구니 항목을 저장할 상태
+    const token = process.env.VUE_APP_ACCESS_TOKEN
 
-  const cartItems = ref([
-{id: 1, name: '수제 초콜릿', price: 15000, seller: '달콤공방', image: 'https://example.com/chocolate.jpg', selected: false},
-{id: 2, name: '핸드메이드 비누', price: 8000, seller: '아로마테라피', image: 'https://example.com/soap.jpg', selected: false},
-{id: 3, name: '니트 머플러', price: 25000, seller: '따뜻한손길', image: 'https://example.com/scarf.jpg', selected: false},
-  ])
+    const loadCartItems = () => {
 
-  const totalPrice = computed(() => {
-  return cartItems.value.reduce((total, item) => {
-  return item.selected ? total + item.price : total
-}, 0)
-})
+      axios.get('http://localhost:8080/cart', {
+        headers: {
+          'Authorization': token
+        }
+      }).then(response => {
+        cartItems.value = response.data.result; // 응답 데이터를 상태에 저장
+      }).catch(error => {
+        console.error(error); // 에러 처리
+      });
+    };
 
-  const search = () => {
-  alert(`검색 유형: ${searchType.value}, 검색어: ${searchQuery.value}`)
-}
+    const totalPrice = computed(() => {
+      return cartItems.value.reduce((total, item) => {
+        return item.selected ? total + item.price : total
+      }, 0)
+    })
 
-  const selectCategory = (category) => {
-  alert(`선택한 카테고리: ${category}`)
-}
+    const search = () => {
+      alert(`검색 유형: ${searchType.value}, 검색어: ${searchQuery.value}`)
+    }
 
-  const goToProductRegistration = () => {
-  alert('물품 등록 페이지로 이동합니다.')
-}
+    const selectCategory = (category) => {
+      alert(`선택한 카테고리: ${category}`)
+    }
 
-  const viewMyInfo = () => {
-  alert('내 정보 페이지로 이동합니다.')
-}
+    const goToProductRegistration = () => {
+      alert('물품 등록 페이지로 이동합니다.')
+    }
 
-  const editProfile = () => {
-  alert('프로필 수정 페이지로 이동합니다.')
-}
+    const viewMyInfo = () => {
+      alert('내 정보 페이지로 이동합니다.')
+    }
 
-  const logout = () => {
-  alert('로그아웃 되었습니다.')
-}
+    const editProfile = () => {
+      alert('프로필 수정 페이지로 이동합니다.')
+    }
 
-  const deleteAccount = () => {
-  const confirmed = confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')
-  if (confirmed) {
-  alert('회원 탈퇴 처리되었습니다. 이용해 주셔서 감사합니다.')
-}
-}
+    const logout = () => {
+      alert('로그아웃 되었습니다.')
+    }
 
-  const goToCart = () => {
-  alert('현재 장바구니 페이지입니다.')
-}
+    const deleteAccount = () => {
+      const confirmed = confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')
+      if (confirmed) {
+        alert('회원 탈퇴 처리되었습니다. 이용해 주셔서 감사합니다.')
+      }
+    }
 
-  const buyItem = (item) => {
-  alert(`${item.name}을(를) 구매합니다.`)
-}
+    const goToCart = () => {
+      alert('현재 장바구니 페이지입니다.')
+    }
 
-  const removeItem = (item) => {
-  const index = cartItems.value.findIndex(i => i.id === item.id)
-  if (index !== -1) {
-  cartItems.value.splice(index, 1)
-}
-}
+    const router = useRouter();
 
-  const orderItems = () => {
-  const selectedItems = cartItems.value.filter(item => item.selected)
-  if (selectedItems.length > 0) {
-  alert(`선택한 상품 ${selectedItems.length}개를 주문합니다. 총 금액: ${totalPrice.value}원`)
-} else {
-  alert('선택한 상품이 없습니다.')
-}
-}
+    const buyItem = (item) => {
+      const orderData = [item]
+      sessionStorage.setItem('orderData', JSON.stringify(orderData));
+      router.push({name: 'OrderPage'})
+    }
 
-  return {
-  searchType,
-  searchQuery,
-  categories,
-  cartItems,
-  totalPrice,
-  search,
-  selectCategory,
-  goToProductRegistration,
-  viewMyInfo,
-  editProfile,
-  logout,
-  deleteAccount,
-  goToCart,
-  buyItem,
-  removeItem,
-  orderItems
-}
-}
+    const removeItem = (item) => {
+      const userConfirmed = confirm(`${item.productName}을(를) 장바구니에서 삭제하시겠습니까?`)
+      if (!userConfirmed) {
+        return;
+      }
+      axios.delete(`http://localhost:8080/cart/${item.productId}`, {
+        headers: {
+          'Authorization': token
+        }
+      }).then(response => {
+        if (response.status == 200) {
+          window.location.reload();
+        }
+      }).catch(error => {
+        console.error(error);
+      })
+    }
+
+    const orderItems = () => {
+      const orderData = cartItems.value.filter(item => item.selected)
+      if (orderData.length > 0) {
+
+        sessionStorage.setItem('orderData', JSON.stringify(orderData));
+        router.push({name: 'OrderPage'})
+      } else {
+        alert('선택한 상품이 없습니다.')
+      }
+    }
+
+    onMounted(() => {
+      loadCartItems(); // 컴포넌트가 마운트될 때 API 호출
+    });
+
+    return {
+      searchType,
+      searchQuery,
+      categories,
+      cartItems,
+      totalPrice,
+      search,
+      selectCategory,
+      goToProductRegistration,
+      viewMyInfo,
+      editProfile,
+      logout,
+      deleteAccount,
+      goToCart,
+      buyItem,
+      removeItem,
+      orderItems
+    }
+  }
 }
 </script>
 
@@ -142,9 +174,9 @@ export default {
         <div v-for="item in cartItems" :key="item.id" class="cart-item">
           <div class="cart-item-left">
             <input type="checkbox" v-model="item.selected" class="cart-item-checkbox">
-            <img :src="item.image" :alt="item.name" class="cart-item-image">
+            <img :src="item.productImage.imageUrl" :alt="item.productImage.filename" class="cart-item-image">
             <div class="cart-item-details">
-              <div class="cart-item-name">{{ item.name }}</div>
+              <div class="cart-item-name">{{ item.productName }}</div>
               <div class="cart-item-price">{{ item.price }}원</div>
               <div class="cart-item-seller">판매자: {{ item.seller }}</div>
             </div>
@@ -297,7 +329,7 @@ header {
   right: 0;
   background-color: var(--bg-color);
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
   border-radius: 5px;
 }

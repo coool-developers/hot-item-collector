@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,12 +22,11 @@ import com.sparta.hotitemcollector.global.common.CommonResponse;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderController {
 	private final OrderService orderService;
 
-	@GetMapping("/buy")
+	@GetMapping("/orders/buy")
 	public ResponseEntity<CommonResponse<List<OrderResponseDto>>> getOrdersAllByBuyer(
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int size,
@@ -41,7 +39,7 @@ public class OrderController {
 		return new ResponseEntity<>(responses, HttpStatus.OK);
 	}
 
-	@GetMapping("/buy/{orderId}")
+	@GetMapping("/orders/buy/{orderId}")
 	public ResponseEntity<CommonResponse<OrderResponseDto>> getOrderByBuyer(@PathVariable("orderId") Long orderId,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
 		OrderResponseDto responseDto = orderService.getOrderByBuyer(orderId, userDetails.getUser());
@@ -50,7 +48,7 @@ public class OrderController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	@GetMapping("/sell")
+	@GetMapping("/orders/sell")
 	public ResponseEntity<CommonResponse<List<OrderItemBySellerResponseDto>>> getOrdersBySeller(
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int size,
@@ -64,7 +62,7 @@ public class OrderController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	@PatchMapping("/sell/{orderItemId}")
+	@PatchMapping("/orders/sell/{orderItemId}")
 	public ResponseEntity<CommonResponse> updateStatus(@PathVariable("orderItemId") Long orderItemId,
 		@RequestBody OrderStatusRequestDto orderStatusRequestDto,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
