@@ -53,7 +53,7 @@
 
 import Header from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
-import { ref, computed,onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
 export default {
@@ -202,41 +202,6 @@ export default {
       showSignupModal.value = false;
     };
 
-    const goToProductRegistration = () => {
-      console.log('Going to product registration');
-    };
-
-    const goToProductManagement = () => {
-      console.log('Going to product management');
-    };
-
-    const goToOrderManagement = () => {
-      console.log('Going to order management');
-    };
-
-    const viewMyInfo = () => {
-      console.log('Going to my info');
-    };
-
-    const editProfile = () => {
-      console.log('Going to edit profile');
-    };
-
-    const logout = () => {
-      console.log('Logging out');
-      isLoggedIn.value = false;
-    };
-
-    const deleteAccount = () => {
-      if (confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-        console.log('Deleting account');
-        isLoggedIn.value = false;
-      }
-    };
-
-    const goToCart = () => {
-      console.log('Going to cart');
-    };
 
     const viewMoreNewItems = () => {
       console.log('View more new items');
@@ -248,40 +213,6 @@ export default {
       window.location.href = '/followed-items';
     };
 
-    const validateLoginId = () => {
-      const loginIdRegex = /^[a-z0-9]{4,10}$/;
-      if (!loginIdRegex.test(signupLoginId.value)) {
-        loginIdError.value = '아이디는 4~10자의 영문 소문자와 숫자만 사용 가능합니다.';
-      } else {
-        loginIdError.value = '';
-      }
-    };
-
-    const validatePassword = () => {
-      if (signupPassword.value.length < 6) {
-        passwordError.value = '비밀번호는 최소 6자 이상이어야 합니다.';
-      } else {
-        passwordError.value = '';
-      }
-    };
-
-    const isSignupFormValid = computed(() => {
-      return signupLoginId.value && signupPassword.value && username.value && nickname.value && !loginIdError.value && !passwordError.value;
-    });
-
-    const switchToLogin = () => {
-      showSignupModal.value = false;
-      showLoginModal.value = true;
-    };
-
-    const switchToSignup = () => {
-      showLoginModal.value = false;
-      showSignupModal.value = true;
-    };
-
-    const kakaoLogin = () => {
-      console.log('Kakao login clicked');
-    };
 
     return {
       isLoggedIn,
@@ -304,22 +235,8 @@ export default {
       search,
       login,
       register,
-      goToProductRegistration,
-      goToProductManagement,
-      goToOrderManagement,
-      viewMyInfo,
-      editProfile,
-      logout,
-      deleteAccount,
-      goToCart,
       viewMoreNewItems,
       viewMoreFollowedItems,
-      validateLoginId,
-      validatePassword,
-      isSignupFormValid,
-      switchToLogin,
-      switchToSignup,
-      kakaoLogin,
     };
   },
 };
