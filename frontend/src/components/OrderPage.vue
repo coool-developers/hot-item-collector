@@ -1,9 +1,31 @@
 <script>
-import { ref, computed } from 'vue';
 import axios from 'axios';
+import {ref, computed, onMounted} from 'vue';
 
 export default {
   setup() {
+    // Load jQuery
+    const jQueryScript = document.createElement('script');
+    jQueryScript.src = 'https://code.jquery.com/jquery-1.12.4.min.js';
+    jQueryScript.type = 'text/javascript';
+    document.head.appendChild(jQueryScript);
+
+    // Load Iamport Payment
+    const IamportScript = document.createElement('script');
+    IamportScript.src = 'https://cdn.iamport.kr/js/iamport.payment-1.1.8.js';
+    IamportScript.type = 'text/javascript';
+    document.head.appendChild(IamportScript);
+
+    IamportScript.onload = () => {
+      // Ensure that Iamport script is loaded before using it
+      console.log('Iamport script loaded');
+    };
+
+    jQueryScript.onload = () => {
+      // Ensure that jQuery script is loaded before using it
+      console.log('jQuery script loaded');
+    };
+
     const searchQuery = ref('')
     const searchType = ref('product')
     const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
@@ -12,11 +34,24 @@ export default {
       phone: '',
       address: ''
     })
-    const authToken = ref('Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMiIsImF1dGgiOiJVU0VSIiwiaWF0IjoxNzIxOTk2MTg3LCJleHAiOjE3MjE5OTY3ODd9.J2LXeDudADRJYxHjpdorkWMtQ_JISXj68zz6gTaxeYU')
-    const cartItems = ref([
-      { id: 1, name: '수제 초콜릿', price: 150, seller: '달콤공방', image: 'https://example.com/chocolate.jpg' },
-      { id: 2, name: '핸드메이드 비누', price: 80, seller: '향기나라', image: 'https://example.com/soap.jpg' }
-    ])
+    const cartItems = ref([])
+    const token = process.env.VUE_APP_ACCESS_TOKEN
+
+    const loadCartItems = () => {
+      // 아까 저장했던 정보들이 storedData로 들어옴.
+      const storedData = sessionStorage.getItem('orderData')
+      const orderDataArray = JSON.parse(storedData)
+
+      orderDataArray.forEach(orderData => {
+        cartItems.value.push({
+          id: orderData.id,
+          productName: orderData.productName,
+          price: orderData.price,
+          seller: orderData.seller,
+          productImage: orderData.productImage
+        })
+      })
+    }
 
     const totalAmount = computed(() => {
       return cartItems.value.reduce((total, item) => total + item.price, 0)
@@ -85,87 +120,83 @@ export default {
       }
     }
 
-    const prepareOrder = async () => {
+    const prepareAndPay = async () => {
       if (!shippingInfo.value.name || !shippingInfo.value.phone || !shippingInfo.value.address) {
         alert('배송지 정보를 모두 입력해주세요.');
         return;
       }
 
       try {
-        // 주문 준비 요청
-        const response = await axios.post('http://localhost:8080/prepare/order', {
+        const orderResponse = await axios.post('http://localhost:8080/prepare/order', {
           cartItemList: cartItems.value.map(item => item.id),
           buyerName: shippingInfo.value.name,
           buyerTel: shippingInfo.value.phone,
           buyerAddr: shippingInfo.value.address
         }, {
           headers: {
-            'Authorization': authToken.value
+            'Authorization': token
           }
         });
 
-        const orderId = response.data.data; // 서버에서 반환한 orderId
-        requestPay(orderId);
+        const orderId = orderResponse.data.result;
+
+        const paymentResponse = await axios.get(`http://localhost:8080/prepare/payment?orderId=${orderId}`, {
+          headers: {
+            'Authorization': token
+          }
+        });
+
+        const paymentData = paymentResponse.data.result;
+        console.info(paymentData);
+
+        const IMP = window.IMP; // 아임포트 제공 javascript library
+        IMP.init("imp83178621");
+
+        // 결제 요청
+        IMP.request_pay({
+          pg: paymentData.pg,
+          pay_method: paymentData.payMethod,
+          merchant_uid: paymentData.merchantUid,
+          name: paymentData.name,
+          amount: paymentData.amount,
+          buyer_email: paymentData.buyerEmail,
+          buyer_name: paymentData.buyerName,
+          buyer_tel: paymentData.buyerTel,
+          buyer_addr: paymentData.buyerAddr,
+          buyer_postcode: paymentData.buyerPostcode
+        }, async function (rsp) { // callback
+          if (rsp.success) {
+            try {
+              const verifyResponse = await axios.post('http://localhost:8080/payments/verify', {
+                impUid: rsp.imp_uid,
+                merchantUid: rsp.merchant_uid,
+                amount: rsp.paid_amount
+              }, {
+                headers: {
+                  'Authorization': token
+                }
+              });
+
+              alert('결제 검증 성공');
+              console.log('결제 검증 성공:', verifyResponse.data);
+            } catch (error) {
+              alert('결제 검증 실패');
+              console.log('결제 검증 실패:', error);
+            }
+          } else {
+            alert("결제 실패");
+            console.log("결제 실패:", rsp);
+          }
+        });
       } catch (error) {
-        alert('주문 준비 요청 실패');
-        console.log('주문 준비 요청 실패:', error);
+        alert('주문 준비 또는 결제 요청 중 오류가 발생했습니다.');
+        console.log('주문 준비 또는 결제 요청 중 오류:', error);
       }
     };
 
-    const requestPay = (orderId) => {
-      axios.get(`http://localhost:8080/prepare/payment?orderId=${orderId}`, {
-        headers: {
-          'Authorization': authToken.value
-        }
-      })
-          .then(response => {
-            const paymentData = response.data.result;
-            console.info(paymentData);
-
-            const IMP = window.IMP; // 아임포트 제공 javascript library
-            IMP.init("imp83178621");
-
-            IMP.request_pay({
-              pg: paymentData.pg,
-              pay_method: paymentData.payMethod,
-              merchant_uid: paymentData.merchantUid,
-              name: paymentData.name,
-              amount: paymentData.amount,
-              buyer_email: paymentData.buyerEmail,
-              buyer_name: paymentData.buyerName,
-              buyer_tel: paymentData.buyerTel,
-              buyer_addr: paymentData.buyerAddr,
-              buyer_postcode: paymentData.buyerPostcode
-            }, function (rsp) { // callback
-              if (rsp.success) {
-                axios.post('http://localhost:8080/payments/verify', {
-                  impUid: rsp.imp_uid,
-                  merchantUid: rsp.merchant_uid,
-                  amount: rsp.paid_amount
-                }, {
-                  headers: {
-                    'Authorization': authToken.value
-                  }
-                })
-                    .then(response => {
-                      alert('결제 검증 성공');
-                      console.log('결제 검증 성공:', response.data);
-                    })
-                    .catch(error => {
-                      alert('결제 검증 실패');
-                      console.log('결제 검증 실패:', error);
-                    });
-              } else {
-                alert("결제 실패");
-                console.log("결제 실패:", rsp);
-              }
-            });
-          })
-          .catch(error => {
-            alert('결제 요청 데이터 불러오기 실패');
-            console.log('결제 요청 데이터 불러오기 실패:', error);
-          });
-    };
+    onMounted(() => {
+      loadCartItems(); // 컴포넌트가 마운트될 때 API 호출
+    });
 
     return {
       searchQuery,
@@ -185,8 +216,7 @@ export default {
       deleteAccount,
       goToCart,
       useMyAddress,
-      prepareOrder,
-      requestPay
+      prepareAndPay
     }
   }
 }
@@ -261,17 +291,18 @@ export default {
         <div class="order-summary">
           <h2>주문 상품 정보</h2>
           <div v-for="product in cartItems" :key="product.id" class="product-item">
-            <img :src="product.image" :alt="product.name" class="product-image">
+            <img :src="product.productImage.imageUrl" :alt="product.productName" class="product-image">
             <div class="product-info">
-              <h3>{{ product.name }}</h3>
-              <p>가격: {{ product.price.toLocaleString() }}원</p>
+              <h3>{{ product.productName }}</h3>
+              <p>가격: {{ product.price }}원</p>
               <p>판매자: {{ product.seller }}</p>
             </div>
           </div>
           <div class="total-amount">
-            최종 결제금액: {{ totalAmount.toLocaleString() }}원
+            <!--             최종 결제금액: {{ totalAmount.toLocaleString() }}원-->
+            최종 결제금액: {{ totalAmount }}원
           </div>
-          <button class="checkout-button" @click="requestPay">결제하기</button>
+          <button class="checkout-button" @click="prepareAndPay">결제하기</button>
         </div>
       </div>
     </main>
@@ -415,7 +446,7 @@ header {
   right: 0;
   background-color: var(--bg-color);
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
   border-radius: 5px;
 }
@@ -476,7 +507,7 @@ header {
 /* Main Content Styles */
 main {
   flex-grow: 1;
-  padding: 60px 0;  /* 상하 패딩 더 증가 */
+  padding: 60px 0; /* 상하 패딩 더 증가 */
 }
 
 .order-details {
@@ -490,7 +521,7 @@ main {
   border: 1px solid var(--section-border);
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 h2 {

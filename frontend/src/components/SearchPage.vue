@@ -1,7 +1,9 @@
 <script>
+import Header from './AppHeader.vue';
 import { ref,computed,onMounted } from 'vue';
 
 export default {
+  components: {Header},
   setup() {
     const isLoggedIn = ref(false)
     const searchType = ref('product')
@@ -253,49 +255,7 @@ export default {
 
 <template>
   <div id="app">
-    <header>
-      <div class="container header-content"><a href="/" class="logo">Hot Item Collector</a>
-        <div class="search-bar"><select v-model="searchType">
-          <option value="product">상품명</option>
-          <option value="seller">판매자명</option>
-        </select><input type="text" v-model="searchQuery" placeholder="검색어를 입력하세요"><button @click="search">검색</button>
-        </div>
-        <div class="user-actions">
-          <template v-if="isLoggedIn">
-            <div class="dropdown">
-              <button>상품</button>
-              <div class="dropdown-content">
-                <a href="#" @click="goToProductRegistration">상품 등록</a>
-                <a href="#" @click="goToProductManagement">판매 물품 관리</a>
-                <a href="#" @click="goToOrderManagement">주문 관리</a>
-              </div>
-            </div>
-            <div class="dropdown">
-              <button>내정보</button>
-              <div class="dropdown-content">
-                <a href="#" @click="viewMyInfo">내정보 보기</a>
-                <a href="#" @click="editProfile">정보 수정</a>
-                <a href="#" @click="logout">로그아웃</a>
-                <a href="#" @click="deleteAccount">회원 탈퇴</a>
-              </div>
-            </div>
-            <button @click="goToCart">장바구니</button>
-          </template>
-          <template v-else>
-            <button @click="showLoginModal = true">로그인</button>
-            <button @click="showSignupModal = true">회원가입</button>
-          </template>
-        </div>
-      </div>
-    </header>
-    <nav class="categories">
-      <div class="container">
-        <div class="categories-container"><a v-for="category in categories" :key="category"
-                                             @click.prevent="selectCategory(category)" href="#" class="category-item">
-          {{ category }}
-        </a></div>
-      </div>
-    </nav>
+    <Header/>
     <main class="container">
       <section class="search-results">
         <h2>{{ pageTitle }}</h2>

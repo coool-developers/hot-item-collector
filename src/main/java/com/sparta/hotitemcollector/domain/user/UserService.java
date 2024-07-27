@@ -40,6 +40,9 @@ public class UserService {
         if (finduser.isPresent()) {
             throw new CustomException(ErrorCode.DUPLICATE_USER);
         }
+        if(userRepository.existsByNicknameContainingIgnoreCase(signupRequestDto.getNickname())) {
+            throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+        }
 
         String password = signupRequestDto.getPassword();
         String encodedPassword = passwordEncoder.encode(password);
@@ -98,9 +101,14 @@ public class UserService {
 
         // DB에 저장된 리프레시 토큰 검증
         Optional<Token> optionalToken = tokenService.findRefreshToken(finduser);
-        if (!optionalToken.get().getRefreshToken().equals(refreshToken)) {
-            throw new CustomException(ErrorCode.UNMATCHED_TOKEN);
+        if(optionalToken.isPresent()){
+            if (!optionalToken.get().getRefreshToken().equals(refreshToken)) {
+                throw new CustomException(ErrorCode.UNMATCHED_TOKEN);
+            }
+        }else{
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
+
 
         String access = jwtUtil.createAccessToken(loginId, role);
         String refresh = jwtUtil.createRefreshToken(loginId, role);
