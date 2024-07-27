@@ -5,16 +5,15 @@ import lombok.Getter;
 
 @Getter
 public class GetAllFollowsResponseDto {
-    private Long userId;
-    private ProfileImageResponseDto profileImage;
-    private String profileInfo;
-    private String userName;
+	private Long userId;
+	private ProfileImageResponseDto profileImage;
+	private String profileInfo;
+	private String userName;
 
-
-    public GetAllFollowsResponseDto(Long userId, ProfileImageResponseDto profileImage, String profileInfo, String userName) {
-        this.userId = userId;
-        this.profileImage = profileImage;
-        this.profileInfo = profileInfo;
-        this.userName = userName;
-    }
+	public GetAllFollowsResponseDto(Long userId, ProfileImageResponseDto profileImage, String profileInfo, String userName) {
+		this.userId = userId;
+		this.profileImage = profileImage;
+		this.profileInfo = profileInfo;
+		this.userName = userName;
+	}
 }

@@ -1,14 +1,13 @@
 package com.sparta.hotitemcollector.domain.cart;
 
 import com.sparta.hotitemcollector.domain.cart.dto.CartItemResponseDto;
-import com.sparta.hotitemcollector.domain.product.dto.ProductImageResponseDto;
 import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.service.ProductService;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.domain.user.UserService;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
-import java.util.Collections;
+
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -54,7 +53,7 @@ public class CartService {
 	@Transactional
 	public void deleteCartItem(User user, Long productId) {
 		Product product = productService.findById(productId);
-		CartItem cartItem = findCartItemByProductIdAndUserId(productId, user.getId());
+		CartItem cartItem = findByProductIdAndUserId(productId, user.getId());
 
 		cartItemRepository.delete(cartItem);
 	}
@@ -72,14 +71,20 @@ public class CartService {
 			.collect(Collectors.toList());
 	}
 
-	public CartItem findCartItemByProductIdAndUserId(Long productId, Long userId) {
-		return cartItemRepository.findCartItemByProductIdAndUserId(productId, userId).orElseThrow(
+	public CartItem findById(Long id){
+		return cartItemRepository.findById(id).orElseThrow(
+			() -> new CustomException(ErrorCode.NOT_FOUND_CARTITEM)
+		);
+	}
+
+	public CartItem findByProductIdAndUserId(Long productId, Long userId) {
+		return cartItemRepository.findByProductIdAndUserId(productId, userId).orElseThrow(
 			() -> new CustomException(ErrorCode.NOT_FOUND_CARTITEM)
 		);
 	}
 
 	public boolean isCartItemExistAtUser(Long productId, Long userId) {
-		return cartItemRepository.findCartItemByProductIdAndUserId(productId, userId).isPresent();
+		return cartItemRepository.findByProductIdAndUserId(productId, userId).isPresent();
 	}
 
 }

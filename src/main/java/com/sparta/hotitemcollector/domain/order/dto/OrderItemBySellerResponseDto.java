@@ -19,7 +19,7 @@ public class OrderItemBySellerResponseDto {
 	private String orderStatus;
 
 	private Long orderId;
-	private String userName;
+	private String userNickname;
 	private String address;
 	private String phoneNumber;
 	private LocalDateTime createdAt;
@@ -33,7 +33,7 @@ public class OrderItemBySellerResponseDto {
 		this.orderStatus = orderItem.getStatus().getStatus();
 
 		this.orderId = orderItem.getOrder().getId();
-		this.userName = orderItem.getOrder().getUserName();
+		this.userNickname = orderItem.getOrder().getUserName();
 		this.address = orderItem.getOrder().getAddress();
 		this.phoneNumber = orderItem.getOrder().getPhoneNumber();
 		this.createdAt = orderItem.getCreatedAt();
