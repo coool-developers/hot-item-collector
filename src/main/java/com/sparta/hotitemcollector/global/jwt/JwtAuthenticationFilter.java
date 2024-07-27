@@ -65,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         // GET 요청의 /users/profile/** 경로 필터링 제외
-        if ("GET".equalsIgnoreCase(request.getMethod()) && path.startsWith("/users/profile")) {
+        if ("GET".equalsIgnoreCase(request.getMethod())) {
             String headerValue = request.getHeader("Authorization");
             if (headerValue == null) {
                 log.info("Permitted URL, skipping JWT authentication.");
