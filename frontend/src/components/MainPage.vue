@@ -41,26 +41,17 @@
         </div>
       </section>
     </main>
-    <footer>
-      <div class="container footer-content">
-        <div class="footer-links">
-          <a href="/about">회사 소개</a>
-          <a href="/terms">이용약관</a>
-          <a href="/privacy">개인정보처리방침</a>
-          <a href="/contact">고객센터</a>
-        </div>
-        <div class="footer-copyright">&copy; 2023 Hot Item Collector. All rights reserved.</div>
-      </div>
-    </footer>
+    <AppFooter />
   </div>
 </template>
 
 <script>
 import { ref, computed } from 'vue';
 import Header from './AppHeader.vue';
+import AppFooter from './AppFooter.vue';
 
 export default {
-  components: {Header},
+  components: {Header, AppFooter},
   setup() {
     const isLoggedIn = ref(false);
     const searchType = ref('product');
@@ -655,42 +646,6 @@ header {
   color: var(--bg-color);
 }
 
-/* Footer Styles */
-footer {
-  background-color: var(--footer-bg);
-  padding: 30px 0;
-  margin-top: auto;
-}
-
-.footer-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.footer-links {
-  display: flex;
-  gap: 20px;
-}
-
-.footer-links a {
-  color: var(--text-color);
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-  color: var(--main-color);
-}
-
-.footer-copyright {
-  margin-top: 20px;
-  text-align: center;
-  width: 100%;
-  font-size: 14px;
-  color: #666;
-}
 
 .no-items-message {
   text-align: center;
@@ -700,39 +655,5 @@ footer {
   margin: 20px 0;
   color: #666;
   font-style: italic;
-}
-
-/* Dropdown Menu Styles */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  right: 0;
-  background-color: var(--bg-color);
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-  border-radius: 5px;
-}
-
-.dropdown-content a {
-  color: var(--text-color);
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-  transition: background-color 0.3s ease;
-}
-
-.dropdown-content a:hover {
-  background-color: var(--hover-color);
-  color: var(--bg-color);
-}
-
-.dropdown:hover .dropdown-content {
-  display: block;
 }
 </style>
