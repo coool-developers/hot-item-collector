@@ -1,52 +1,6 @@
 <template>
   <div>
-    <!-- Header Section -->
-    <header>
-      <div class="container header-content">
-        <a href="/" class="logo">Hot Item Collector</a>
-        <div class="search-bar">
-          <select v-model="searchType">
-            <option value="product">상품명</option>
-            <option value="seller">판매자명</option>
-          </select>
-          <input type="text" v-model="searchQuery" placeholder="검색어를 입력하세요">
-          <button @click="search">검색</button>
-        </div>
-        <div class="user-actions">
-          <div class="dropdown">
-            <button>상품</button>
-            <div class="dropdown-content">
-              <a href="#" @click="goToProductRegistration">상품 등록</a>
-              <a href="#" @click="goToProductManagement">판매 물품 관리</a>
-              <a href="#" @click="goToOrderManagement">주문 관리</a>
-            </div>
-          </div>
-          <div class="dropdown">
-            <button>내정보</button>
-            <div class="dropdown-content">
-              <a href="#" @click="viewMyInfo">내정보 보기</a>
-              <a href="#" @click="editProfile">정보 수정</a>
-              <a href="#" @click="logout">로그아웃</a>
-              <a href="#" @click="deleteAccount">회원 탈퇴</a>
-            </div>
-          </div>
-          <button @click="goToCart">장바구니</button>
-        </div>
-      </div>
-    </header>
-
-    <!-- Categories Section -->
-    <nav class="categories">
-      <div class="container">
-        <div class="categories-container">
-          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#"
-             class="category-item">
-            {{ category }}
-          </a>
-        </div>
-      </div>
-    </nav>
-
+    <Header />
     <!-- Main Content Section -->
     <main class="container edit-profile">
       <h1>개인정보 수정</h1>
@@ -65,73 +19,57 @@
       </div>
     </main>
 
-    <!-- Footer Section -->
-    <footer>
-      <div class="container footer-content">
-        <div class="footer-links">
-          <a href="/about">회사 소개</a>
-          <a href="/terms">이용약관</a>
-          <a href="/privacy">개인정보처리방침</a>
-          <a href="/contact">고객센터</a>
-        </div>
-        <div class="footer-copyright">
-          &copy; 2023 Hot Item Collector. All rights reserved.
-        </div>
-      </div>
-    </footer>
+    <AppFooter />
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script>
+import { ref } from 'vue';
+import axios from 'axios';
+import Header from './AppHeader.vue';
+import AppFooter from './AppFooter.vue';
+import Cookies from 'js-cookie';
+import { useRouter } from 'vue-router';
 
-const searchType = ref('product')
-const searchQuery = ref('')
-const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
-const password = ref('')
 
-const search = () => {
-  alert(`검색 유형: ${searchType.value}, 검색어: ${searchQuery.value}`)
-}
+export default {
+  components: { Header, AppFooter },
+  setup() {
+    const password = ref('');
+    const router = useRouter(); // For navigation
 
-const selectCategory = (category) => {
-  alert(`선택한 카테고리: ${category}`)
-}
+    const confirmPassword = async () => {
+      const accessToken = Cookies.get('access_token');
+      try {
+        const response = await axios.post(
+            'http://localhost:8080/users/confirm/password',
+            { password: password.value },
+            {
+              headers: {
+                'Authorization': accessToken,
+                'Content-Type': 'application/json'
+              }
+            }
+        );
+        console.log(response);
+        if (response.status === 200) {
+          // Navigate to the next page after successful password confirmation
+          router.push('/profile/update'); // Change '/next-page' to your target route
+        }
+      } catch (error) {
+        console.error('Failed to confirm password:', error);
+        alert('비밀번호 확인에 실패했습니다. 다시 시도해 주세요.');
+      }
+    };
 
-const goToProductRegistration = () => {
-  alert('물품 등록 페이지로 이동합니다.')
-}
-
-const viewMyInfo = () => {
-  alert('내 정보 페이지로 이동합니다.')
-}
-
-const editProfile = () => {
-  alert('프로필 수정 페이지로 이동합니다.')
-}
-
-const logout = () => {
-  alert('로그아웃 되었습니다.')
-}
-
-const deleteAccount = () => {
-  const confirmed = confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')
-  if (confirmed) {
-    alert('회원 탈퇴 처리되었습니다. 이용해 주셔서 감사합니다.')
+    return {
+      password,
+      confirmPassword
+    };
   }
-}
-
-const goToCart = () => {
-  alert('장바구니 페이지로 이동합니다.')
-}
-
-const confirmPassword = () => {
-  // 여기에서 비밀번호 확인 로직을 구현합니다.
-  // 실제 애플리케이션에서는 서버로 비밀번호를 전송하여 확인해야 합니다.
-  alert('비밀번호가 확인되었습니다. 개인정보 수정 페이지로 이동합니다.')
-  // 비밀번호가 확인되면 개인정보 수정 페이지로 이동하는 로직을 추가합니다.
-}
+};
 </script>
+
 
 <style scoped>
 :root {
@@ -142,7 +80,7 @@ const confirmPassword = () => {
   --button-color: #FF4136;
   --footer-bg: #f8f8f8;
   --light-gray: #f0f0f0;
-  --border-color: #ddd;
+  --border-color: #ffffff;
 }
 
 body {

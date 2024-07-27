@@ -3,27 +3,21 @@ package com.sparta.hotitemcollector.domain.user;
 import com.sparta.hotitemcollector.domain.s3.service.ImageService;
 import com.sparta.hotitemcollector.domain.s3.service.S3Service;
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
+import com.sparta.hotitemcollector.domain.user.dto.user.*;
 import com.sparta.hotitemcollector.domain.user.dto.auth.LoginReqeustDto;
 import com.sparta.hotitemcollector.domain.user.dto.auth.LoginResponseDto;
 import com.sparta.hotitemcollector.domain.user.dto.auth.RefreshRequestDto;
 import com.sparta.hotitemcollector.domain.user.dto.auth.SignupRequestDto;
-import com.sparta.hotitemcollector.domain.user.dto.user.ProfileImageRequestDto;
-import com.sparta.hotitemcollector.domain.user.dto.user.UserAddressDto;
-import com.sparta.hotitemcollector.domain.user.dto.user.ProfileRequestDto;
-import com.sparta.hotitemcollector.domain.user.dto.user.ProfileResponseDto;
-import com.sparta.hotitemcollector.domain.user.dto.user.GetUserProfileDto;
-import com.sparta.hotitemcollector.domain.user.dto.user.updatePasswordRequestDto;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
-import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -45,6 +39,14 @@ public class UserController {
     public ResponseEntity<CommonResponse> login(@RequestBody LoginReqeustDto requestDto) {
         LoginResponseDto responseDto = userService.login(requestDto);
         CommonResponse response = new CommonResponse<>("로그인 성공",200,responseDto);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/confirm/password")
+    public ResponseEntity<CommonResponse> confirmPassword(@RequestBody ConfirmPasswordDto requestDto,
+                                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        userService.confirmPassword(requestDto,userDetails.getUser());
+        CommonResponse response = new CommonResponse<>("비밀번호 확인 성공",200,"");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -74,14 +76,15 @@ public class UserController {
 
     @PatchMapping("/profile")
     public ResponseEntity<CommonResponse> updateProfile(@RequestPart("requestDto") ProfileRequestDto requestDto,
-                                                        @AuthenticationPrincipal UserDetailsImpl userDetails,@RequestPart("files") MultipartFile file)
+                                                        @AuthenticationPrincipal UserDetailsImpl userDetails,@RequestPart(value = "files", required = false) MultipartFile file)
         throws IOException {
-        // 파일 유효성 검사
-        imageService.validateFile(file);
-        // S3에 파일 업로드
-        ProfileImageRequestDto image = s3Service.uploadFile(file);
-
-        requestDto.addImage(image);
+        if (file != null) {
+            // 파일 유효성 검사
+            imageService.validateFile(file);
+            // S3에 파일 업로드
+            ProfileImageRequestDto image = s3Service.uploadFile(file);
+            requestDto.addImage(image);
+        }
         ProfileResponseDto responseDto = userService.updateProfile(requestDto,userDetails.getUser());
         CommonResponse response = new CommonResponse<>("회원 정보 수정 성공",200,responseDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -98,8 +101,15 @@ public class UserController {
     @GetMapping("/profile/{userId}")
     public ResponseEntity<CommonResponse> getUserProfile(@PathVariable Long userId,
                                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        GetUserProfileDto profile = userService.getUserProfile(userId, Optional.ofNullable(userDetails));
+        GetUserProfileDto profile = userService.getUserProfile(userId);
         CommonResponse response = new CommonResponse<>("유저 프로필 조회 성공", 200, profile);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @GetMapping("/profile")
+    public ResponseEntity<CommonResponse> getMyProfile(
+                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        GetMyProfileDto profile = userService.getMyProfile(userDetails.getUser());
+        CommonResponse response = new CommonResponse<>("마이 프로필 조회 성공", 200, profile);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
