@@ -191,7 +191,7 @@ body {
     <main class="container">
       <section class="product-detail">
         <div class="seller-info">
-          <img :src="product.sellerPhoto" :alt="product.nickname" class="seller-photo">
+          <img :src="product.profileImage.imageUrl || defaultProfileImage" alt="Profile Image" width="70px">
           <div class="seller-name-follow">
             <span class="seller-name">{{ product.nickname }}</span>
           </div>
@@ -240,6 +240,9 @@ export default {
     const productId = route.params.productId; // 라우트 파라미터에서 productId를 가져옴
     const currentImageIndex = ref(0);
 
+    // 기본 프로필 이미지 URL
+    const defaultProfileImage = 'https://t1.daumcdn.net/cafeattach/1IHuH/fb8ce4c56a02190aa72f39804efa044fe3c17558';
+
     // 상품 상세 정보 (실제로는 API에서 가져와야 함)
     const product = ref({
       id: null,
@@ -248,7 +251,12 @@ export default {
       images: [],
       price: 0,
       info: '',
-      likes: 0
+      likes: 0,
+      profileImage: {
+        id: null,
+        filename: '',
+        imageUrl: defaultProfileImage
+      }
     });
 
     const currentImage = computed(() => {
@@ -282,6 +290,15 @@ export default {
           console.log(response.data.result);
 
           product.value = response.data.result;
+
+          // 프로필 이미지가 null일 경우 기본 이미지 설정
+          if (!product.value.profileImage || !product.value.profileImage.imageUrl) {
+            product.value.profileImage = {
+              id: null,
+              filename: '',
+              imageUrl: defaultProfileImage
+            };
+          }
         } catch (error) {
           console.error('Failed to fetch product data:', error);
         }

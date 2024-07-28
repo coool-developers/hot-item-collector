@@ -5,7 +5,7 @@
     <main class="container">
       <section class="product-detail">
         <div class="seller-info">
-          <img v-if="product.profileImage.imageUrl" :src="product.profileImage.imageUrl" :alt="product.nickname" class="seller-photo">
+          <img :src="product.profileImage.imageUrl || defaultProfileImage" alt="Profile Image" width="70px">
           <div class="seller-name-follow">
             <span class="seller-name">{{ product.nickname }}</span>
             <button v-if="isLoggedIn" class="follow-button" @click="toggleFollow">
@@ -76,20 +76,49 @@ export default {
     const route = useRoute(); // useRoute를 통해 현재 라우트에 접근
     const productId = route.params.productId; // 라우트 파라미터에서 productId를 가져옴
 
-    const product = ref(null);
+    // 기본 프로필 이미지 URL
+    const defaultProfileImage = 'https://t1.daumcdn.net/cafeattach/1IHuH/fb8ce4c56a02190aa72f39804efa044fe3c17558';
+
+    // Product 초기화
+    const product = ref({
+      id: null,
+      name: '',
+      category: '',
+      images: [],
+      price: 0,
+      info: '',
+      likes: 0,
+      profileImage: {
+        id: null,
+        filename: '',
+        imageUrl: defaultProfileImage
+      }
+    });
 
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`/products/${productId}`,{
+        const response = await axios.get(`/products/${productId}`, {
           headers: {
             'Content-Type': 'application/json',
           },
         });
+
+        // product 데이터 설정
         product.value = response.data.result;
+
+        // 프로필 이미지가 null일 경우 기본 이미지 설정
+        if (!product.value.profileImage || !product.value.profileImage.imageUrl) {
+          product.value.profileImage = {
+            id: null,
+            filename: '',
+            imageUrl: defaultProfileImage
+          };
+        }
       } catch (error) {
         console.error('Error fetching product:', error);
       }
     };
+
     onMounted(fetchProduct);
 
     const currentImage = computed(() => {
