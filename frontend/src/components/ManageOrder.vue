@@ -1,17 +1,20 @@
 <script>
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue';
+import Cookies from "js-cookie";
+import axios from "axios";
 
 export default {
   setup() {
     const searchQuery = ref('')
     const searchType = ref('product')
     const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
-    const deliveryStatuses = ref(['결제완료', '상품준비중', '배송중', '배송완료'])
+    const deliveryStatuses = ref(['결제 완료', '배송 시작', '배송 중', '배송 완료'])
     const statusFilter = ref('')
-    const orders = ref([])
+    const orders = ref([]) // order 상태
     const today = new Date().toISOString().split('T')[0]
     const startDate = ref(new Date(new Date().setMonth(new Date().getMonth() - 3)).toISOString().split('T')[0])
     const endDate = ref(today)
+    const accessToken = Cookies.get('access_token')
 
     const search = () => {
       alert(`검색 유형: ${searchType.value}, 검색어: ${searchQuery.value}`)
@@ -62,39 +65,55 @@ export default {
       // 실제 구현에서는 여기에 API 호출 코드가 들어갑니다.
     }
 
+    const loadOrders = () => {
+      axios.get('http://localhost:8080/orders/sell', {
+        headers: {
+          'Authorization' : accessToken
+        }
+      }).then(response  => {
+        orders.value = response.data.result
+      }).catch(error => {
+        console.error(error)
+      })
+    }
+
     const updateStatus = (order) => {
-      alert(`주문 #${order.id}의 배송상태가 ${order.status}(으)로 변경되었습니다.`)
+      alert(`주문 #${order.id}의 배송상태가 ${order.orderStatus}(으)로 변경되었습니다.`)
       // 실제 구현에서는 여기에 API 호출 코드가 들어갑니다.
     }
 
+      //
+      // // 초기 데이터 로드 (실제 구현에서는 API 호출로 대체)
+      // orders.value = [
+      //   {
+      //     id: 1,
+      //     customerName: '김철수',
+      //     customerPhone: '010-1234-5678',
+      //     customerAddress: '서울시 강남구 테헤란로 123',
+      //     productName: '수제 초콜릿',
+      //     productPrice: 15000,
+      //     productImage: 'https://example.com/chocolate.jpg',
+      //     buyerName: '김철수',
+      //     status: '결제완료'
+      //   },
+      //   {
+      //     id: 2,
+      //     customerName: '이영희',
+      //     customerPhone: '010-9876-5432',
+      //     customerAddress: '부산시 해운대구 해운대해변로 456',
+      //     productName: '핸드메이드 비누',
+      //     productPrice: 8000,
+      //     productImage: 'https://example.com/soap.jpg',
+      //     buyerName: '이영희',
+      //     status: '배송중'
+      //   },
+      //   // 추가 주문 데이터...
+      // ]
 
-      // 초기 데이터 로드 (실제 구현에서는 API 호출로 대체)
-      orders.value = [
-        {
-          id: 1,
-          customerName: '김철수',
-          customerPhone: '010-1234-5678',
-          customerAddress: '서울시 강남구 테헤란로 123',
-          productName: '수제 초콜릿',
-          productPrice: 15000,
-          productImage: 'https://example.com/chocolate.jpg',
-          buyerName: '김철수',
-          status: '결제완료'
-        },
-        {
-          id: 2,
-          customerName: '이영희',
-          customerPhone: '010-9876-5432',
-          customerAddress: '부산시 해운대구 해운대해변로 456',
-          productName: '핸드메이드 비누',
-          productPrice: 8000,
-          productImage: 'https://example.com/soap.jpg',
-          buyerName: '이영희',
-          status: '배송중'
-        },
-        // 추가 주문 데이터...
-      ]
 
+    onMounted(() => {
+      loadOrders()
+    })
 
     return {
       searchQuery,
@@ -185,21 +204,21 @@ export default {
       <div class="order-cards">
         <div v-for="order in orders" :key="order.id" class="order-card">
           <div class="customer-info">
-            <p><strong>주문자:</strong> {{ order.customerName }}</p>
-            <p><strong>연락처:</strong> {{ order.customerPhone }}</p>
-            <p><strong>주소:</strong> {{ order.customerAddress }}</p>
+            <p><strong>주문자:</strong> {{ order.userNickname }}</p>
+            <p><strong>연락처:</strong> {{ order.phoneNumber }}</p>
+            <p><strong>주소:</strong> {{ order.address }}</p>
           </div>
           <div class="order-details">
             <div class="order-info">
-              <img :src="order.productImage" :alt="order.productName" class="product-image">
+              <img :src="order.productImage.imageUrl" :alt="order.productImage.filename" class="product-image">
               <div>
                 <p><strong>상품명:</strong> {{ order.productName }}</p>
-                <p><strong>가격:</strong> {{ order.productPrice.toLocaleString() }}원</p>
-                <p><strong>구매자:</strong> {{ order.buyerName }}</p>
+                <p><strong>가격:</strong> {{ order.price}}원</p>
+<!--                <p><strong>구매자:</strong> {{ order.userNickname }}</p>-->
               </div>
             </div>
             <div class="status-update">
-              <select v-model="order.status" class="status-dropdown">
+              <select v-model="order.orderStatus" class="status-dropdown">
                 <option v-for="status in deliveryStatuses" :key="status" :value="status">
                   {{ status }}
                 </option>
