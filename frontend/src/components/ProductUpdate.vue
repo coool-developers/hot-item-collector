@@ -163,7 +163,7 @@ body {
   gap: 10px;
 }
 
-.edit-now {
+.edit-now,.delete-now,.sold-out {
   padding: 12px 24px;
   font-size: 16px;
   border: none;
@@ -174,7 +174,7 @@ body {
 }
 
 
-.edit-now {
+.edit-now,.delete-now {
   background-color: var(--main-color);
   color: var(--bg-color);
 }
@@ -214,7 +214,9 @@ body {
             <div class="product-actions-container">
               <p class="product-price">{{ formatPrice(product.price) }}원</p>
               <div class="buy-actions">
-                <button class="edit-now" @click="editProduct">상품정보 수정</button>
+                <button v-if="product.status !== 'SOLD_OUT'" class="edit-now" @click="editProduct">상품정보 수정</button>
+                <button v-else class="sold-out" disabled>판매완료</button>
+                <button class="delete-now" @click="deleteProduct">상품정보 삭제</button>
               </div>
             </div>
           </div>
@@ -231,6 +233,7 @@ import Header from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import { useRoute } from 'vue-router';
 import axios from "axios";
+import defaultProfile from "../assets/user.png";
 
 export default {
   components: {AppFooter, Header},
@@ -241,7 +244,7 @@ export default {
     const currentImageIndex = ref(0);
 
     // 기본 프로필 이미지 URL
-    const defaultProfileImage = 'https://t1.daumcdn.net/cafeattach/1IHuH/fb8ce4c56a02190aa72f39804efa044fe3c17558';
+    const defaultProfileImage = defaultProfile;
 
     // 상품 상세 정보 (실제로는 API에서 가져와야 함)
     const product = ref({

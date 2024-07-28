@@ -4,6 +4,7 @@ import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
 import Cookies from "js-cookie";
 import axios from "axios";
+import {useRouter} from "vue-router";
 
 export default {
   components: {AppFooter, AppHeader},
@@ -16,6 +17,7 @@ export default {
     const itemsPerPage = 8
     const products = ref()
     const totalPages = ref(1)
+    const router = useRouter();
 
     const fetchProducts = async (filterType) => {
       const accessToken = Cookies.get('access_token');
@@ -114,6 +116,10 @@ export default {
     const goToCart = () => {
       alert('장바구니 페이지로 이동합니다.')
     }
+    const goToProduct = (productId) => {
+      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
+      router.push(`/product/update/${productId}`);
+    }
 
     // Initial fetch
     fetchProducts()
@@ -138,7 +144,8 @@ export default {
       editProfile,
       logout,
       deleteAccount,
-      goToCart
+      goToCart,
+      goToProduct
     }
   }
 }
@@ -162,7 +169,7 @@ export default {
         <button :class="{ active: filter === 'sold' }" @click="setFilter('sold')">판매완료</button>
       </div>
       <div class="product-grid">
-        <div v-for="product in displayedProducts" :key="product.id" class="product-card">
+        <div v-for="product in displayedProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
           <img :src="product.image.imageUrl" :alt="product.name" class="product-image">
           <div class="product-info">
             <div class="product-id">ID: {{ product.id }}</div>
