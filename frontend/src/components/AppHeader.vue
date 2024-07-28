@@ -25,8 +25,10 @@
             <div class="dropdown-content">
               <a href="#" @click="viewMyInfo">내정보 보기</a>
               <a href="#" @click="editProfile">정보 수정</a>
-              <a href="#" @click="logout">로그아웃</a>
               <a href="#" @click="deleteAccount">회원 탈퇴</a>
+              <a href="#" @click="logout">로그아웃</a>
+              <a href="#" @click="showChangePasswordModal = true">비밀번호 변경</a>
+
             </div>
           </div>
           <button @click="goToCart">장바구니</button>
@@ -112,12 +114,40 @@
       </div>
     </div>
   </div>
+  <!-- 비밀번호 변경 모달 -->
+  <div v-if="showChangePasswordModal" class="modal-overlay" @click.self="showChangePasswordModal = false">
+    <div class="modal-container">
+      <button class="close-btn" @click="showChangePasswordModal = false">&times;</button>
+      <h1>비밀번호 변경</h1>
+      <form @submit.prevent="changePassword">
+        <div class="form-group">
+          <label for="auth-currentPassword">현재 비밀번호</label>
+          <input type="password" id="auth-currentPassword" v-model="currentPassword" required>
+        </div>
+        <div class="form-group">
+          <label for="auth-newPassword">새 비밀번호</label>
+          <input type="password" id="auth-newPassword" v-model="newPassword" @input="validateNewPassword" required>
+          <div class="error" v-if="newPasswordError">{{ newPasswordError }}</div>
+        </div>
+        <div class="form-group">
+          <label for="auth-confirmNewPassword">새 비밀번호 확인</label>
+          <input type="password" id="auth-confirmNewPassword" v-model="confirmNewPassword" @input="validateConfirmNewPassword" required>
+          <div class="error" v-if="confirmNewPasswordError">{{ confirmNewPasswordError }}</div>
+        </div>
+        <button type="submit" :disabled="!isChangePasswordFormValid">비밀번호 변경</button>
+        <div v-if="changePasswordError" class="error">{{ changePasswordError }}</div>
+        <div v-if="changePasswordSuccess" class="success">{{ changePasswordSuccess }}</div>
+      </form>
+    </div>
+  </div>
+
 </template>
 
 <script setup>
 import { ref, computed, onMounted  } from 'vue';
 import axios from 'axios'; // axios import
 import Cookies from 'js-cookie';
+import router from "@/router";
 
 
 
@@ -125,6 +155,7 @@ const searchType = ref('product');
 const searchQuery = ref('');
 const isLoggedIn = ref(false);
 const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물']);
+const showChangePasswordModal = ref(false);
 
 const showLoginModal = ref(false);
 const showSignupModal = ref(false);
@@ -139,6 +170,21 @@ const passwordError = ref('');
 const nicknameError = ref('');
 const loginError = ref('');
 const isSignupFormValid = computed(() => !loginIdError.value && !passwordError.value && signupLoginId.value && signupPassword.value && username.value && nickname.value);
+// 비밀번호 변경 관련 상태
+const currentPassword = ref('');
+const newPassword = ref('');
+const confirmNewPassword = ref('');
+const newPasswordError = ref('');
+const confirmNewPasswordError = ref('');
+const changePasswordError = ref('');
+const changePasswordSuccess = ref('');
+const isChangePasswordFormValid = computed(() =>
+    currentPassword.value &&
+    newPassword.value &&
+    confirmNewPassword.value &&
+    !newPasswordError.value &&
+    !confirmNewPasswordError.value
+);
 
 async function getrefreshToken() {
   const refreshToken = Cookies.get('refresh_token');
@@ -197,27 +243,37 @@ onMounted(async () => {
 
 function search() {
   // 검색 함수 구현
+  router.push('/product/upload');
 }
 
 function goToProductRegistration() {
   // 상품 등록 함수 구현
+  router.push('/product/upload');
+
+
 }
 
 function goToProductManagement() {
   // 판매 물품 관리 함수 구현
+  router.push('/product/sale');
 }
 
 function goToOrderManagement() {
   // 주문 관리 함수 구현
+  router.push('/order/manage');
 }
 
 function viewMyInfo() {
   // 내정보 보기 함수 구현
+  router.push('/profile');
 }
 
 function editProfile() {
   // 정보 수정 함수 구현
+  router.push('/profile/update/password');
 }
+
+
 
 async function logout() {
   const accessToken = Cookies.get('access_token');
@@ -243,11 +299,13 @@ async function logout() {
       // Clear tokens from cookies
       Cookies.remove('access_token');
       Cookies.remove('refresh_token');
+      alert('로그아웃 성공');
 
       // Update login state
       isLoggedIn.value = false;
 
       console.log('로그아웃 성공');
+      router.push('/');
     } else {
       console.error('로그아웃 실패:', response.data);
     }
@@ -257,12 +315,50 @@ async function logout() {
 }
 
 
-function deleteAccount() {
-  // 회원 탈퇴 함수 구현
+async function deleteAccount() {
+  // First confirmation dialog
+  if (confirm('정말로 회원 탈퇴를 하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+    // Second confirmation dialog
+    if (confirm('정말로 탈퇴하시겠습니까? 이 작업을 계속 진행하면 회원 정보가 삭제됩니다.')) {
+      try {
+        const accessToken = Cookies.get('access_token');
+        console.log(accessToken);
+
+      const response = await axios.patch('http://localhost:8080/users/withdraw', {}, {
+        headers: {
+          'Authorization': accessToken
+        }
+      });
+          console.log(response.data);
+
+        if (response.status === 200) {
+          // Clear tokens from cookies
+          Cookies.remove('access_token');
+          Cookies.remove('refresh_token');
+
+          alert('회원 탈퇴가 완료되었습니다.');
+          console.log('회원 탈퇴 성공:', response.data);
+
+          // Update login state
+          isLoggedIn.value = false;
+
+          // Optionally redirect to the home page or login page
+          router.push('/');
+        } else {
+          console.error('회원 탈퇴 실패:', response.data);
+          alert('회원 탈퇴에 실패하였습니다.');
+        }
+      } catch (error) {
+        console.error('회원 탈퇴 요청 실패:', error.response ? error.response.data : error.message);
+        alert('회원 탈퇴 중 오류가 발생했습니다.');
+      }
+    }
+  }
 }
 
 function goToCart() {
   // 장바구니 이동 함수 구현
+  router.push('/cart');
 }
 
 async function register() {
@@ -277,8 +373,14 @@ async function register() {
         'Content-Type': 'application/json'
       }
     });
+    alert('회원가입 성공');
+
+    setTimeout(() => {
+      showSignupModal.value = false;
+    }, 500);
+
     console.log('회원가입 성공:', response.data);
-    showSignupModal.value = false;
+
     // 추가적으로 회원가입 성공 시 수행할 작업을 여기에 추가합니다.
   } catch (error) {
     console.error('회원가입 실패:', error.response.data);
@@ -358,9 +460,59 @@ function switchToLogin() {
 function kakaoLogin() {
   // 카카오 로그인 로직 구현
 }
+
+function validateNewPassword() {
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/
+  if (!passwordRegex.test(newPassword.value)) {
+    newPasswordError.value = '비밀번호는 8~15자의 영문 대/소문자, 숫자, 특수문자를 포함해야 합니다.'
+  } else {
+    newPasswordError.value = ''
+  }
+  validateConfirmNewPassword();
+}
+
+function validateConfirmNewPassword() {
+  if (newPassword.value !== confirmNewPassword.value) {
+    confirmNewPasswordError.value = '새 비밀번호가 일치하지 않습니다.'
+  } else {
+    confirmNewPasswordError.value = ''
+  }
+}
+
+async function changePassword() {
+  try {
+    const accessToken = Cookies.get('access_token');
+    const response = await axios.patch('http://localhost:8080/users/password', {
+      oldPassword: currentPassword.value,
+      newPassword: newPassword.value,
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': accessToken
+      }
+    });
+    console.log('비밀번호 변경 성공:', response.data);
+    alert('비밀번호가 성공적으로 변경되었습니다.');
+    changePasswordSuccess.value = '비밀번호가 성공적으로 변경되었습니다.';
+    changePasswordError.value = '';
+    // 비밀번호 변경 성공 후 모달 닫기
+    setTimeout(() => {
+      showChangePasswordModal.value = false;
+      // 입력 필드 초기화
+      currentPassword.value = '';
+      newPassword.value = '';
+      confirmNewPassword.value = '';
+      changePasswordSuccess.value = '';
+    }, 2000);
+  } catch (error) {
+    console.error('비밀번호 변경 실패:', error.response.data);
+    changePasswordError.value = '비밀번호 변경에 실패했습니다. 현재 비밀번호를 확인해주세요.';
+    changePasswordSuccess.value = '';
+  }
+}
 </script>
 
-<style scoped>
+<style>
 :root {
   --main-color: #FF0000;
   --text-color: #333;

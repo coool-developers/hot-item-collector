@@ -66,9 +66,10 @@ const routes = [
     component: DetailOrder,
   },
   {
-    path: '/product/update',
+    path: '/product/update/:productId',
     name: 'ProductUpdate',
     component: ProductUpdate,
+    props: true
   },
   {
     path: '/search',

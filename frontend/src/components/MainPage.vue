@@ -45,27 +45,19 @@
         </div>
       </section>
     </main>
-    <footer>
-      <div class="container footer-content">
-        <div class="footer-links">
-          <a href="/about">회사 소개</a>
-          <a href="/terms">이용약관</a>
-          <a href="/privacy">개인정보처리방침</a>
-          <a href="/contact">고객센터</a>
-        </div>
-        <div class="footer-copyright">&copy; 2023 Hot Item Collector. All rights reserved.</div>
-      </div>
-    </footer>
+    <AppFooter />
   </div>
 </template>
 
 <script>
+
 import Header from './AppHeader.vue';
-import { ref, computed,onMounted } from 'vue';
+import AppFooter from './AppFooter.vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
 export default {
-  components: {Header},
+  components: {Header, AppFooter},
   setup() {
     const isLoggedIn = ref(false);
     const searchType = ref('product');
@@ -210,41 +202,6 @@ export default {
       showSignupModal.value = false;
     };
 
-    const goToProductRegistration = () => {
-      console.log('Going to product registration');
-    };
-
-    const goToProductManagement = () => {
-      console.log('Going to product management');
-    };
-
-    const goToOrderManagement = () => {
-      console.log('Going to order management');
-    };
-
-    const viewMyInfo = () => {
-      console.log('Going to my info');
-    };
-
-    const editProfile = () => {
-      console.log('Going to edit profile');
-    };
-
-    const logout = () => {
-      console.log('Logging out');
-      isLoggedIn.value = false;
-    };
-
-    const deleteAccount = () => {
-      if (confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-        console.log('Deleting account');
-        isLoggedIn.value = false;
-      }
-    };
-
-    const goToCart = () => {
-      console.log('Going to cart');
-    };
 
     const viewMoreNewItems = () => {
       console.log('View more new items');
@@ -256,40 +213,6 @@ export default {
       window.location.href = '/followed-items';
     };
 
-    const validateLoginId = () => {
-      const loginIdRegex = /^[a-z0-9]{4,10}$/;
-      if (!loginIdRegex.test(signupLoginId.value)) {
-        loginIdError.value = '아이디는 4~10자의 영문 소문자와 숫자만 사용 가능합니다.';
-      } else {
-        loginIdError.value = '';
-      }
-    };
-
-    const validatePassword = () => {
-      if (signupPassword.value.length < 6) {
-        passwordError.value = '비밀번호는 최소 6자 이상이어야 합니다.';
-      } else {
-        passwordError.value = '';
-      }
-    };
-
-    const isSignupFormValid = computed(() => {
-      return signupLoginId.value && signupPassword.value && username.value && nickname.value && !loginIdError.value && !passwordError.value;
-    });
-
-    const switchToLogin = () => {
-      showSignupModal.value = false;
-      showLoginModal.value = true;
-    };
-
-    const switchToSignup = () => {
-      showLoginModal.value = false;
-      showSignupModal.value = true;
-    };
-
-    const kakaoLogin = () => {
-      console.log('Kakao login clicked');
-    };
 
     return {
       isLoggedIn,
@@ -312,22 +235,8 @@ export default {
       search,
       login,
       register,
-      goToProductRegistration,
-      goToProductManagement,
-      goToOrderManagement,
-      viewMyInfo,
-      editProfile,
-      logout,
-      deleteAccount,
-      goToCart,
       viewMoreNewItems,
       viewMoreFollowedItems,
-      validateLoginId,
-      validatePassword,
-      isSignupFormValid,
-      switchToLogin,
-      switchToSignup,
-      kakaoLogin,
     };
   },
 };
@@ -760,42 +669,6 @@ header {
   color: var(--bg-color);
 }
 
-/* Footer Styles */
-footer {
-  background-color: var(--footer-bg);
-  padding: 30px 0;
-  margin-top: auto;
-}
-
-.footer-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.footer-links {
-  display: flex;
-  gap: 20px;
-}
-
-.footer-links a {
-  color: var(--text-color);
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-  color: var(--main-color);
-}
-
-.footer-copyright {
-  margin-top: 20px;
-  text-align: center;
-  width: 100%;
-  font-size: 14px;
-  color: #666;
-}
 
 .no-items-message {
   text-align: center;
@@ -805,39 +678,5 @@ footer {
   margin: 20px 0;
   color: #666;
   font-style: italic;
-}
-
-/* Dropdown Menu Styles */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  right: 0;
-  background-color: var(--bg-color);
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-  border-radius: 5px;
-}
-
-.dropdown-content a {
-  color: var(--text-color);
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-  transition: background-color 0.3s ease;
-}
-
-.dropdown-content a:hover {
-  background-color: var(--hover-color);
-  color: var(--bg-color);
-}
-
-.dropdown:hover .dropdown-content {
-  display: block;
 }
 </style>
