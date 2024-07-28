@@ -197,7 +197,7 @@ body {
       <section class="product-section">
         <h2 @click="goToLikedProducts">내가 좋아요한 상품</h2>
         <div class="product-list">
-          <div v-for="product in likedProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
+          <div v-for="product in likedProducts" :key="product.id" class="product-card" @click="goToYourProduct(product.id)">
             <img :src="product.image" :alt="product.name" class="product-image">
             <div class="product-info">
               <div class="product-name">{{ product.name }}</div>
@@ -263,21 +263,35 @@ export default {
         const registeredResponse = await axios.get('http://localhost:8080/products/sale', {
           params: {
             page: 1,
-            size: 4,
-            status:'ON_SALE'
+            size: 4
           },
           headers: {
             'Authorization': accessToken
           }
         });
         console.log(registeredResponse.data);
-
         registeredProducts.value = registeredResponse.data.result.map(product => ({
           id: product.id,
           name: product.name,
           image: product.image.imageUrl
         }));
 
+        const likedResponse = await axios.get('http://localhost:8080/products/like', {
+          params: {
+            page: 1,
+            size: 4
+          },
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        console.log(likedResponse.data);
+
+        likedProducts.value = likedResponse.data.result.map(product => ({
+          id: product.id,
+          name: product.name,
+          image: product.image.imageUrl
+        }));
 
       } catch (error) {
         console.error('Failed to fetch data:', error);
@@ -300,6 +314,10 @@ export default {
       alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
       router.push(`/product/update/${productId}`);
     }
+    const goToYourProduct = (productId) => {
+      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
+      router.push(`/product/detail/${productId}`);
+    }
 
     const goToRegisteredProducts = () => {
       alert('내가 등록한 상품 목록 페이지로 이동합니다.')
@@ -312,6 +330,7 @@ export default {
 
     const goToLikedProducts = () => {
       alert('내가 좋아요한 상품 목록 페이지로 이동합니다.')
+      router.push(`/product/like`);
     }
 
     return {
@@ -325,6 +344,7 @@ export default {
       goToRegisteredProducts,
       goToPurchasedProducts,
       goToLikedProducts,
+      goToYourProduct
     }
   }
 }
