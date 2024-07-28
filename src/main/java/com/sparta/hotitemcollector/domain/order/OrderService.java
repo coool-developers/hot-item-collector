@@ -62,18 +62,17 @@ public class OrderService {
 
 	@Transactional(readOnly = true)
 	public List<OrderItemBySellerResponseDto> getOrdersAllBySeller(int page, int size,
-		LocalDateTime startDate, LocalDateTime endDate, OrderStatus status, User user) {
+		LocalDateTime startDate, LocalDateTime endDate, String status, User user) {
 
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 		Pageable pageable = PageRequest.of(page - 1, size, sort);
 		Page<OrderItem> orderItemPage = Page.empty(pageable);
 		List<Product> productList = productService.findByUserAndStatus(user, ProductStatus.SOLD_OUT);
 
-		if (status == null) {
+		if (status == null || status.isEmpty()) {
 			orderItemPage = orderItemRepository.findAllByCreatedAtBetweenAndProductIn(startDate, endDate, productList, pageable);
-		}
-		if (status != null) {
-			orderItemPage = orderItemRepository.findAllByStatusAndCreatedAtBetweenAndProductIn(status, startDate, endDate, productList, pageable);
+		} else {
+			orderItemPage = orderItemRepository.findAllByStatusAndCreatedAtBetweenAndProductIn(OrderStatus.fromString(status), startDate, endDate, productList, pageable);
 		}
 
 		return orderItemPage.getContent()

@@ -60,9 +60,20 @@ export default {
     }
 
     const searchOrders = () => {
-      // API 요청 시뮬레이션
-      console.log(`검색 기간: ${startDate.value} ~ ${endDate.value}, 배송상태: ${statusFilter.value}`)
-      // 실제 구현에서는 여기에 API 호출 코드가 들어갑니다.
+      axios.get('http://localhost:8080/orders/sell', {
+        params: {
+          startDate: startDate.value,
+          endDate: endDate.value,
+          status: statusFilter.value,
+        },
+        headers: {
+          'Authorization': accessToken
+        }
+      }).then(response => {
+        orders.value = response.data.result
+      }).catch(error => {
+        console.error(error)
+      })
     }
 
     const loadOrders = () => {
@@ -86,8 +97,11 @@ export default {
           'Authorization': accessToken,
           'Content-Type': 'application/json'
         }
+      }).then(response => {
+        alert(`주문 #${order.orderId}의 배송상태가 ${order.orderStatus}(으)로 변경되었습니다.`)
+        console.log(response)
+        searchOrders() // 자동으로 업데이트되도록
       })
-      alert(`주문 #${order.orderId}의 배송상태가 ${order.orderStatus}(으)로 변경되었습니다.`)
     }
 
     onMounted(() => {

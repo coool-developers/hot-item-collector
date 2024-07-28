@@ -1,8 +1,11 @@
 package com.sparta.hotitemcollector.domain.order;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -52,11 +55,14 @@ public class OrderController {
 	public ResponseEntity<CommonResponse<List<OrderItemBySellerResponseDto>>> getOrdersBySeller(
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int size,
-		@RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now().minusMonths(3)}") LocalDateTime startDate,
-		@RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now()}") LocalDateTime endDate,
-		@RequestParam(required = false) OrderStatus status,
+		@RequestParam(defaultValue = "#{T(java.time.LocalDate).now().minusMonths(3)}")
+		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+		@RequestParam(defaultValue = "#{T(java.time.LocalDate).now()}")
+		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+		@RequestParam(required = false) String status,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		List<OrderItemBySellerResponseDto> responseDtoList = orderService.getOrdersAllBySeller(page, size, startDate, endDate, status, userDetails.getUser());
+		List<OrderItemBySellerResponseDto> responseDtoList = orderService.getOrdersAllBySeller(page, size,
+			startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), status, userDetails.getUser());
 
 		CommonResponse<List<OrderItemBySellerResponseDto>> response = new CommonResponse("판매자의 주문 목록을 조회 성공했습니다.", 200, responseDtoList);
 		return new ResponseEntity<>(response, HttpStatus.OK);
