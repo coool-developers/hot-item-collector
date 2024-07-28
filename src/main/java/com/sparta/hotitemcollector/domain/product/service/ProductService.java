@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -190,7 +191,14 @@ public class ProductService {
     public List<ProductSimpleResponseDto> getSaleProduct(User user, ProductStatus status, int page,
         int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Product> productPage = productRepository.findByUserAndStatus(user, status, pageable);
+        Page<Product> productPage=Page.empty(pageable);
+
+        if(status!=null){
+            productPage = productRepository.findByUserAndStatus(user, status, pageable);
+        }
+        if(status==null){
+            productPage = productRepository.findByUser(user,pageable);
+        }
 
         return productPage.getContent()
             .stream()

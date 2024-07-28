@@ -1,7 +1,10 @@
 <script>
 import { ref,computed } from 'vue';
+import AppHeader from "@/components/AppHeader.vue";
+import AppFooter from "@/components/AppFooter.vue";
 
 export default {
+  components: {AppFooter, AppHeader},
   setup() {
     const searchType = ref('product')
     const searchQuery = ref('')
@@ -139,50 +142,7 @@ export default {
 
 <template>
   <div id="app">
-    <header>
-      <div class="container header-content">
-        <a href="/" class="logo">Hot Item Collector</a>
-        <div class="search-bar">
-          <select v-model="searchType">
-            <option value="product">상품명</option>
-            <option value="seller">판매자명</option>
-          </select>
-          <input type="text" v-model="searchQuery" placeholder="검색어를 입력하세요">
-          <button @click="search">검색</button>
-        </div>
-        <div class="user-actions">
-          <div class="dropdown">
-            <button>상품</button>
-            <div class="dropdown-content">
-              <a href="#" @click="goToProductRegistration">상품 등록</a>
-              <a href="#" @click="goToProductManagement">판매 물품 관리</a>
-              <a href="#" @click="goToOrderManagement">주문 관리</a>
-            </div>
-          </div>
-          <div class="dropdown">
-            <button>내정보</button>
-            <div class="dropdown-content">
-              <a href="#" @click="viewMyInfo">내정보 보기</a>
-              <a href="#" @click="editProfile">정보 수정</a>
-              <a href="#" @click="logout">로그아웃</a>
-              <a href="#" @click="deleteAccount">회원 탈퇴</a>
-            </div>
-          </div>
-          <button @click="goToCart">장바구니</button>
-        </div>
-      </div>
-    </header>
-
-    <nav class="categories">
-      <div class="container">
-        <div class="categories-container">
-          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#"
-             class="category-item">
-            {{ category }}
-          </a>
-        </div>
-      </div>
-    </nav>
+   <AppHeader />
 
     <main class="container product-list">
       <div class="product-list-header">
@@ -216,19 +176,7 @@ export default {
       </div>
     </main>
 
-    <footer>
-      <div class="container footer-content">
-        <div class="footer-links">
-          <a href="/about">회사 소개</a>
-          <a href="/terms">이용약관</a>
-          <a href="/privacy">개인정보처리방침</a>
-          <a href="/contact">고객센터</a>
-        </div>
-        <div class="footer-copyright">
-          &copy; 2023 Hot Item Collector. All rights reserved.
-        </div>
-      </div>
-    </footer>
+   <AppFooter/>
   </div>
 </template>
 

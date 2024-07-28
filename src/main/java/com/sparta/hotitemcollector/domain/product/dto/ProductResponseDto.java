@@ -3,6 +3,7 @@ package com.sparta.hotitemcollector.domain.product.dto;
 import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.entity.ProductCategory;
 
+import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
 import com.sparta.hotitemcollector.domain.user.dto.user.ProfileImageResponseDto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ public class ProductResponseDto {
     private BigDecimal price;
     private String info;
     private Long likes;
+    private ProductStatus status;
     private Long userId;
     private String nickname;
     private ProfileImageResponseDto profileImage;
@@ -33,6 +35,7 @@ public class ProductResponseDto {
         this.price = product.getPrice();
         this.info = product.getInfo();
         this.likes = product.getLikes();
+        this.status=product.getStatus();
         this.userId = product.getUser().getId();
         this.nickname=product.getUser().getNickname();
         this.profileImage=prfileImage;
