@@ -5,9 +5,9 @@
     <main class="container">
       <section class="product-detail">
         <div class="seller-info">
-          <img :src="product.sellerPhoto" :alt="product.sellerName" class="seller-photo">
+          <img v-if="product.profileImage.imageUrl" :src="product.profileImage.imageUrl" :alt="product.nickname" class="seller-photo">
           <div class="seller-name-follow">
-            <span class="seller-name">{{ product.sellerName }}</span>
+            <span class="seller-name">{{ product.nickname }}</span>
             <button v-if="isLoggedIn" class="follow-button" @click="toggleFollow">
               {{ isFollowing ? '팔로우 취소' : '팔로우' }}
             </button>
@@ -30,7 +30,7 @@
               </div>
             </div>
             <p class="product-category">{{ product.category }}</p>
-            <p class="product-description">{{ product.description }}</p>
+            <p class="product-description">{{ product.info }}</p>
             <div class="product-actions-container">
               <p class="product-price">{{ formatPrice(product.price) }}원</p>
               <div class="buy-actions">
