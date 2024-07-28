@@ -84,6 +84,7 @@ export default {
 
     const goToProductRegistration = () => {
       alert('상품 등록 페이지로 이동합니다.')
+      router.push(`/product/upload`)
     }
 
     const goToProductManagement = () => {
