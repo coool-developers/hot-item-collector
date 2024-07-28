@@ -68,9 +68,9 @@ export default {
     const loadOrders = () => {
       axios.get('http://localhost:8080/orders/sell', {
         headers: {
-          'Authorization' : accessToken
+          'Authorization': accessToken
         }
-      }).then(response  => {
+      }).then(response => {
         orders.value = response.data.result
       }).catch(error => {
         console.error(error)
@@ -78,38 +78,17 @@ export default {
     }
 
     const updateStatus = (order) => {
-      alert(`주문 #${order.id}의 배송상태가 ${order.orderStatus}(으)로 변경되었습니다.`)
-      // 실제 구현에서는 여기에 API 호출 코드가 들어갑니다.
+
+      axios.patch(`http://localhost:8080/orders/sell/${order.orderId}`, {
+        status: order.orderStatus
+      }, {
+        headers: {
+          'Authorization': accessToken,
+          'Content-Type': 'application/json'
+        }
+      })
+      alert(`주문 #${order.orderId}의 배송상태가 ${order.orderStatus}(으)로 변경되었습니다.`)
     }
-
-      //
-      // // 초기 데이터 로드 (실제 구현에서는 API 호출로 대체)
-      // orders.value = [
-      //   {
-      //     id: 1,
-      //     customerName: '김철수',
-      //     customerPhone: '010-1234-5678',
-      //     customerAddress: '서울시 강남구 테헤란로 123',
-      //     productName: '수제 초콜릿',
-      //     productPrice: 15000,
-      //     productImage: 'https://example.com/chocolate.jpg',
-      //     buyerName: '김철수',
-      //     status: '결제완료'
-      //   },
-      //   {
-      //     id: 2,
-      //     customerName: '이영희',
-      //     customerPhone: '010-9876-5432',
-      //     customerAddress: '부산시 해운대구 해운대해변로 456',
-      //     productName: '핸드메이드 비누',
-      //     productPrice: 8000,
-      //     productImage: 'https://example.com/soap.jpg',
-      //     buyerName: '이영희',
-      //     status: '배송중'
-      //   },
-      //   // 추가 주문 데이터...
-      // ]
-
 
     onMounted(() => {
       loadOrders()
@@ -181,7 +160,8 @@ export default {
     <nav class="categories">
       <div class="container">
         <div class="categories-container">
-          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#" class="category-item">
+          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#"
+             class="category-item">
             {{ category }}
           </a>
         </div>
@@ -213,8 +193,8 @@ export default {
               <img :src="order.productImage.imageUrl" :alt="order.productImage.filename" class="product-image">
               <div>
                 <p><strong>상품명:</strong> {{ order.productName }}</p>
-                <p><strong>가격:</strong> {{ order.price}}원</p>
-<!--                <p><strong>구매자:</strong> {{ order.userNickname }}</p>-->
+                <p><strong>가격:</strong> {{ order.price }}원</p>
+                <!--                <p><strong>구매자:</strong> {{ order.userNickname }}</p>-->
               </div>
             </div>
             <div class="status-update">
@@ -368,7 +348,7 @@ header {
   right: 0;
   background-color: var(--bg-color);
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
   border-radius: 5px;
 }

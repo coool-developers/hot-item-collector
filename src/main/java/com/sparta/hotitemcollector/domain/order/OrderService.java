@@ -89,7 +89,7 @@ public class OrderService {
 		if (!user.getId().equals(orderItem.getProduct().getUser().getId())) {
 			throw new CustomException(ErrorCode.NOT_SAME_USER);
 		}
-		OrderStatus status = orderStatusRequestDto.getStatus();
+		OrderStatus status = OrderStatus.fromString(orderStatusRequestDto.getStatus());
 		orderItem.updateOrderItemStatus(status);
 
 	}
