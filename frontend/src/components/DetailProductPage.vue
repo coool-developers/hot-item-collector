@@ -52,6 +52,7 @@ import {ref, onMounted, computed} from 'vue'
 import axios from "axios";
 import {useRoute} from "vue-router";
 import AppFooter from "@/components/AppFooter.vue";
+import defaultUserImage from "../assets/user.png"
 
 export default {
   components: {AppFooter, Header},
@@ -77,7 +78,7 @@ export default {
     const productId = route.params.productId; // 라우트 파라미터에서 productId를 가져옴
 
     // 기본 프로필 이미지 URL
-    const defaultProfileImage = 'https://t1.daumcdn.net/cafeattach/1IHuH/fb8ce4c56a02190aa72f39804efa044fe3c17558';
+    const defaultProfileImage = defaultUserImage;
 
     // Product 초기화
     const product = ref({
