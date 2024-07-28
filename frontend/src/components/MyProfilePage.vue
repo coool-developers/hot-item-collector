@@ -248,7 +248,7 @@ export default {
         });
         // Check if bio is missing
         if (!userResponse.data.result.info) {
-          router.push('/profile/update');
+          router.push('/profile');
           return; // Exit the function if redirecting
         }
         user.value = {

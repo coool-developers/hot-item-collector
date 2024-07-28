@@ -231,9 +231,10 @@ body {
 import { ref, computed, onMounted  } from 'vue';
 import Header from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
-import { useRoute } from 'vue-router';
+import {useRoute, useRouter} from 'vue-router';
 import axios from "axios";
 import defaultProfile from "../assets/user.png";
+import Cookies from "js-cookie";
 
 export default {
   components: {AppFooter, Header},
@@ -242,6 +243,7 @@ export default {
     const route = useRoute(); // useRoute를 통해 현재 라우트에 접근
     const productId = route.params.productId; // 라우트 파라미터에서 productId를 가져옴
     const currentImageIndex = ref(0);
+    const router = useRouter();
 
     // 기본 프로필 이미지 URL
     const defaultProfileImage = defaultProfile;
@@ -312,12 +314,33 @@ export default {
 
     onMounted(fetchProduct);
 
+    const deleteProduct = async() =>{
+      if (confirm('정말 삭제하시겠습니까?')) {
+      if (productId) {
+        const accessToken = Cookies.get('access_token');
+        try{
+           const response = await axios.delete(`http://localhost:8080/products/${productId}`,{
+             headers: {
+               'Authorization': accessToken
+             }
+           });
+           console.log(response.data);
+          router.push('/product/sale');
+        }catch (error){
+        console.error('Failed to fetch product data:', error);
+      }
+      }else {
+        console.error('Product ID is missing in route parameters');
+      }
+    }}
+
     return {
       product,
       currentImage,
       formatPrice,
       prevImage,
       nextImage,
+      deleteProduct
     }
   }
 }
