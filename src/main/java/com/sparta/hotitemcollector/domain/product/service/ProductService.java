@@ -15,6 +15,7 @@ import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
 import com.sparta.hotitemcollector.domain.s3.service.S3Service;
 import com.sparta.hotitemcollector.domain.user.User;
+import com.sparta.hotitemcollector.domain.user.UserService;
 import com.sparta.hotitemcollector.domain.user.dto.user.ProfileImageResponseDto;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
@@ -38,6 +39,7 @@ public class ProductService {
     private final FollowService followService;
     private final ProductImageRepository productImageRepository;
     private final S3Service s3Service;
+    private final UserService userService;
 
     @Transactional
     public ProductResponseDto createProduct(ProductRequestDto requestDto, User user) {
@@ -177,6 +179,7 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<HotProductResponseDto> getHotProduct(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage = productRepository.findTop10ByOrderByLikesDesc(pageable);
@@ -206,6 +209,27 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<ProductSimpleResponseDto> getSaleYourProduct(Long userId, ProductStatus status, int page, int size) {
+        User user = userService.findByUserId(userId);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Product> productPage=Page.empty(pageable);
+
+        if(status!=null){
+            productPage = productRepository.findByUserAndStatus(user, status, pageable);
+        }
+        if(status==null){
+            productPage = productRepository.findByUser(user,pageable);
+        }
+
+        return productPage.getContent()
+            .stream()
+            .map(ProductSimpleResponseDto::new)
+            .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<ProductSimpleResponseDto> getNewProduct(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
