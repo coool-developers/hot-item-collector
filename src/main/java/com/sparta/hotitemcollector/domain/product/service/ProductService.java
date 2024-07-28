@@ -15,6 +15,7 @@ import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
 import com.sparta.hotitemcollector.domain.s3.service.S3Service;
 import com.sparta.hotitemcollector.domain.user.User;
+import com.sparta.hotitemcollector.domain.user.dto.user.ProfileImageResponseDto;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import java.util.ArrayList;
@@ -64,11 +65,13 @@ public class ProductService {
             .map(image -> new ProductImageResponseDto(image))
             .collect(Collectors.toList());
 
+        ProfileImageResponseDto profileImageDto = new ProfileImageResponseDto(product.getUser()
+            .getProfileImage());
+
         // ProductResponseDto 생성
-        ProductResponseDto responseDto = new ProductResponseDto(product, imageDtos);
+        ProductResponseDto responseDto = new ProductResponseDto(product, imageDtos,profileImageDto);
         return responseDto;
     }
-
 
     @Transactional
     public ProductResponseDto updateProduct(Long productId, ProductRequestDto requestDto,
@@ -111,8 +114,11 @@ public class ProductService {
             .map(ProductImageResponseDto::new)
             .collect(Collectors.toList());
 
+        ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(product.getUser()
+            .getProfileImage());
+
         // ProductResponseDto 생성 및 반환
-        return new ProductResponseDto(product, updatedImageDtos);
+        return new ProductResponseDto(product, updatedImageDtos,profileImageResponseDto);
     }
 
 
@@ -143,8 +149,13 @@ public class ProductService {
             .map(image -> new ProductImageResponseDto(image))
             .collect(Collectors.toList());
 
+        // ProfileImageResponseDto를 생성, 프로필 이미지가 없으면 null 설정
+        ProfileImageResponseDto profileImageResponseDto = product.getUser().getProfileImage() != null
+            ? new ProfileImageResponseDto(product.getUser().getProfileImage())
+            : null;
+
         // ProductResponseDto 생성
-        ProductResponseDto responseDto = new ProductResponseDto(product, imageDtos);
+        ProductResponseDto responseDto = new ProductResponseDto(product, imageDtos,profileImageResponseDto);
         return responseDto;
     }
 
