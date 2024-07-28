@@ -40,10 +40,10 @@ const routes = [
     component: FollowList,
   },
   {
-    path: '/items/:productId',
+    path: '/product/detail/:productId',
     name: 'DetailProductPage',
     component: DetailProductPage,
-    //props: route => ({ productId: Number(route.params.productId) }),
+    props: true
   },
   {
     path: '/cart',
