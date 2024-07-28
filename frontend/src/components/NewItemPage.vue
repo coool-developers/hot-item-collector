@@ -2,6 +2,7 @@
 import Header from './AppHeader.vue';
 import { ref, computed, onMounted } from 'vue';
 import axios from "axios";
+import {useRouter} from "vue-router";
 
 export default {
   components: {Header},
@@ -22,6 +23,7 @@ export default {
     const password = ref('');
     const loginIdError = ref('');
     const passwordError = ref('');
+    const router = useRouter();
 
     const pageTitle = computed(() => '새로 등록된 상품 목록');
 
@@ -157,6 +159,10 @@ export default {
     onMounted(() => {
       fetchProducts(currentPage.value);
     });
+    const goToProduct = (productId) => {
+      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
+      router.push(`/product/detail/${productId}`);
+    }
 
     return {
       isLoggedIn,
@@ -195,7 +201,8 @@ export default {
       editProfile,
       logout,
       deleteAccount,
-      goToCart
+      goToCart,
+      goToProduct
     };
   }
 }
@@ -209,7 +216,7 @@ export default {
         <h2>{{ pageTitle }}</h2>
         <div class="item-grid">
           <div v-for="item in displayedItems" :key="item.id" class="item-card"
-               @click="goToItemPage(item.id)">
+               @click="goToProduct(item.id)">
             <img :src="item.image.imageUrl" :alt="item.name">
             <div class="item-info">
               <div class="item-name">{{ item.name }}</div>
