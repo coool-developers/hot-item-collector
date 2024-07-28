@@ -2,6 +2,8 @@
 import { ref,computed } from 'vue';
 import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
+import Cookies from "js-cookie";
+import axios from "axios";
 
 export default {
   components: {AppFooter, AppHeader},
@@ -12,46 +14,48 @@ export default {
     const filter = ref('all')
     const currentPage = ref(1)
     const itemsPerPage = 8
-
-    const products = ref([{ id: 'R001', name: '수제 쿠키', image: 'https://example.com/cookie.jpg' },
-      { id: 'R002', name: '손뜨개 목도리', image: 'https://example.com/scarf.jpg' },
-      { id: 'R003', name: '천연 비누', image: 'https://example.com/soap.jpg' },
-      { id: 'R004', name: '수제 캔들', image: 'https://example.com/candle.jpg' },
-      { id: 'R005', name: '유기농 잼', image: 'https://example.com/jam.jpg' },
-      { id: 'R006', name: '핸드메이드 가방', image: 'https://example.com/bag.jpg' },
-      { id: 'R007', name: '아로마 오일', image: 'https://example.com/oil.jpg' },
-      { id: 'R008', name: '수제 초콜릿', image: 'https://example.com/chocolate.jpg' },
-      { id: 'R009', name: '수제 마카롱', image: 'https://example.com/macaron.jpg' },
-      { id: 'R010', name: '핸드메이드 악세서리', image: 'https://example.com/accessory.jpg' },
-      { id: 'R011', name: '친환경 텀블러', image: 'https://example.com/tumbler.jpg' },
-      { id: 'R012', name: '수제 도자기', image: 'https://example.com/pottery.jpg' },
-      { id: 'R013', name: '수제 빵', image: 'https://example.com/bread.jpg' },
-      { id: 'R014', name: '핸드메이드 인형', image: 'https://example.com/doll.jpg' },
-      { id: 'R015', name: '수제 비누', image: 'https://example.com/handmade-soap.jpg' },
-      { id: 'R016', name: '아로마 향초', image: 'https://example.com/aroma-candle.jpg' },])
+    const products = ref()
     const totalPages = ref(1)
 
+    const fetchProducts = async (filterType) => {
+      const accessToken = Cookies.get('access_token');
+      let status;
 
-
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch(`https://api.example.com/products?status=${filter.value}&page=${currentPage.value}&limit=${itemsPerPage}`)
-        const data = await response.json()
-        products.value = data.products
-        totalPages.value = Math.ceil(data.total / itemsPerPage)
-      } catch (error) {
-        console.error('Error fetching products:', error)
+      switch (filterType) {
+        case 'selling':
+          status = 'ON_SALE';
+          break;
+        case 'sold':
+          status = 'SOLD_OUT';
+          break;
+        default:
+          status = null;
       }
-    }
+
+      try {
+        const params = status ? { status } : {};
+        const response = await axios.get('http://localhost:8080/products/sale', {
+          headers: {
+            'Authorization': accessToken
+          },
+          params
+        });
+        const data = response.data;
+        products.value = data.result;
+        totalPages.value = Math.ceil(data.total / itemsPerPage);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
 
     const displayedProducts = computed(() => {
       return products.value
     })
 
-    const setFilter = async (newFilter) => {
-      filter.value = newFilter
+    const setFilter = (FilterType) => {
+      filter.value = FilterType
       currentPage.value = 1
-      await fetchProducts()
+      fetchProducts(FilterType);
     }
 
     const prevPage = async () => {
@@ -159,12 +163,12 @@ export default {
       </div>
       <div class="product-grid">
         <div v-for="product in displayedProducts" :key="product.id" class="product-card">
-          <img :src="product.image" :alt="product.name" class="product-image">
+          <img :src="product.image.imageUrl" :alt="product.name" class="product-image">
           <div class="product-info">
             <div class="product-id">ID: {{ product.id }}</div>
             <div class="product-name">{{ product.name }}</div>
-            <span :class="['product-status', product.status === 'sold' ? 'status-sold' : 'status-selling']">
-              {{ product.status === 'sold' ? '판매완료' : '판매중' }}
+            <span :class="['product-status', product.status === 'SOLD_OUT' ? 'status-sold' : 'status-selling']">
+              {{ product.status === 'SOLD_OUT' ? '판매완료' : '판매중' }}
             </span>
           </div>
         </div>

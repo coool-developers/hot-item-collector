@@ -303,6 +303,7 @@ export default {
 
     const goToRegisteredProducts = () => {
       alert('내가 등록한 상품 목록 페이지로 이동합니다.')
+      router.push(`/product/sale`);
     }
 
     const goToPurchasedProducts = () => {
