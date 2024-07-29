@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -77,39 +78,44 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponseDto updateProduct(Long productId, ProductRequestDto requestDto,
-        User user) {
+    public ProductResponseDto updateProduct(Long productId, ProductRequestDto requestDto, User user) {
+        // 제품 정보 조회
         Product product = findById(productId);
 
+        // 사용자 권한 확인
         if (!product.getUser().getId().equals(user.getId())) {
             throw new CustomException(ErrorCode.NOT_SAME_USER);
         }
 
+        // 제품 상태 확인
         if (product.getStatus().equals(ProductStatus.SOLD_OUT)) {
             throw new CustomException(ErrorCode.ALREADY_SOLD_OUT);
         }
 
+        // 제품 업데이트
         product.updateProduct(requestDto);
 
-        // 기존 이미지 삭제하고 새로운 이미지 추가
-        List<ProductImage> existingImages = product.getImages();
+        // 이미지 처리 로직
         List<ProductImageRequestDto> newImageDtos = requestDto.getImages();
+        if (newImageDtos != null && !newImageDtos.isEmpty()) {
+            // 기존 이미지와 새로운 이미지를 분리
+            List<ProductImage> existingImages = product.getImages();
+            List<String> existingImageUrls = existingImages.stream()
+                .map(ProductImage::getImageUrl)
+                .collect(Collectors.toList());
 
-        // 기존 이미지 모두 삭제
-        for (ProductImage imageToRemove : existingImages) {
-            s3Service.deleteImage(imageToRemove.getFilename());
-            productImageRepository.delete(imageToRemove);
+            // 새로운 이미지 URL만 추가
+            for (ProductImageRequestDto newImageDto : newImageDtos) {
+                // 새로운 이미지 URL이 기존 이미지 URL에 없는 경우만 추가
+                if (!existingImageUrls.contains(newImageDto.getImageUrl())) {
+                    ProductImage newImage = new ProductImage(newImageDto.getFilename(), newImageDto.getImageUrl(), product, user);
+                    product.addImage(newImage);
+                    productImageRepository.save(newImage);
+                }
+            }
         }
-        product.getImages().clear(); // 부모 엔티티에서 자식 엔티티를 제거
 
-        // 새로운 이미지 추가
-        for (ProductImageRequestDto newImageDto : newImageDtos) {
-            ProductImage newImage = new ProductImage(newImageDto.getFilename(),
-                newImageDto.getImageUrl(), product, user);
-            product.addImage(newImage); // 양방향 연관관계 설정
-            productImageRepository.save(newImage);
-        }
-
+        // 제품 정보 저장
         productRepository.save(product);
 
         // 제품의 모든 이미지를 다시 조회하여 반환
@@ -117,12 +123,12 @@ public class ProductService {
             .map(ProductImageResponseDto::new)
             .collect(Collectors.toList());
 
-        ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(product.getUser()
-            .getProfileImage());
+        ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(product.getUser().getProfileImage());
 
         // ProductResponseDto 생성 및 반환
-        return new ProductResponseDto(product, updatedImageDtos,profileImageResponseDto);
+        return new ProductResponseDto(product, updatedImageDtos, profileImageResponseDto);
     }
+
 
 
     @Transactional

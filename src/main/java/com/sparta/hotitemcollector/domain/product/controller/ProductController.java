@@ -68,7 +68,7 @@ public class ProductController {
     @PutMapping("/{productId}")
     public ResponseEntity<CommonResponse<ProductResponseDto>> updateProduct(
         @PathVariable(name = "productId") Long productId,
-        @Valid @RequestPart("requestDto") ProductRequestDto requestDto,
+        @Valid @RequestPart(value = "requestDto", required = false) ProductRequestDto requestDto,
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestPart(value = "files", required = false) List<MultipartFile> files)
         throws IOException {
@@ -81,12 +81,15 @@ public class ProductController {
             throw new CustomException(ErrorCode.NOT_SAME_USER);
         }
 
-        // 크기제한, 확장자 확인
-        for (MultipartFile file : files) {
-            imageService.validateFile(file);
+        // 파일이 있을 경우에만 크기제한 및 확장자 확인, S3 업로드 처리
+        List<ProductImageRequestDto> images = new ArrayList<>();
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                imageService.validateFile(file);
+            }
+            // S3에 파일 업로드
+            images = s3Service.uploadFiles(files);
         }
-        // S3에 파일 업로드
-        List<ProductImageRequestDto> images = s3Service.uploadFiles(files);
 
         requestDto.addImages(images);
 

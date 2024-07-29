@@ -133,6 +133,7 @@ export default {
             router.push(`/product/update/${data.id}`);
           }, 500);
 
+          // 폼 초기화 (기존 이미지 제외)
           productName.value = '';
           productCategory.value = '';
           productPrice.value = 0;
@@ -211,21 +212,18 @@ export default {
                 <input type="number" id="price" v-model="productPrice" required min="0" step="100">
               </div>
               <div class="form-group">
-                <label for="description">상품 설명</label>
+                <label for="description">설명</label>
                 <textarea id="description" v-model="productDescription" required></textarea>
               </div>
             </div>
           </div>
-          <div class="submit-button-container">
-            <button type="submit" class="submit-button">상품 등록</button>
-          </div>
+          <button type="submit">상품 등록</button>
         </form>
       </section>
     </main>
     <AppFooter />
   </div>
 </template>
-
 
 
 <style scoped>
