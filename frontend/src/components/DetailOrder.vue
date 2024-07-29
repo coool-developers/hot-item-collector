@@ -2,6 +2,7 @@
 import {onMounted, ref} from 'vue';
 import Cookies from "js-cookie";
 import axios from "axios";
+import {useRoute} from "vue-router";
 
 export default {
   setup() {
@@ -18,8 +19,9 @@ export default {
 
     // product를 배열로 설정
     const products = ref([]);
-
-    const orderData = ref(null);
+    //const orderData = ref(null);
+    const route = useRoute();
+    const orderId = route.query.orderId;
 
     const deliveryStatuses = ref(['결제완료', '상품준비중', '배송중', '배송완료']);
     const currentStatusIndex = ref(0); // 현재 상태 (배송완료)
@@ -79,24 +81,23 @@ export default {
 
     const fetchOrderDetail = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/orders/buy', {
+        const response = await axios.get(`http://localhost:8080/order/buy/${orderId}`, {
           headers: {
             'Authorization': accessToken
           }
         });
 
-        const orderDataList = response.data.result;
+        const orderDataResponse = response.data.result;
 
-        if (orderDataList && orderDataList.length > 0) {
-          const order = orderDataList[0];
-          orderData.value = order;
+        if (orderDataResponse) {
+          orderDataResponse.value = orderDataResponse;
           shippingInfo.value = {
-            name: order.userName,
-            phone: order.phoneNumber,
-            address: order.address
+            name: orderDataResponse.userName,
+            phone: orderDataResponse.phoneNumber,
+            address: orderDataResponse.address
           };
 
-          products.value = order.orderItemResponseDtoList.map(item => ({
+          products.value = orderDataResponse.orderItemResponseDtoList.map(item => ({
             id: item.productId,
             name: item.productName,
             price: item.price,

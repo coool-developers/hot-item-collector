@@ -201,7 +201,7 @@ export default {
               });
 
               alert('결제 검증 성공');
-              router.push({name: 'DetailOrder'})
+              router.push({ name: 'DetailOrder', query: { orderId: orderId } });
               console.log('결제 검증 성공:', verifyResponse.data);
             } catch (error) {
               alert('결제 검증 실패');

@@ -49,6 +49,17 @@ public class OrderService {
 	}
 
 	@Transactional(readOnly = true)
+	public OrderResponseDto getOrderByBuyer(Long orderId, User user) {
+		Orders order = findOrderById(orderId);
+
+		if (!user.getId().equals(order.getUser().getId())) {
+			throw new CustomException(ErrorCode.NOT_SAME_USER);
+		}
+
+		return new OrderResponseDto(order);
+	}
+
+	@Transactional(readOnly = true)
 	public List<OrderItemBySellerResponseDto> getOrdersAllBySeller(LocalDateTime startDate, LocalDateTime endDate, String status, User user) {
 
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
