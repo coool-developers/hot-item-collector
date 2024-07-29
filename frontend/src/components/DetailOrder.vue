@@ -1,27 +1,28 @@
 <script>
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue';
+import Cookies from "js-cookie";
+import axios from "axios";
 
 export default {
   setup() {
-    const searchType = ref('product')
-    const searchQuery = ref('')
-    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
+    const searchType = ref('product');
+    const searchQuery = ref('');
+    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물']);
+
+    // shippingInfo를 객체로 설정
     const shippingInfo = ref({
-      name: '김철수',
-      phone: '010-1234-5678',
-      address: '서울특별시 강남구 테헤란로 123 아파트 456호'
-    })
-    const product = ref({
-      id: 1,
-      name: '수제 초콜릿',
-      price: 15000,
-      seller: '달콤공방',
-      sellerId: 101,
-      image: 'https://example.com/chocolate.jpg',
-      status: '배송완료'
-    })
-    const deliveryStatuses = ref(['결제완료', '상품준비중', '배송중', '배송완료'])
-    const currentStatusIndex = ref(0) // 현재 상태 (배송완료)
+      name: '',
+      phone: '',
+      address: ''
+    });
+
+    // product를 배열로 설정
+    const products = ref([]);
+
+    const orderData = ref(null);
+
+    const deliveryStatuses = ref(['결제완료', '상품준비중', '배송중', '배송완료']);
+    const currentStatusIndex = ref(0); // 현재 상태 (배송완료)
 
     const search = () => {
       alert(`검색 유형: ${searchType.value}, 검색어: ${searchQuery.value}`)
@@ -74,12 +75,52 @@ export default {
       alert(`판매자 ID ${sellerId}의 상세 페이지로 이동합니다.`)
     }
 
+    const accessToken = Cookies.get('access_token');
+
+    const fetchOrderDetail = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/orders/buy', {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+
+        const orderDataList = response.data.result;
+
+        if (orderDataList && orderDataList.length > 0) {
+          const order = orderDataList[0];
+          orderData.value = order;
+          shippingInfo.value = {
+            name: order.userName,
+            phone: order.phoneNumber,
+            address: order.address
+          };
+
+          products.value = order.orderItemResponseDtoList.map(item => ({
+            id: item.productId,
+            name: item.productName,
+            price: item.price,
+            seller: item.sellerNickname,
+            sellerId: item.sellerId,
+            image: item.productImage.imageUrl,
+            status: item.orderStatus
+          }));
+        }
+      } catch (err) {
+        console.error('Failed to fetch order details:', err);
+      }
+    };
+
+    onMounted(() => {
+      fetchOrderDetail();
+    });
+
     return {
       searchType,
       searchQuery,
       categories,
       shippingInfo,
-      product,
+      products,
       deliveryStatuses,
       currentStatusIndex,
       search,
@@ -93,7 +134,8 @@ export default {
       deleteAccount,
       goToCart,
       goToProductDetail,
-      goToSellerDetail
+      goToSellerDetail,
+      fetchOrderDetail
     }
   }
 }
@@ -175,7 +217,7 @@ export default {
               </div>
             </div>
           </div>
-          <div class="product-item" @click="goToProductDetail(product.id)">
+          <div v-for="product in products" :key="product.id" class="product-item" @click="goToProductDetail(product.id)">
             <div class="product-content">
               <img :src="product.image" :alt="product.name" class="product-image">
               <div class="product-info">
