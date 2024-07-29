@@ -2,7 +2,7 @@
 import {ref, computed, onMounted} from 'vue';
 import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import axios from "axios";
 
 export default {
@@ -24,6 +24,7 @@ export default {
     const passwordError = ref('')
     const route = useRoute();
     const userId = route.params.userId;
+    const router = useRouter();
 
     const user = ref({
       id: '',
@@ -46,6 +47,26 @@ export default {
 
     onMounted(fetchUser);
     const products = ref([])
+
+    const fetchProduct = async () => {
+      if(userId){
+        const response = await axios.get(`http://localhost:8080/products/sale/${userId}`,{
+          params: {
+            page: 1,
+            size: 4
+          }
+        });
+        console.log(response.data.result);
+
+        products.value = response.data.result.map(product =>({
+          id: product.id,
+          name: product.name,
+          image: product.image.imageUrl,
+          status:product.status
+        }));
+      }
+    }
+    onMounted(fetchProduct);
 
     const itemsPerPage = 12
     const currentPage = ref(1)
@@ -105,6 +126,7 @@ export default {
 
     const goToProduct = (productId) => {
       alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
+      router.push(`/product/detail/${productId}`)
     }
 
     const goToProductRegistration = () => {
