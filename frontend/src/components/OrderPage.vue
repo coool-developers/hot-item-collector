@@ -2,6 +2,7 @@
 import axios from 'axios';
 import {ref, computed, onMounted} from 'vue';
 import {useRouter} from "vue-router";
+import Cookies from "js-cookie";
 
 export default {
   setup() {
@@ -32,6 +33,8 @@ export default {
       address: ''
     })
     const cartItems = ref([])
+
+    const accessToken = Cookies.get('access_token');
 
     const loadCartItems = () => {
       // 아까 저장했던 정보들이 storedData로 들어옴.
@@ -99,17 +102,21 @@ export default {
     const useMyAddress = async () => {
       try {
         // API를 통해 주소 정보를 가져오는 것을 시뮬레이션
-        const response = await new Promise(resolve => {
-          setTimeout(() => {
-            resolve({
-              name: '김철수',
-              phone: '010-1234-5678',
-              address: '서울특별시 강남구 테헤란로 123 아파트 456호'
-            })
-          }, 1000)
-        })
+        const response = await axios.get(`http://localhost:8080/users/profile/address`, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
 
-        shippingInfo.value = response
+        const data = response.data.result;
+
+        // 매핑
+        shippingInfo.value = {
+          name: data.username || '데이터가 존재하지 않음',
+          phone: data.phoneNumber || '데이터가 존재하지 않음',
+          address: data.address || '데이터가 존재하지 않음'
+        };
+
         alert('내 주소 정보를 불러왔습니다.')
       } catch (error) {
         alert('주소 정보를 불러오는데 실패했습니다.')
@@ -118,15 +125,6 @@ export default {
 
     const router = useRouter();
 
-    function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) {
-        return decodeURIComponent(parts.pop().split(';').shift());
-      }
-      return null;
-    }
-
     const prepareAndPay = async () => {
       if (!shippingInfo.value.name || !shippingInfo.value.phone || !shippingInfo.value.address) {
         alert('배송지 정보를 모두 입력해주세요.');
@@ -134,21 +132,6 @@ export default {
       }
 
       try {
-        let token = getCookie('access_token');
-        if (!token) {
-          console.error('No token found');
-          return;
-        }
-        // Bearer 접두사 제거
-        if (token.startsWith('Bearer ')) {
-          token = token.substring(7);
-        }
-
-        if (!token) {
-          console.error('Token is empty after processing');
-          return;
-        }
-
 
         const orderResponse = await axios.post('http://localhost:8080/prepare/order', {
           cartItemList: cartItems.value.map(item => item.id),
@@ -157,7 +140,7 @@ export default {
           buyerAddr: shippingInfo.value.address
         }, {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': accessToken
           }
         });
 
@@ -165,7 +148,7 @@ export default {
 
         const paymentResponse = await axios.get(`http://localhost:8080/prepare/payment?orderId=${orderId}`, {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': accessToken
           }
         });
 
@@ -196,7 +179,7 @@ export default {
                 amount: rsp.paid_amount
               }, {
                 headers: {
-                  'Authorization': `Bearer ${token}`
+                  'Authorization': accessToken
                 }
               });
 
