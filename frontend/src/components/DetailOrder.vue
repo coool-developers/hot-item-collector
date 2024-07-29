@@ -26,6 +26,18 @@ export default {
     const deliveryStatuses = ref(['결제완료', '상품준비중', '배송중', '배송완료']);
     const currentStatusIndex = ref(0); // 현재 상태 (배송완료)
 
+    const statusMapping = {
+      '결제 완료': 0,
+      '상품 준비중': 1,
+      '배송 중': 2,
+      '배송 완료':3
+    };
+
+    // 문자열을 인덱스로 변경
+    const getStatusIndex = (status) => {
+      return statusMapping[status] !== undefined ? statusMapping[status] : 0;
+    };
+
     const search = () => {
       alert(`검색 유형: ${searchType.value}, 검색어: ${searchQuery.value}`)
     }
@@ -104,8 +116,9 @@ export default {
             seller: item.sellerNickname,
             sellerId: item.sellerId,
             image: item.productImage.imageUrl,
-            status: item.orderStatus
+            currentStatusIndex: getStatusIndex(item.orderStatus)
           }));
+          console.log(products)
         }
       } catch (err) {
         console.error('Failed to fetch order details:', err);
@@ -208,18 +221,8 @@ export default {
         </div>
         <div class="order-summary">
           <h2>주문 상품 정보</h2>
-          <div class="delivery-status">
-            <h3>배송 상태</h3>
-            <div class="status-bar">
-              <div v-for="(status, index) in deliveryStatuses" :key="status"
-                   :class="['status-step', { active: index <= currentStatusIndex }]">
-                <div class="status-icon">{{ index + 1 }}</div>
-                <div class="status-label">{{ status }}</div>
-              </div>
-            </div>
-          </div>
-          <div v-for="product in products" :key="product.id" class="product-item" @click="goToProductDetail(product.id)">
-            <div class="product-content">
+          <div v-for="product in products" :key="product.id" class="product-item">
+            <div class="product-content" @click="goToProductDetail(product.id)">
               <img :src="product.image" :alt="product.name" class="product-image">
               <div class="product-info">
                 <div>
@@ -228,6 +231,16 @@ export default {
                      @click.stop="goToSellerDetail(product.sellerId)">{{ product.seller }}</a>
                 </div>
                 <span>{{ product.price.toLocaleString() }}원</span>
+              </div>
+            </div>
+            <div class="delivery-status">
+              <h3>배송 상태</h3>
+              <div class="status-bar">
+                <div v-for="(status, index) in deliveryStatuses" :key="status"
+                     :class="['status-step', { active: index <= product.currentStatusIndex }]">
+                  <div class="status-icon">{{ index + 1 }}</div>
+                  <div class="status-label">{{ status }}</div>
+                </div>
               </div>
             </div>
           </div>
