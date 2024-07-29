@@ -143,7 +143,23 @@ export default {
       }
     };
 
-    onMounted(fetchProduct);
+    const fetchLikeStatus = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/likes/${productId}`, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        isLiked.value = response.data.result.userLike
+      } catch(error) {
+        console.error(error)
+      }
+    }
+
+    onMounted(() => {
+      fetchProduct();
+      fetchLikeStatus();
+    });
 
     const currentImage = computed(() => {
       return product.value.images.length > 0 ? product.value.images[currentImageIndex.value].imageUrl : '';
@@ -157,10 +173,20 @@ export default {
       isFollowing.value = !isFollowing.value
     }
 
-    const toggleLike = () => {
-      isLiked.value = !isLiked.value
-      product.value.likes += isLiked.value ? 1 : -1
-    }
+    const toggleLike = async () => {
+
+      try {
+        await axios.post(`http://localhost:8080/likes/${productId}`, {}, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        isLiked.value = !isLiked.value;
+        product.value.likes += isLiked.value ? 1 : -1;
+      } catch (error) {
+        console.error('Error toggling like:', error);
+      }
+     }
 
     const prevImage = () => {
       currentImageIndex.value = (currentImageIndex.value - 1 + product.value.images.length) % product.value.images.length
@@ -189,7 +215,6 @@ export default {
         showCartModal.value = true
 
       }).catch(error => {
-       // alert(`이미 장바구니에 존재하는 제품입니다.`)
         cartExist.value = true
         showCartModal.value = true
 
@@ -197,8 +222,27 @@ export default {
       })
     }
 
-    const buyNow = () => {
-      // 구매 로직
+    const buyNow = async () => {
+      await fetchProduct();
+      // 장바구니에 값이 이미 있으면 409 에러, 확인 필요
+      axios.post(`http://localhost:8080/cart/${productId}`, {},{
+        headers: {
+          'Content-Type':'application/json',
+          'Authorization':accessToken
+        },
+      })
+
+      const orderData = {
+        id: product.value.id,
+        productName: product.value.name,
+        price: product.value.price,
+        seller: product.value.nickname,
+        productImage: product.value.images[0]
+      };
+
+     // const orderData = response
+      sessionStorage.setItem('orderData', JSON.stringify([orderData]))
+      router.push({name: 'OrderPage'})
     }
 
     const formatPrice = (price) => {
