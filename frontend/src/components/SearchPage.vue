@@ -1,210 +1,127 @@
 <script>
 import Header from './AppHeader.vue';
-import { ref,computed,onMounted } from 'vue';
+import AppFooter from './AppFooter.vue';
+import { ref, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router'; // Import useRoute from vue-router
 
 export default {
-  components: {Header},
+  components: { Header, AppFooter },
   setup() {
-    const isLoggedIn = ref(false)
-    const searchType = ref('product')
-    const searchQuery = ref('')
-    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
-    const searchResults = ref([])
-    const currentPage = ref(1)
-    const totalPages = ref(1)
-    const itemsPerPage = 16
-    const pageMode = ref('search') // 'search', 'follow', 'category'
-    const selectedCategory = ref('')
+    const isLoggedIn = ref(false);
+    const searchType = ref('product'); // Initialize searchType with a default value
+    const searchQuery = ref('');
+    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물']);
+    const searchResults = ref([]);
+    const currentPage = ref(1);
+    const totalPages = ref(1);
+    const itemsPerPage = 16;
+    const pageMode = ref('nickname');
+    const selectedCategory = ref('');
 
-    const showLoginModal = ref(false)
-    const showSignupModal = ref(false)
-    const signupLoginId = ref('')
-    const signupPassword = ref('')
-    const username = ref('')
-    const nickname = ref('')
-    const loginId = ref('')
-    const password = ref('')
-    const loginIdError = ref('')
-    const passwordError = ref('')
+    const route = useRoute(); // Use useRoute to get route information
 
     const pageTitle = computed(() => {
-      switch (pageMode.value) {
-        case 'search':
-          return `(${searchQuery.value}) 제품 검색 결과`
-        case 'follow':
-          return '팔로우한 사용자의 판매 상품 목록'
-        case 'category':
-          return selectedCategory.value
-        default:
-          return '제품 목록'
+      if (pageMode.value === 'search') {
+        if (searchType.value === 'product') {
+          return `(${searchQuery.value}) 상품 검색 결과`;
+        } else if (searchType.value === 'seller') {
+          return `(${searchQuery.value}) 판매자 검색 결과`;
+        }
+      } else if (pageMode.value === 'follow') {
+        return '팔로우한 사용자의 판매 상품 목록';
+      } else if (pageMode.value === 'category') {
+        return selectedCategory.value;
+      } else {
+        return '제품 목록';
       }
-    })
+      return '제품 목록'; // Ensure a default return value
+    });
 
     const displayedItems = computed(() => {
-      const start = (currentPage.value - 1) * itemsPerPage
-      const end = start + itemsPerPage
-      return searchResults.value.slice(start, end)
-    })
+      const start = (currentPage.value - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      return searchResults.value.slice(start, end);
+    });
 
     const fetchSearchResults = async (page) => {
       try {
-        // 실제 API 호출로 대체해야 합니다.
-        let url = ''
+        let url = '';
         if (pageMode.value === 'search') {
-          url = `/api/search?query=${searchQuery.value}&type=${searchType.value}&page=${page}&limit=${itemsPerPage}`
+          url = `/api/search?query=${searchQuery.value}&type=${searchType.value}&page=${page}&limit=${itemsPerPage}`;
         } else if (pageMode.value === 'follow') {
-          url = `/api/follow/products?page=${page}&limit=${itemsPerPage}`
+          url = `/api/follow/products?page=${page}&limit=${itemsPerPage}`;
         } else if (pageMode.value === 'category') {
-          url = `/api/category/${selectedCategory.value}?page=${page}&limit=${itemsPerPage}`
+          url = `/api/category/${selectedCategory.value}?page=${page}&limit=${itemsPerPage}`;
         }
-        const response = await fetch(url)
-        const data = await response.json()
-        searchResults.value = data.items
-        totalPages.value = Math.ceil(data.total / itemsPerPage)
+        console.log(`Fetching data from: ${url}`); // Print the URL to the console
+        const response = await fetch(url);
+        const data = await response.json();
+        searchResults.value = data.items;
+        totalPages.value = Math.ceil(data.total / itemsPerPage);
       } catch (error) {
-        console.error('Failed to fetch results:', error)
+        console.error('Failed to fetch results:', error);
       }
-    }
+    };
 
     const search = () => {
-      pageMode.value = 'search'
-      currentPage.value = 1
-      fetchSearchResults(currentPage.value)
-    }
+      pageMode.value = 'search';
+      currentPage.value = 1;
+      fetchSearchResults(currentPage.value);
+    };
 
     const selectCategory = (category) => {
-      pageMode.value = 'category'
-      selectedCategory.value = category
-      currentPage.value = 1
-      fetchSearchResults(currentPage.value)
-    }
+      pageMode.value = 'category';
+      selectedCategory.value = category;
+      currentPage.value = 1;
+      fetchSearchResults(currentPage.value);
+    };
 
     const showFollowedSellerProducts = () => {
-      pageMode.value = 'follow'
-      currentPage.value = 1
-      fetchSearchResults(currentPage.value)
-    }
+      pageMode.value = 'follow';
+      currentPage.value = 1;
+      fetchSearchResults(currentPage.value);
+    };
 
     const prevPage = () => {
       if (currentPage.value > 1) {
-        currentPage.value--
-        fetchSearchResults(currentPage.value)
+        currentPage.value--;
+        fetchSearchResults(currentPage.value);
       }
-    }
+    };
 
     const nextPage = () => {
       if (currentPage.value < totalPages.value) {
-        currentPage.value++
-        fetchSearchResults(currentPage.value)
+        currentPage.value++;
+        fetchSearchResults(currentPage.value);
       }
-    }
+    };
 
     const goToItemPage = (itemId) => {
-      window.location.href = `/item/${itemId}`
-    }
+      window.location.href = `/product/detail/${itemId}`;
+    };
 
     const goToSellerPage = (userId) => {
-      window.location.href = `/seller/${userId}`
-    }
-
-    const login = () => {
-      console.log('Login clicked')
-      // Implement login logic here
-      isLoggedIn.value = true
-      showLoginModal.value = false
-    }
-
-    const register = () => {
-      console.log('Register clicked')
-      // Implement registration logic here
-      isLoggedIn.value = true
-      showSignupModal.value = false
-    }
-
-    const validateLoginId = () => {
-      const loginIdRegex = /^[a-z0-9]{4,10}$/
-      if (!loginIdRegex.test(signupLoginId.value)) {
-        loginIdError.value = '아이디는 4~10자의 영문 소문자와 숫자만 사용 가능합니다.'
-      } else {
-        loginIdError.value = ''
-      }
-    }
-
-    const validatePassword = () => {
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/
-      if (!passwordRegex.test(signupPassword.value)) {
-        passwordError.value = '비밀번호는 8~15자의 영문 대/소문자, 숫자, 특수문자를 포함해야 합니다.'
-      } else {
-        passwordError.value = ''
-      }
-    }
-
-    const isSignupFormValid = computed(() => {
-      return signupLoginId.value && signupPassword.value && username.value && nickname.value && !loginIdError.value && !passwordError.value
-    })
-
-    const kakaoLogin = () => {
-      console.log('Kakao Login clicked')
-      // Implement Kakao login logic here
-    }
-
-    const switchToLogin = () => {
-      showSignupModal.value = false
-      showLoginModal.value = true
-    }
-
-    const switchToSignup = () => {
-      showLoginModal.value = false
-      showSignupModal.value = true
-    }
-
-    const goToProductRegistration = () => {
-      console.log('Going to product registration')
-    }
-
-    const goToProductManagement = () => {
-      console.log('Going to product management')
-    }
-
-    const goToOrderManagement = () => {
-      console.log('Going to order management')
-    }
-
-    const viewMyInfo = () => {
-      console.log('Going to my info')
-    }
-
-    const editProfile = () => {
-      console.log('Going to edit profile')
-    }
-
-    const logout = () => {
-      console.log('Logging out')
-      isLoggedIn.value = false
-    }
-
-    const deleteAccount = () => {
-      if (confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-        console.log('Deleting account')
-        isLoggedIn.value = false
-      }
-    }
-
-    const goToCart = () => {
-      console.log('Going to cart')
-    }
+      window.location.href = `/profile/other/${userId}`;
+    };
 
     onMounted(() => {
-      // 초기 검색 결과를 위한 더미 데이터
+      pageMode.value = route.query.pageMode || 'default'; // Default value if pageMode is not provided
+      searchType.value = route.query.searchType || 'product'; // Default value if searchType is not provided
+      searchQuery.value = route.query.searchQuery || ''; // Default value if searchQuery is not provided
+      console.log(`Current pageMode: ${pageMode.value}`);
+      console.log(`Current searchType: ${searchType.value}`);
+      console.log(`Current searchQuery: ${searchQuery.value}`);
+      fetchSearchResults(currentPage.value);
+      // For dummy data initialization (if needed)
       searchResults.value = Array.from({ length: 64 }, (_, i) => ({
         id: i + 1,
         name: `검색 결과 상품 ${i + 1}`,
         image: `https://via.placeholder.com/300x200?text=Item+${i + 1}`,
         userId: Math.floor(Math.random() * 1000) + 1,
         userName: `판매자${Math.floor(Math.random() * 100) + 1}`
-      }))
-      totalPages.value = Math.ceil(searchResults.value.length / itemsPerPage)
-    })
+      }));
+      totalPages.value = Math.ceil(searchResults.value.length / itemsPerPage);
+    });
 
     return {
       isLoggedIn,
@@ -215,146 +132,44 @@ export default {
       currentPage,
       totalPages,
       pageTitle,
-      showLoginModal,
-      showSignupModal,
-      signupLoginId,
-      signupPassword,
-      username,
-      nickname,
-      loginId,
-      password,
-      loginIdError,
-      passwordError,
+      pageMode,
       search,
       selectCategory,
       showFollowedSellerProducts,
       prevPage,
       nextPage,
       goToItemPage,
-      goToSellerPage,
-      login,
-      register,
-      validateLoginId,
-      validatePassword,
-      isSignupFormValid,
-      kakaoLogin,
-      switchToLogin,
-      switchToSignup,
-      goToProductRegistration,
-      goToProductManagement,
-      goToOrderManagement,
-      viewMyInfo,
-      editProfile,
-      logout,
-      deleteAccount,
-      goToCart
-    }
+      goToSellerPage
+    };
   }
-}
+};
 </script>
 
 <template>
   <div id="app">
-    <Header/>
+    <Header />
     <main class="container">
       <section class="search-results">
         <h2>{{ pageTitle }}</h2>
         <div class="item-grid">
-          <div v-for="item in displayedItems" :key="item.id" class="item-card" @click="goToItemPage(item.id)"><img
-              :src="item.image" :alt="item.name">
+          <div v-for="item in displayedItems" :key="item.id" class="item-card" @click="goToItemPage(item.id)">
+            <img :src="item.image" :alt="item.name" />
             <div class="item-info">
               <div class="item-name">{{ item.name }}</div>
               <div class="item-seller">
-                판매자: <a @click.stop="goToSellerPage(item.userId)" :href="'/seller/' + item.userId">{{ item.userName
-                }}</a>
+                판매자: <a @click.stop="goToSellerPage(item.userId)">{{ item.userName }}</a>
               </div>
             </div>
           </div>
         </div>
         <div class="pagination">
-          <button @click="prevPage" :disabled="currentPage === 1">&lt; 이전</button>
+          <button @click="prevPage" :disabled="currentPage.value === 1">&lt; 이전</button>
           <span class="page-number">{{ currentPage }} / {{ totalPages }}</span>
-          <button @click="nextPage" :disabled="currentPage === totalPages">다음 &gt;</button>
+          <button @click="nextPage" :disabled="currentPage.value === totalPages">다음 &gt;</button>
         </div>
       </section>
     </main>
-    <footer>
-      <div class="container footer-content">
-        <div class="footer-links">
-          <a href="/about">회사 소개</a>
-          <a href="/terms">이용약관</a>
-          <a href="/privacy">개인정보처리방침</a>
-          <a href="/contact">고객센터</a>
-        </div>
-        <div class="footer-copyright">&copy; 2023 Hot Item Collector. All rights reserved.</div>
-      </div>
-    </footer>
-
-    <!-- 회원가입 모달 -->
-    <div v-if="showSignupModal" class="modal-overlay" @click.self="showSignupModal = false">
-      <div class="modal-container">
-        <button class="close-btn" @click="showSignupModal = false">&times;</button>
-        <h1>회원가입</h1>
-        <form @submit.prevent="register">
-          <div class="form-group">
-            <label for="auth-signupLoginId">아이디</label>
-            <input type="text" id="auth-signupLoginId" v-model="signupLoginId" @input="validateLoginId" required>
-            <div class="error" v-if="loginIdError">{{ loginIdError }}</div>
-          </div>
-          <div class="form-group">
-            <label for="auth-signupPassword">비밀번호</label>
-            <input type="password" id="auth-signupPassword" v-model="signupPassword" @input="validatePassword" required>
-            <div class="error" v-if="passwordError">{{ passwordError }}</div>
-          </div>
-          <div class="form-group">
-            <label for="auth-username">이름</label>
-            <input type="text" id="auth-username" v-model="username" required>
-          </div>
-          <div class="form-group">
-            <label for="auth-nickname">닉네임</label>
-            <input type="text" id="auth-nickname" v-model="nickname" required>
-          </div>
-          <button type="submit" :disabled="!isSignupFormValid">회원가입</button>
-        </form>
-        <div class="social-login">
-          <div class="social-login-divider">
-            <span>또는</span>
-          </div>
-          <button @click="kakaoLogin" class="kakao-login-btn">카카오톡으로 회원가입</button>
-        </div>
-        <div class="login-link">
-          이미 계정이 있으신가요? <a @click="switchToLogin">로그인</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- 로그인 모달 -->
-    <div v-if="showLoginModal" class="modal-overlay" @click.self="showLoginModal = false">
-      <div class="modal-container">
-        <button class="close-btn" @click="showLoginModal = false">&times;</button>
-        <h1>로그인</h1>
-        <form @submit.prevent="login">
-          <div class="form-group">
-            <label for="auth-loginId">아이디</label>
-            <input type="text" id="auth-loginId" v-model="loginId" required>
-          </div>
-          <div class="form-group">
-            <label for="auth-password">비밀번호</label>
-            <input type="password" id="auth-password" v-model="password" required>
-          </div>
-          <button type="submit">로그인</button>
-        </form>
-        <div class="social-login">
-          <div class="social-login-divider">
-            <span>또는</span>
-          </div>
-          <button @click="kakaoLogin" class="kakao-login-btn">카카오톡으로 로그인</button>
-        </div>
-        <div class="signup-link">
-          계정이 없으신가요? <a @click="switchToSignup">회원가입</a>
-        </div>
-      </div>
-    </div>
+    <AppFooter />
   </div>
 </template>
 

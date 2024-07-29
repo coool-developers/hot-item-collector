@@ -150,6 +150,15 @@ body {
   color: #666;
   font-size: 14px;
 }
+.no-items-message {
+  text-align: center;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin: 20px 0;
+  color: #666;
+  font-style: italic;
+}
 
 </style>
 
@@ -171,7 +180,7 @@ body {
 
       <section class="product-section">
         <h2 @click="goToRegisteredProducts">내가 등록한 상품</h2>
-        <div class="product-list">
+        <div v-if="registeredProducts.length > 0" class="product-list">
           <div v-for="product in registeredProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
             <img :src="product.image" :alt="product.name" class="product-image">
             <div class="product-info">
@@ -179,11 +188,12 @@ body {
             </div>
           </div>
         </div>
+        <div v-else class="no-items-message">등록된 상품이 없습니다.</div>
       </section>
 
       <section class="product-section">
         <h2 @click="goToPurchasedProducts">내가 구매한 상품</h2>
-        <div class="product-list">
+        <div v-if="purchasedProducts.length > 0" class="product-list">
           <div v-for="product in purchasedProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
             <img :src="product.image" :alt="product.name" class="product-image">
             <div class="product-info">
@@ -192,11 +202,12 @@ body {
             </div>
           </div>
         </div>
+        <div v-else class="no-items-message">구매한 상품이 없습니다.</div>
       </section>
 
       <section class="product-section">
         <h2 @click="goToLikedProducts">내가 좋아요한 상품</h2>
-        <div class="product-list">
+        <div v-if="likedProducts.length > 0" class="product-list">
           <div v-for="product in likedProducts" :key="product.id" class="product-card" @click="goToYourProduct(product.id)">
             <img :src="product.image" :alt="product.name" class="product-image">
             <div class="product-info">
@@ -205,6 +216,7 @@ body {
             </div>
           </div>
         </div>
+        <div v-else class="no-items-message">좋아요한 상품이 없습니다.</div>
       </section>
     </main>
     <AppFooter />
@@ -303,11 +315,8 @@ export default {
 
 
     const showFollowers = () => {
-      alert('팔로워 목록 표시 기능은 아직 구현되지 않았습니다.')
-    }
-
-    const goToProductRegistration = () => {
-      alert('상품 등록 페이지로 이동합니다.')
+      alert('팔로워 목록 페이지로 이동합니다.')
+      router.push(`/profile/follow`);
     }
 
     const goToProduct = (productId) => {
@@ -326,6 +335,7 @@ export default {
 
     const goToPurchasedProducts = () => {
       alert('내가 구매한 상품 목록 페이지로 이동합니다.')
+      router.push(`/profile/order`);
     }
 
     const goToLikedProducts = () => {
@@ -339,7 +349,6 @@ export default {
       purchasedProducts,
       likedProducts,
       showFollowers,
-      goToProductRegistration,
       goToProduct,
       goToRegisteredProducts,
       goToPurchasedProducts,
