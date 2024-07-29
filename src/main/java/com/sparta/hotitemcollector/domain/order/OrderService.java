@@ -40,10 +40,9 @@ public class OrderService {
 	public List<OrderResponseDto> getOrdersAllByBuyer(int page, int size, LocalDateTime startDate, LocalDateTime endDate, User user) {
 
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-		Pageable pageable = PageRequest.of(page - 1, size, sort);
-		Page<Orders> orderPage = orderRepository.findAllByUserIdAndCreatedAtBetween(user.getId(), startDate, endDate, pageable);
+		List<Orders> orderPage = orderRepository.findAllByUserIdAndCreatedAtBetween(user.getId(), startDate, endDate, sort);
 
-		return orderPage.getContent()
+		return orderPage
 			.stream()
 			.map(OrderResponseDto::new)
 			.collect(Collectors.toList());
