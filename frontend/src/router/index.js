@@ -88,9 +88,10 @@ const routes = [
     component: OrderItem,
   },
   {
-    path: '/profile/other',
+    path: '/seller/:userId',
     name: 'OtherProfilePage',
     component: OtherProfilePage,
+    props: true
   },
   {
     path: '/product/upload',
