@@ -37,6 +37,10 @@ const formatPrice = (price) => {
 const searchPurchases = () => {
 
   axios.get('http://localhost:8080/orders/buy', {
+    params: {
+      startDate: startDate.value,
+      endDate: endDate.value,
+    },
     headers: {
       'Authorization': accessToken
     }

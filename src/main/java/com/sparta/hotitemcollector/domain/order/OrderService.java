@@ -37,7 +37,7 @@ public class OrderService {
 	private final CartService cartService;
 
 	@Transactional(readOnly = true)
-	public List<OrderResponseDto> getOrdersAllByBuyer(int page, int size, LocalDateTime startDate, LocalDateTime endDate, User user) {
+	public List<OrderResponseDto> getOrdersAllByBuyer(LocalDateTime startDate, LocalDateTime endDate, User user) {
 
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 		List<Orders> orderPage = orderRepository.findAllByUserIdAndCreatedAtBetween(user.getId(), startDate, endDate, sort);

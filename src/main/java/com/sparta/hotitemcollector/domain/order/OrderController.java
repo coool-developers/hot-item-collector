@@ -31,12 +31,12 @@ public class OrderController {
 
 	@GetMapping("/orders/buy")
 	public ResponseEntity<CommonResponse<List<OrderResponseDto>>> getOrdersAllByBuyer(
-		@RequestParam(defaultValue = "1") int page,
-		@RequestParam(defaultValue = "10") int size,
-		@RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now().minusMonths(3)}") LocalDateTime startDate,
-		@RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now()}") LocalDateTime endDate,
+		@RequestParam(defaultValue = "#{T(java.time.LocalDate).now().minusMonths(3)}")
+		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+		@RequestParam(defaultValue = "#{T(java.time.LocalDate).now()}")
+		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		List<OrderResponseDto> responseDtoList = orderService.getOrdersAllByBuyer(page, size, startDate, endDate, userDetails.getUser());
+		List<OrderResponseDto> responseDtoList = orderService.getOrdersAllByBuyer(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), userDetails.getUser());
 
 		CommonResponse<List<OrderResponseDto>> responses = new CommonResponse("구매자의 주문 목록을 조회 성공했습니다.", 200, responseDtoList);
 		return new ResponseEntity<>(responses, HttpStatus.OK);
