@@ -14,6 +14,8 @@ public class OrderItemResponseDto {
 	private String productName;
 	private ProductImageResponseDto productImage;
 	private BigDecimal price;
+	private Long sellerId;
+	private String sellerNickname;
 	private String orderStatus;
 
 	public OrderItemResponseDto(OrderItem orderItem) {
@@ -22,6 +24,8 @@ public class OrderItemResponseDto {
 		this.productImage = orderItem.getProduct().getImages().isEmpty() ? null
 			: new ProductImageResponseDto(orderItem.getProduct().getImages().get(0));
 		this.price = orderItem.getProduct().getPrice();
+		this.sellerId = orderItem.getProduct().getUser().getId();
+		this.sellerNickname = orderItem.getProduct().getUser().getNickname();
 		this.orderStatus = orderItem.getStatus().getStatus();
 	}
 }

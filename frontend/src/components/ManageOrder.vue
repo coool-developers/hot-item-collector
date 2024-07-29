@@ -90,7 +90,7 @@ export default {
 
     const updateStatus = (order) => {
 
-      axios.patch(`http://localhost:8080/orders/sell/${order.orderId}`, {
+      axios.patch(`http://localhost:8080/orders/sell/${order.orderItemId}`, {
         status: order.orderStatus
       }, {
         headers: {
@@ -98,7 +98,7 @@ export default {
           'Content-Type': 'application/json'
         }
       }).then(response => {
-        alert(`주문 #${order.orderId}의 배송상태가 ${order.orderStatus}(으)로 변경되었습니다.`)
+        alert(`주문상품 #${order.orderItemId}의 배송상태가 ${order.orderStatus}(으)로 변경되었습니다.`)
         console.log(response)
         searchOrders() // 자동으로 업데이트되도록
       })
@@ -208,7 +208,6 @@ export default {
               <div>
                 <p><strong>상품명:</strong> {{ order.productName }}</p>
                 <p><strong>가격:</strong> {{ order.price }}원</p>
-                <!--                <p><strong>구매자:</strong> {{ order.userNickname }}</p>-->
               </div>
             </div>
             <div class="status-update">
