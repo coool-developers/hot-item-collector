@@ -55,13 +55,14 @@ public class User extends Timestamped {
     private String info;
 
     @Builder
-    public User(String loginId,String password, String username, String nickname){
+    public User(String loginId,String password, String username, String nickname,ProfileImage profileImage){
         this.userStatus = UserStatus.NORMAL;
         this.role = UserRole.USER;
         this.loginId = loginId;
         this.password = password;
         this.username = username;
         this.nickname = nickname;
+        this.profileImage=profileImage;
     }
 
     public void updateStatus(UserStatus userStatus) {

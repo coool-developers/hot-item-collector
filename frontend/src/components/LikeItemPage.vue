@@ -25,7 +25,7 @@ export default {
     const passwordError = ref('');
     const router = useRouter();
 
-    const pageTitle = computed(() => '팔로우 사용자 상품 목록');
+    const pageTitle = computed(() => '좋아요 누른 상품 목록');
 
     const displayedItems = computed(() => {
       if (!Array.isArray(products.value)) {
@@ -62,7 +62,7 @@ export default {
           return;
         }
 
-        const url = `/products/follow?page=${page}&size=${itemsPerPage}`;
+        const url = `/products/like?page=${page}&size=${itemsPerPage}`;
         const response = await axios.get(url,{
           headers: {
             'Authorization': `Bearer ${token}`

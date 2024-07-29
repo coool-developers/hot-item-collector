@@ -5,20 +5,18 @@
       <section class="hot-top-10">
         <h2>Hot Top 10 Items</h2>
         <ol>
-          <li v-for="item in hotTopItems" :key="item.id"><a :href="'/items/' + item.id">{{ item.name }}</a></li>
+          <li v-for="item in hotTopItems" :key="item.id" @click="goToProduct(item.id)">{{ item.name }}</li>
         </ol>
       </section>
       <section class="new-items">
         <h2>새로 등록된 상품</h2>
         <div v-if="newItems.length > 0" class="item-cards">
-          <div v-for="item in newItems" :key="item.id" class="item-card">
-            <a :href="'/items/' + item.id">
+          <div v-for="item in newItems" :key="item.id" class="item-card" @click="goToProduct(item.id)">
             <img :src="item.image.imageUrl" :alt="item.name">
             <div class="item-info">
               <div class="item-name">{{ item.name }}</div>
               <div class="seller-info">판매자: <a :href="'/seller/' + item.userId">{{ item.userName }}</a></div>
             </div>
-            </a>
           </div>
         </div>
         <div v-else class="no-items-message">등록된 상품이 없습니다.</div>
@@ -29,14 +27,12 @@
       <section v-if="isLoggedIn" class="followed-users-items">
         <h2>팔로우한 사용자의 상품</h2>
         <div v-if="followedUsersItems.length > 0" class="item-cards">
-          <div v-for="item in followedUsersItems" :key="item.id" class="item-card">
-            <a :href="'/items/' + item.id">
+          <div v-for="item in followedUsersItems" :key="item.id" class="item-card" @click="goToProduct(item.id)">
             <img :src="item.image.imageUrl" :alt="item.name">
             <div class="item-info">
               <div class="item-name">{{ item.name }}</div>
               <div class="seller-info">판매자: <a :href="'/seller/' + item.userId">{{ item.userName }}</a></div>
             </div>
-            </a>
           </div>
         </div>
         <div v-else class="no-items-message">팔로우한 사용자의 상품이 없습니다.</div>
@@ -55,6 +51,7 @@ import Header from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import {useRouter} from "vue-router";
 
 export default {
   components: {Header, AppFooter},
@@ -64,6 +61,7 @@ export default {
     const searchQuery = ref('');
     const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물']);
     const hotTopItems = ref([]);
+    const router = useRouter();
 
     // API 요청을 통해 데이터를 가져오는 함수
     const fetchHotTopItems = async () => {
@@ -212,6 +210,10 @@ export default {
       console.log('View more followed items');
       window.location.href = '/followed-items';
     };
+    const goToProduct = (productId) => {
+      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
+      router.push(`/product/detail/${productId}`);
+    }
 
 
     return {
@@ -237,6 +239,7 @@ export default {
       register,
       viewMoreNewItems,
       viewMoreFollowedItems,
+      goToProduct,
     };
   },
 };

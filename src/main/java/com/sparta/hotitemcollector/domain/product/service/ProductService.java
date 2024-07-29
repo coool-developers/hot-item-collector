@@ -15,6 +15,8 @@ import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
 import com.sparta.hotitemcollector.domain.s3.service.S3Service;
 import com.sparta.hotitemcollector.domain.user.User;
+import com.sparta.hotitemcollector.domain.user.UserService;
+import com.sparta.hotitemcollector.domain.user.dto.user.ProfileImageResponseDto;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,6 +39,7 @@ public class ProductService {
     private final FollowService followService;
     private final ProductImageRepository productImageRepository;
     private final S3Service s3Service;
+    private final UserService userService;
 
     @Transactional
     public ProductResponseDto createProduct(ProductRequestDto requestDto, User user) {
@@ -64,11 +68,13 @@ public class ProductService {
             .map(image -> new ProductImageResponseDto(image))
             .collect(Collectors.toList());
 
+        ProfileImageResponseDto profileImageDto = new ProfileImageResponseDto(product.getUser()
+            .getProfileImage());
+
         // ProductResponseDto 생성
-        ProductResponseDto responseDto = new ProductResponseDto(product, imageDtos);
+        ProductResponseDto responseDto = new ProductResponseDto(product, imageDtos,profileImageDto);
         return responseDto;
     }
-
 
     @Transactional
     public ProductResponseDto updateProduct(Long productId, ProductRequestDto requestDto,
@@ -111,8 +117,11 @@ public class ProductService {
             .map(ProductImageResponseDto::new)
             .collect(Collectors.toList());
 
+        ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(product.getUser()
+            .getProfileImage());
+
         // ProductResponseDto 생성 및 반환
-        return new ProductResponseDto(product, updatedImageDtos);
+        return new ProductResponseDto(product, updatedImageDtos,profileImageResponseDto);
     }
 
 
@@ -143,8 +152,13 @@ public class ProductService {
             .map(image -> new ProductImageResponseDto(image))
             .collect(Collectors.toList());
 
+        // ProfileImageResponseDto를 생성, 프로필 이미지가 없으면 null 설정
+        ProfileImageResponseDto profileImageResponseDto = product.getUser().getProfileImage() != null
+            ? new ProfileImageResponseDto(product.getUser().getProfileImage())
+            : null;
+
         // ProductResponseDto 생성
-        ProductResponseDto responseDto = new ProductResponseDto(product, imageDtos);
+        ProductResponseDto responseDto = new ProductResponseDto(product, imageDtos,profileImageResponseDto);
         return responseDto;
     }
 
@@ -165,6 +179,7 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<HotProductResponseDto> getHotProduct(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage = productRepository.findTop10ByOrderByLikesDesc(pageable);
@@ -179,7 +194,14 @@ public class ProductService {
     public List<ProductSimpleResponseDto> getSaleProduct(User user, ProductStatus status, int page,
         int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Product> productPage = productRepository.findByUserAndStatus(user, status, pageable);
+        Page<Product> productPage=Page.empty(pageable);
+
+        if(status!=null){
+            productPage = productRepository.findByUserAndStatus(user, status, pageable);
+        }
+        if(status==null){
+            productPage = productRepository.findByUser(user,pageable);
+        }
 
         return productPage.getContent()
             .stream()
@@ -187,6 +209,27 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<ProductSimpleResponseDto> getSaleYourProduct(Long userId, ProductStatus status, int page, int size) {
+        User user = userService.findByUserId(userId);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Product> productPage=Page.empty(pageable);
+
+        if(status!=null){
+            productPage = productRepository.findByUserAndStatus(user, status, pageable);
+        }
+        if(status==null){
+            productPage = productRepository.findByUser(user,pageable);
+        }
+
+        return productPage.getContent()
+            .stream()
+            .map(ProductSimpleResponseDto::new)
+            .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<ProductSimpleResponseDto> getNewProduct(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 

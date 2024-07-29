@@ -163,7 +163,7 @@ body {
   gap: 10px;
 }
 
-.edit-now {
+.edit-now,.delete-now,.sold-out {
   padding: 12px 24px;
   font-size: 16px;
   border: none;
@@ -174,7 +174,7 @@ body {
 }
 
 
-.edit-now {
+.edit-now,.delete-now {
   background-color: var(--main-color);
   color: var(--bg-color);
 }
@@ -191,9 +191,9 @@ body {
     <main class="container">
       <section class="product-detail">
         <div class="seller-info">
-          <img :src="product.sellerPhoto" :alt="product.sellerName" class="seller-photo">
+          <img :src="product.profileImage.imageUrl || defaultProfileImage" alt="Profile Image" width="70px">
           <div class="seller-name-follow">
-            <span class="seller-name">{{ product.sellerName }}</span>
+            <span class="seller-name">{{ product.nickname }}</span>
           </div>
         </div>
         <div class="product-info">
@@ -210,11 +210,13 @@ body {
               </div>
             </div>
             <p class="product-category">{{ product.category }}</p>
-            <p class="product-description">{{ product.description }}</p>
+            <p class="product-description">{{ product.info }}</p>
             <div class="product-actions-container">
               <p class="product-price">{{ formatPrice(product.price) }}원</p>
               <div class="buy-actions">
-                <button class="edit-now" @click="editProduct">상품정보 수정</button>
+                <button v-if="product.status !== 'SOLD_OUT'" class="edit-now" @click="editProduct">상품정보 수정</button>
+                <button v-else class="sold-out" disabled>판매완료</button>
+                <button class="delete-now" @click="deleteProduct">상품정보 삭제</button>
               </div>
             </div>
           </div>
@@ -229,8 +231,10 @@ body {
 import { ref, computed, onMounted  } from 'vue';
 import Header from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
-import { useRoute } from 'vue-router';
+import {useRoute, useRouter} from 'vue-router';
 import axios from "axios";
+import defaultProfile from "../assets/user.png";
+import Cookies from "js-cookie";
 
 export default {
   components: {AppFooter, Header},
@@ -239,6 +243,10 @@ export default {
     const route = useRoute(); // useRoute를 통해 현재 라우트에 접근
     const productId = route.params.productId; // 라우트 파라미터에서 productId를 가져옴
     const currentImageIndex = ref(0);
+    const router = useRouter();
+
+    // 기본 프로필 이미지 URL
+    const defaultProfileImage = defaultProfile;
 
     // 상품 상세 정보 (실제로는 API에서 가져와야 함)
     const product = ref({
@@ -248,7 +256,12 @@ export default {
       images: [],
       price: 0,
       info: '',
-      likes: 0
+      likes: 0,
+      profileImage: {
+        id: null,
+        filename: '',
+        imageUrl: defaultProfileImage
+      }
     });
 
     const currentImage = computed(() => {
@@ -282,6 +295,15 @@ export default {
           console.log(response.data.result);
 
           product.value = response.data.result;
+
+          // 프로필 이미지가 null일 경우 기본 이미지 설정
+          if (!product.value.profileImage || !product.value.profileImage.imageUrl) {
+            product.value.profileImage = {
+              id: null,
+              filename: '',
+              imageUrl: defaultProfileImage
+            };
+          }
         } catch (error) {
           console.error('Failed to fetch product data:', error);
         }
@@ -292,12 +314,33 @@ export default {
 
     onMounted(fetchProduct);
 
+    const deleteProduct = async() =>{
+      if (confirm('정말 삭제하시겠습니까?')) {
+      if (productId) {
+        const accessToken = Cookies.get('access_token');
+        try{
+           const response = await axios.delete(`http://localhost:8080/products/${productId}`,{
+             headers: {
+               'Authorization': accessToken
+             }
+           });
+           console.log(response.data);
+          router.push('/product/sale');
+        }catch (error){
+        console.error('Failed to fetch product data:', error);
+      }
+      }else {
+        console.error('Product ID is missing in route parameters');
+      }
+    }}
+
     return {
       product,
       currentImage,
       formatPrice,
       prevImage,
       nextImage,
+      deleteProduct
     }
   }
 }

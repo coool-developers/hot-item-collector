@@ -1,7 +1,13 @@
 <script>
 import { ref,computed } from 'vue';
+import AppHeader from "@/components/AppHeader.vue";
+import AppFooter from "@/components/AppFooter.vue";
+import Cookies from "js-cookie";
+import axios from "axios";
+import {useRouter} from "vue-router";
 
 export default {
+  components: {AppFooter, AppHeader},
   setup() {
     const searchType = ref('product')
     const searchQuery = ref('')
@@ -9,46 +15,49 @@ export default {
     const filter = ref('all')
     const currentPage = ref(1)
     const itemsPerPage = 8
-
-    const products = ref([{ id: 'R001', name: '수제 쿠키', image: 'https://example.com/cookie.jpg' },
-      { id: 'R002', name: '손뜨개 목도리', image: 'https://example.com/scarf.jpg' },
-      { id: 'R003', name: '천연 비누', image: 'https://example.com/soap.jpg' },
-      { id: 'R004', name: '수제 캔들', image: 'https://example.com/candle.jpg' },
-      { id: 'R005', name: '유기농 잼', image: 'https://example.com/jam.jpg' },
-      { id: 'R006', name: '핸드메이드 가방', image: 'https://example.com/bag.jpg' },
-      { id: 'R007', name: '아로마 오일', image: 'https://example.com/oil.jpg' },
-      { id: 'R008', name: '수제 초콜릿', image: 'https://example.com/chocolate.jpg' },
-      { id: 'R009', name: '수제 마카롱', image: 'https://example.com/macaron.jpg' },
-      { id: 'R010', name: '핸드메이드 악세서리', image: 'https://example.com/accessory.jpg' },
-      { id: 'R011', name: '친환경 텀블러', image: 'https://example.com/tumbler.jpg' },
-      { id: 'R012', name: '수제 도자기', image: 'https://example.com/pottery.jpg' },
-      { id: 'R013', name: '수제 빵', image: 'https://example.com/bread.jpg' },
-      { id: 'R014', name: '핸드메이드 인형', image: 'https://example.com/doll.jpg' },
-      { id: 'R015', name: '수제 비누', image: 'https://example.com/handmade-soap.jpg' },
-      { id: 'R016', name: '아로마 향초', image: 'https://example.com/aroma-candle.jpg' },])
+    const products = ref()
     const totalPages = ref(1)
+    const router = useRouter();
 
+    const fetchProducts = async (filterType) => {
+      const accessToken = Cookies.get('access_token');
+      let status;
 
-
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch(`https://api.example.com/products?status=${filter.value}&page=${currentPage.value}&limit=${itemsPerPage}`)
-        const data = await response.json()
-        products.value = data.products
-        totalPages.value = Math.ceil(data.total / itemsPerPage)
-      } catch (error) {
-        console.error('Error fetching products:', error)
+      switch (filterType) {
+        case 'selling':
+          status = 'ON_SALE';
+          break;
+        case 'sold':
+          status = 'SOLD_OUT';
+          break;
+        default:
+          status = null;
       }
-    }
+
+      try {
+        const params = status ? { status } : {};
+        const response = await axios.get('http://localhost:8080/products/sale', {
+          headers: {
+            'Authorization': accessToken
+          },
+          params
+        });
+        const data = response.data;
+        products.value = data.result;
+        totalPages.value = Math.ceil(data.total / itemsPerPage);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
 
     const displayedProducts = computed(() => {
       return products.value
     })
 
-    const setFilter = async (newFilter) => {
-      filter.value = newFilter
+    const setFilter = (FilterType) => {
+      filter.value = FilterType
       currentPage.value = 1
-      await fetchProducts()
+      fetchProducts(FilterType);
     }
 
     const prevPage = async () => {
@@ -75,6 +84,7 @@ export default {
 
     const goToProductRegistration = () => {
       alert('상품 등록 페이지로 이동합니다.')
+      router.push(`/product/upload`)
     }
 
     const goToProductManagement = () => {
@@ -107,6 +117,10 @@ export default {
     const goToCart = () => {
       alert('장바구니 페이지로 이동합니다.')
     }
+    const goToProduct = (productId) => {
+      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
+      router.push(`/product/update/${productId}`);
+    }
 
     // Initial fetch
     fetchProducts()
@@ -131,7 +145,8 @@ export default {
       editProfile,
       logout,
       deleteAccount,
-      goToCart
+      goToCart,
+      goToProduct
     }
   }
 }
@@ -139,50 +154,7 @@ export default {
 
 <template>
   <div id="app">
-    <header>
-      <div class="container header-content">
-        <a href="/" class="logo">Hot Item Collector</a>
-        <div class="search-bar">
-          <select v-model="searchType">
-            <option value="product">상품명</option>
-            <option value="seller">판매자명</option>
-          </select>
-          <input type="text" v-model="searchQuery" placeholder="검색어를 입력하세요">
-          <button @click="search">검색</button>
-        </div>
-        <div class="user-actions">
-          <div class="dropdown">
-            <button>상품</button>
-            <div class="dropdown-content">
-              <a href="#" @click="goToProductRegistration">상품 등록</a>
-              <a href="#" @click="goToProductManagement">판매 물품 관리</a>
-              <a href="#" @click="goToOrderManagement">주문 관리</a>
-            </div>
-          </div>
-          <div class="dropdown">
-            <button>내정보</button>
-            <div class="dropdown-content">
-              <a href="#" @click="viewMyInfo">내정보 보기</a>
-              <a href="#" @click="editProfile">정보 수정</a>
-              <a href="#" @click="logout">로그아웃</a>
-              <a href="#" @click="deleteAccount">회원 탈퇴</a>
-            </div>
-          </div>
-          <button @click="goToCart">장바구니</button>
-        </div>
-      </div>
-    </header>
-
-    <nav class="categories">
-      <div class="container">
-        <div class="categories-container">
-          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#"
-             class="category-item">
-            {{ category }}
-          </a>
-        </div>
-      </div>
-    </nav>
+   <AppHeader />
 
     <main class="container product-list">
       <div class="product-list-header">
@@ -198,13 +170,13 @@ export default {
         <button :class="{ active: filter === 'sold' }" @click="setFilter('sold')">판매완료</button>
       </div>
       <div class="product-grid">
-        <div v-for="product in displayedProducts" :key="product.id" class="product-card">
-          <img :src="product.image" :alt="product.name" class="product-image">
+        <div v-for="product in displayedProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
+          <img :src="product.image.imageUrl" :alt="product.name" class="product-image">
           <div class="product-info">
             <div class="product-id">ID: {{ product.id }}</div>
             <div class="product-name">{{ product.name }}</div>
-            <span :class="['product-status', product.status === 'sold' ? 'status-sold' : 'status-selling']">
-              {{ product.status === 'sold' ? '판매완료' : '판매중' }}
+            <span :class="['product-status', product.status === 'SOLD_OUT' ? 'status-sold' : 'status-selling']">
+              {{ product.status === 'SOLD_OUT' ? '판매완료' : '판매중' }}
             </span>
           </div>
         </div>
@@ -216,19 +188,7 @@ export default {
       </div>
     </main>
 
-    <footer>
-      <div class="container footer-content">
-        <div class="footer-links">
-          <a href="/about">회사 소개</a>
-          <a href="/terms">이용약관</a>
-          <a href="/privacy">개인정보처리방침</a>
-          <a href="/contact">고객센터</a>
-        </div>
-        <div class="footer-copyright">
-          &copy; 2023 Hot Item Collector. All rights reserved.
-        </div>
-      </div>
-    </footer>
+   <AppFooter/>
   </div>
 </template>
 

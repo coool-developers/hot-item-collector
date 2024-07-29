@@ -2,19 +2,24 @@
 import { ref } from 'vue';
 import Header from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
+import axios from "axios";
+import Cookies from 'js-cookie';
+import {useRouter} from "vue-router";
 
 export default {
-  components: {AppFooter, Header},
+  components: { AppFooter, Header },
   setup() {
     const searchType = ref('product')
     const searchQuery = ref('')
     const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
     const images = ref([])
+    const imageFiles = ref([])
     const productCategory = ref('')
     const productName = ref('')
     const productPrice = ref(0)
     const productDescription = ref('')
     const fileInput = ref(null)
+    const router = useRouter();
 
     const triggerFileInput = () => {
       fileInput.value.click()
@@ -23,43 +28,70 @@ export default {
     const handleFileUpload = (event) => {
       const files = event.target.files
       for (let i = 0; i < files.length; i++) {
-        const reader = new FileReader()
+        const file = files[i];
+        imageFiles.value.push(file);
+
+        const reader = new FileReader();
         reader.onload = (e) => {
-          images.value.push(e.target.result)
-        }
-        reader.readAsDataURL(files[i])
+          images.value.push(e.target.result);
+        };
+        reader.readAsDataURL(file);
       }
     }
 
     const removeImage = (index) => {
       images.value.splice(index, 1)
+      imageFiles.value.splice(index, 1)
     }
 
-    const submitProduct = () => {
-      // Here you would typically send the data to your backend API
-      console.log('Submitting product:', {
-        images: images.value,
-        category: productCategory.value,
-        name: productName.value,
-        price: productPrice.value,
-        description: productDescription.value
-      })
-      alert('상품이 등록되었습니다.')
-      // Reset form after submission
-      images.value = []
-      productCategory.value = ''
-      productName.value = ''
-      productPrice.value = 0
-      productDescription.value = ''
+    const submitProduct = async () => {
+      try {
+        const accessToken = Cookies.get('access_token');
+
+        const formData = new FormData();
+        const requestDto = {
+          name: productName.value,
+          category: productCategory.value,
+          price: productPrice.value,
+          info: productDescription.value
+        };
+
+        formData.append('requestDto', new Blob([JSON.stringify(requestDto)], { type: 'application/json' }));
+
+        imageFiles.value.forEach(imageFile => {
+          formData.append('files', imageFile);
+        });
+
+        const response = await axios.post('http://localhost:8080/products', formData, {
+          headers: {
+            'Authorization': accessToken,
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        alert('상품이 등록되었습니다.');
+        const data = response.data.result;
+        console.log(data)
+
+        // 폼 초기화
+        productName.value = '';
+        productCategory.value = '';
+        productPrice.value = 0;
+        productDescription.value = '';
+        images.value = [];
+        imageFiles.value = [];
+        router.push(`/product/update/${data.id}`);
+      } catch (error) {
+        console.error('Failed to submit product:', error);
+      }
     }
-
-
 
     return {
       searchType,
       searchQuery,
       categories,
       images,
+      imageFiles,
       productCategory,
       productName,
       productPrice,

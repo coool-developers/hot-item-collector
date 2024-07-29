@@ -131,7 +131,7 @@ public class ProductController {
 
     @GetMapping("/hot")
     public ResponseEntity<CommonResponse<List<HotProductResponseDto>>> getHotProduct(
-        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "16") int size) {
         List<HotProductResponseDto> responseDtoList = productService.getHotProduct(page - 1, size);
         CommonResponse<List<HotProductResponseDto>> response = new CommonResponse<>(
             "Hot Top 10 조회 성공", 200, responseDtoList);
@@ -139,13 +139,24 @@ public class ProductController {
     }
 
     @GetMapping("/sale")
-    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getSaleProduct(
-        @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam ProductStatus status,
-        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getSaleMyProduct(
+        @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam(required = false) ProductStatus status,
+        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "16") int size) {
         List<ProductSimpleResponseDto> responseDtoList = productService.getSaleProduct(
             userDetails.getUser(), status, page - 1, size);
         CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
-            "판매 상태에 따른 상품 목록 조회 성공", 200, responseDtoList);
+            "판매 상태에 따른 자신의 상품 목록 조회 성공", 200, responseDtoList);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/sale/{userId}")
+    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getSaleYourProduct(
+        @PathVariable("userId") Long userId, @RequestParam(required = false) ProductStatus status,
+        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "16") int size) {
+        List<ProductSimpleResponseDto> responseDtoList = productService.getSaleYourProduct(
+            userId, status, page - 1, size);
+        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
+            "판매 상태에 따른 다른 사용자의 상품 목록 조회 성공", 200, responseDtoList);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -154,7 +165,7 @@ public class ProductController {
         @RequestParam(required = false) String nickname,
         @RequestParam(required = false) String productName,
         @RequestParam(required = false) ProductCategory category,
-        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "16") int size) {
         List<ProductSimpleResponseDto> responseDtoList = searchService.getSearchProduct(
             nickname, productName, category, page - 1, size);
         CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
@@ -163,7 +174,7 @@ public class ProductController {
     }
     @GetMapping("/new")
     public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getNewProduct(
-        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size){
+        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "16") int size){
         List<ProductSimpleResponseDto> responseDtoList = productService.getNewProduct(page-1,size);
         CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
             "새로 등록된 상품 목록 조회 성공",200,responseDtoList

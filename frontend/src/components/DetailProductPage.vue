@@ -5,9 +5,9 @@
     <main class="container">
       <section class="product-detail">
         <div class="seller-info">
-          <img :src="product.sellerPhoto" :alt="product.sellerName" class="seller-photo">
+          <img :src="product.profileImage.imageUrl || defaultProfileImage" alt="Profile Image" width="70px">
           <div class="seller-name-follow">
-            <span class="seller-name">{{ product.sellerName }}</span>
+            <span class="seller-name">{{ product.nickname }}</span>
             <button v-if="isLoggedIn" class="follow-button" @click="toggleFollow">
               {{ isFollowing ? '팔로우 취소' : '팔로우' }}
             </button>
@@ -30,7 +30,7 @@
               </div>
             </div>
             <p class="product-category">{{ product.category }}</p>
-            <p class="product-description">{{ product.description }}</p>
+            <p class="product-description">{{ product.info }}</p>
             <div class="product-actions-container">
               <p class="product-price">{{ formatPrice(product.price) }}원</p>
               <div class="buy-actions">
@@ -42,103 +42,21 @@
         </div>
       </section>
     </main>
-
-    <footer>
-      <div class="container footer-content">
-        <div class="footer-links">
-          <a href="/about">회사 소개</a>
-          <a href="/terms">이용약관</a>
-          <a href="/privacy">개인정보처리방침</a>
-          <a href="/contact">고객센터</a>
-        </div>
-        <div class="footer-copyright">
-          &copy; 2023 Hot Item Collector. All rights reserved.
-        </div>
-      </div>
-    </footer>
-
-    <!-- 회원가입 모달 -->
-    <div v-if="showSignupModal" class="modal-overlay" @click.self="showSignupModal = false">
-      <div class="modal-container">
-        <button class="close-btn" @click="showSignupModal = false">&times;</button>
-        <h1>회원가입</h1>
-        <form @submit.prevent="register">
-          <div class="form-group">
-            <label for="auth-signupLoginId">아이디</label>
-            <input type="text" id="auth-signupLoginId" v-model="signupLoginId" @input="validateLoginId" required>
-            <div class="error" v-if="loginIdError">{{ loginIdError }}</div>
-          </div>
-          <div class="form-group">
-            <label for="auth-signupPassword">비밀번호</label>
-            <input type="password" id="auth-signupPassword" v-model="signupPassword" @input="validatePassword" required>
-            <div class="error" v-if="passwordError">{{ passwordError }}</div>
-          </div>
-          <div class="form-group">
-            <label for="auth-username">이름</label>
-            <input type="text" id="auth-username" v-model="username" required>
-          </div>
-          <div class="form-group">
-            <label for="auth-nickname">닉네임</label>
-            <input type="text" id="auth-nickname" v-model="nickname" required>
-          </div>
-          <button type="submit" :disabled="!isSignupFormValid">회원가입</button>
-        </form>
-        <div class="social-login">
-          <div class="social-login-divider">
-            <span>또는</span>
-          </div>
-          <button @click="kakaoLogin" class="kakao-login-btn">카카오톡으로 회원가입</button>
-        </div>
-        <div class="login-link">
-          이미 계정이 있으신가요? <a @click="switchToLogin">로그인</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- 로그인 모달 -->
-    <div v-if="showLoginModal" class="modal-overlay" @click.self="showLoginModal = false">
-      <div class="modal-container">
-        <button class="close-btn" @click="showLoginModal = false">&times;</button>
-        <h1>로그인</h1>
-        <form @submit.prevent="login">
-          <div class="form-group">
-            <label for="auth-loginId">아이디</label>
-            <input type="text" id="auth-loginId" v-model="loginId" required>
-          </div>
-          <div class="form-group">
-            <label for="auth-password">비밀번호</label>
-            <input type="password" id="auth-password" v-model="password" required>
-          </div>
-          <button type="submit">로그인</button>
-        </form>
-        <div class="social-login">
-          <div class="social-login-divider">
-            <span>또는</span>
-          </div>
-          <button @click="kakaoLogin" class="kakao-login-btn">카카오톡으로 로그인</button>
-        </div>
-        <div class="signup-link">
-          계정이 없으신가요? <a @click="switchToSignup">회원가입</a>
-        </div>
-      </div>
-    </div>
+    <AppFooter/>
   </div>
 </template>
 
 <script>
 import Header from './AppHeader.vue';
-import { ref,onMounted } from 'vue'
+import {ref, onMounted, computed} from 'vue'
 import axios from "axios";
+import {useRoute} from "vue-router";
+import AppFooter from "@/components/AppFooter.vue";
+import defaultUserImage from "../assets/user.png"
 
 export default {
-  components: {Header},
-  props: {
-    productId: {
-      type: Number,
-      required: true,
-    },
-  },
-  setup(props) {
+  components: {AppFooter, Header},
+  setup() {
     const isLoggedIn = ref(true)
     const searchType = ref('product')
     const searchQuery = ref('')
@@ -156,30 +74,57 @@ export default {
     const password = ref('')
     const loginIdError = ref('')
     const passwordError = ref('')
+    const route = useRoute(); // useRoute를 통해 현재 라우트에 접근
+    const productId = route.params.productId; // 라우트 파라미터에서 productId를 가져옴
 
-    const product = ref(null);
-    console.log(props);
+    // 기본 프로필 이미지 URL
+    const defaultProfileImage = defaultUserImage;
+
+    // Product 초기화
+    const product = ref({
+      id: null,
+      name: '',
+      category: '',
+      images: [],
+      price: 0,
+      info: '',
+      likes: 0,
+      profileImage: {
+        id: null,
+        filename: '',
+        imageUrl: defaultProfileImage
+      }
+    });
 
     const fetchProduct = async () => {
-      console.log('fetchProduct 함수가 실행됩니다'); // 로그 추가
       try {
-        const response = await axios.get(`/products/${props.productId}`,{
+        const response = await axios.get(`/products/${productId}`, {
           headers: {
             'Content-Type': 'application/json',
           },
         });
-        console.log('API response:', response);
+
+        // product 데이터 설정
         product.value = response.data.result;
+
+        // 프로필 이미지가 null일 경우 기본 이미지 설정
+        if (!product.value.profileImage || !product.value.profileImage.imageUrl) {
+          product.value.profileImage = {
+            id: null,
+            filename: '',
+            imageUrl: defaultProfileImage
+          };
+        }
       } catch (error) {
         console.error('Error fetching product:', error);
       }
     };
-    onMounted(() => {
-      console.log('컴포넌트가 마운트되었습니다'); // 로그 추가
-      fetchProduct();
-    });
 
-    const currentImage = ref(product.value.images[0])
+    onMounted(fetchProduct);
+
+    const currentImage = computed(() => {
+      return product.value.images.length > 0 ? product.value.images[currentImageIndex.value].imageUrl : '';
+    });
 
     const search = () => {
       // 검색 로직

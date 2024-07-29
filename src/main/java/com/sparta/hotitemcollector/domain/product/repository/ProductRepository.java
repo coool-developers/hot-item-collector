@@ -27,4 +27,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Product findByIdWithImages(@Param("id") Long id);
 
     List<Product> findByUserAndStatus(User user, ProductStatus status);
+
+    Page<Product> findByUser(User user, Pageable pageable);
 }
