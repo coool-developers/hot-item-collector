@@ -158,6 +158,7 @@ public class ProductService {
         }
         s3Service.deleteImage(productImage.getFilename());
         productImageRepository.delete(productImage);
+        productImageRepository.flush();
     }
 
     @Transactional(readOnly = true)

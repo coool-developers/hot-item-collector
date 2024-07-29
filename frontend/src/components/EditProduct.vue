@@ -97,6 +97,32 @@ export default {
     };
     onMounted(fetchProduct);
 
+    const deleteImage = async (index) => {
+      try {
+        const accessToken = Cookies.get('access_token');
+        if (!accessToken) {
+          throw new Error('Access token is missing.');
+        }
+        if (productId && product.value.images[index].id) {
+          const response = await axios.delete(`http://localhost:8080/products/${productId}/image/${product.value.images[index].id}`, {
+            headers: {
+              'Authorization': accessToken
+            }
+          });
+          console.log(response.data);
+
+          // 이미지 삭제 후 상태 업데이트
+          images.value.splice(index, 1);
+          product.value.images.splice(index, 1);
+        } else {
+          console.error('Product ID or image ID is missing.');
+        }
+      } catch (error) {
+        console.error('Failed to delete image:', error);
+        alert(`이미지 삭제에 실패했습니다: ${error.message}`);
+      }
+    };
+
     const submitProduct = async () => {
       try {
         const accessToken = Cookies.get('access_token');
@@ -128,10 +154,8 @@ export default {
           const data = response.data.result;
           console.log(data);
 
-          setTimeout(() => {
-            alert('상품이 수정되었습니다.');
-            router.push(`/product/update/${data.id}`);
-          }, 500);
+          alert('상품이 수정되었습니다.');
+          router.push(`/product/update/${data.id}`);
 
           // 폼 초기화 (기존 이미지 제외)
           productName.value = '';
@@ -139,14 +163,12 @@ export default {
           productPrice.value = 0;
           productDescription.value = '';
           imageFiles.value = [];
-
         } else {
           console.error('Product ID is missing in route parameters');
         }
-
       } catch (error) {
         console.error('Failed to submit product:', error);
-        alert(`상품 등록에 실패했습니다: ${error.message}`);
+        alert(`상품 수정에 실패했습니다: ${error.message}`);
       }
     };
 
@@ -165,6 +187,7 @@ export default {
       handleFileUpload,
       removeImage,
       submitProduct,
+      deleteImage
     };
   },
 };
@@ -187,7 +210,7 @@ export default {
                 <div class="image-preview">
                   <div v-for="(image, index) in images" :key="index" class="preview-image-container">
                     <img :src="image" class="preview-image">
-                    <button class="remove-image" @click="removeImage(index)">×</button>
+                    <button type="button" class="remove-image" @click="deleteImage(index)">×</button>
                   </div>
                 </div>
               </div>
@@ -201,7 +224,6 @@ export default {
                     {{ category.displayName }}
                   </option>
                 </select>
-
               </div>
               <div class="form-group">
                 <label for="name">상품명</label>
