@@ -1,7 +1,6 @@
 package com.sparta.hotitemcollector.domain.user;
 
 import com.sparta.hotitemcollector.domain.s3.service.S3Service;
-import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
 import com.sparta.hotitemcollector.domain.token.Token;
 import com.sparta.hotitemcollector.domain.token.TokenService;
 import com.sparta.hotitemcollector.domain.user.dto.auth.LoginReqeustDto;
@@ -13,6 +12,7 @@ import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import com.sparta.hotitemcollector.global.jwt.JwtUtil;
 import io.jsonwebtoken.Claims;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -127,6 +126,7 @@ public class UserService {
     }
 
 
+    @Transactional
     public void withdraw(String accessToken, User user) {
         // RefreshToken 삭제
         deleteRefreshToken(user);
@@ -217,13 +217,15 @@ public class UserService {
                 profileImageRepository.save(newProfileImage);
                 findUser.updateProfileImage(newProfileImage);
             }
+            User saveUser = userRepository.save(findUser);
 
+            ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(saveUser.getProfileImage());
+            return new ProfileResponseDto(saveUser, profileImageResponseDto);
+        }else{
+            User saveUser = userRepository.save(findUser);
+            return new ProfileResponseDto(saveUser, null);
         }
 
-        User saveUser = userRepository.save(findUser);
-
-        ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(saveUser.getProfileImage());
-        return new ProfileResponseDto(saveUser, profileImageResponseDto);
     }
 
 
@@ -244,17 +246,21 @@ public class UserService {
         userRepository.save(findUser);
     }
 
-    public GetUserProfileDto getUserProfile(Long userId, Optional<UserDetailsImpl> currentUser) {
+    public GetUserProfileDto getUserProfile(Long userId) {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
         ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(findUser.getProfileImage());
-        if(!currentUser.isEmpty()){
-            boolean isOwnProfile = findUser.getId().equals(currentUser.get().getUser().getId());
+            return new GetUserProfileDto(findUser,profileImageResponseDto);
+    }
 
-            return new GetUserProfileDto(findUser,profileImageResponseDto, isOwnProfile);
-        }else{
-            return new GetUserProfileDto(findUser,profileImageResponseDto, false);
+    public GetMyProfileDto getMyProfile(User user) {
+        User findUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+        if(findUser.getProfileImage()!=null){
+            ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(findUser.getProfileImage());
+            return new GetMyProfileDto(findUser,profileImageResponseDto);
         }
+        return new GetMyProfileDto(findUser,null);
 
     }
 
@@ -301,5 +307,15 @@ public class UserService {
 
     public User findByUserId(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+    }
+
+    public void confirmPassword(ConfirmPasswordDto requestDto, User user) {
+        User finduser = userRepository.findByLoginId(user.getLoginId())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
+
+        if (!passwordEncoder.matches(requestDto.getPassword(), finduser.getPassword())) {
+            throw new CustomException(ErrorCode.INCORRECT_PASSWORD);
+        }
+
     }
 }
