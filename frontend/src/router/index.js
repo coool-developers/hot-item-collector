@@ -18,6 +18,7 @@ import SaleProductPage from "@/components/SaleProductPage.vue";
 import FollowItemPage from "@/components/FollowItemPage.vue";
 import NewItemPage from "@/components/NewItemPage.vue";
 import LikeItemPage from "@/components/LikeItemPage.vue";
+import EditProduct from "@/components/EditProduct.vue";
 
 const routes = [
   {
@@ -117,6 +118,12 @@ const routes = [
     path: '/product/like',
     name: 'LikeItemPage',
     component: LikeItemPage,
+  },
+  {
+    path: '/product/edit/:productId',
+    name: 'EditProduct',
+    component: EditProduct,
+    props: true
   },
 ];
 
