@@ -1,27 +1,44 @@
 <script>
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue';
+import Cookies from "js-cookie";
+import axios from "axios";
+import {useRoute, useRouter} from "vue-router";
 
 export default {
   setup() {
-    const searchType = ref('product')
-    const searchQuery = ref('')
-    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
+    const searchType = ref('product');
+    const searchQuery = ref('');
+    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물']);
+
+    // shippingInfo를 객체로 설정
     const shippingInfo = ref({
-      name: '김철수',
-      phone: '010-1234-5678',
-      address: '서울특별시 강남구 테헤란로 123 아파트 456호'
-    })
-    const product = ref({
-      id: 1,
-      name: '수제 초콜릿',
-      price: 15000,
-      seller: '달콤공방',
-      sellerId: 101,
-      image: 'https://example.com/chocolate.jpg',
-      status: '배송완료'
-    })
-    const deliveryStatuses = ref(['결제완료', '상품준비중', '배송중', '배송완료'])
-    const currentStatusIndex = ref(0) // 현재 상태 (배송완료)
+      name: '',
+      phone: '',
+      address: ''
+    });
+
+    // product를 배열로 설정
+    const products = ref([]);
+    //const orderData = ref(null);
+    const route = useRoute();
+    const orderId = route.query.orderId;
+
+    const deliveryStatuses = ref(['결제완료', '상품준비중', '배송중', '배송완료']);
+    const currentStatusIndex = ref(0); // 현재 상태 (배송완료)
+
+    const statusMapping = {
+      '결제 완료': 0,
+      '상품 준비중': 1,
+      '배송 중': 2,
+      '배송 완료':3
+    };
+
+    // 문자열을 인덱스로 변경
+    const getStatusIndex = (status) => {
+      return statusMapping[status] !== undefined ? statusMapping[status] : 0;
+    };
+
+    const router = useRouter();
 
     const search = () => {
       alert(`검색 유형: ${searchType.value}, 검색어: ${searchQuery.value}`)
@@ -68,18 +85,60 @@ export default {
 
     const goToProductDetail = (productId) => {
       alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
+      router.push({ name: 'DetailProductPage', params: { productId } });
     }
 
     const goToSellerDetail = (sellerId) => {
       alert(`판매자 ID ${sellerId}의 상세 페이지로 이동합니다.`)
+      // 아직 안되는 듯
+      // router.push({ name: 'OtherProfilePage', params: { sellerId } });
     }
+
+    const accessToken = Cookies.get('access_token');
+
+    const fetchOrderDetail = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/order/buy/${orderId}`, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+
+        const orderDataResponse = response.data.result;
+
+        if (orderDataResponse) {
+          orderDataResponse.value = orderDataResponse;
+          shippingInfo.value = {
+            name: orderDataResponse.userName,
+            phone: orderDataResponse.phoneNumber,
+            address: orderDataResponse.address
+          };
+
+          products.value = orderDataResponse.orderItemResponseDtoList.map(item => ({
+            id: item.productId,
+            name: item.productName,
+            price: item.price,
+            seller: item.sellerNickname,
+            sellerId: item.sellerId,
+            image: item.productImage.imageUrl,
+            currentStatusIndex: getStatusIndex(item.orderStatus)
+          }));
+        }
+      } catch (err) {
+        console.error('Failed to fetch order details:', err);
+      }
+    };
+
+    onMounted(() => {
+      fetchOrderDetail();
+    });
 
     return {
       searchType,
       searchQuery,
       categories,
       shippingInfo,
-      product,
+      products,
       deliveryStatuses,
       currentStatusIndex,
       search,
@@ -93,7 +152,8 @@ export default {
       deleteAccount,
       goToCart,
       goToProductDetail,
-      goToSellerDetail
+      goToSellerDetail,
+      fetchOrderDetail
     }
   }
 }
@@ -165,18 +225,8 @@ export default {
         </div>
         <div class="order-summary">
           <h2>주문 상품 정보</h2>
-          <div class="delivery-status">
-            <h3>배송 상태</h3>
-            <div class="status-bar">
-              <div v-for="(status, index) in deliveryStatuses" :key="status"
-                   :class="['status-step', { active: index <= currentStatusIndex }]">
-                <div class="status-icon">{{ index + 1 }}</div>
-                <div class="status-label">{{ status }}</div>
-              </div>
-            </div>
-          </div>
-          <div class="product-item" @click="goToProductDetail(product.id)">
-            <div class="product-content">
+          <div v-for="product in products" :key="product.id" class="product-item">
+            <div class="product-content" @click="goToProductDetail(product.id)">
               <img :src="product.image" :alt="product.name" class="product-image">
               <div class="product-info">
                 <div>
@@ -185,6 +235,16 @@ export default {
                      @click.stop="goToSellerDetail(product.sellerId)">{{ product.seller }}</a>
                 </div>
                 <span>{{ product.price.toLocaleString() }}원</span>
+              </div>
+            </div>
+            <div class="delivery-status">
+              <h3>배송 상태</h3>
+              <div class="status-bar">
+                <div v-for="(status, index) in deliveryStatuses" :key="status"
+                     :class="['status-step', { active: index <= product.currentStatusIndex }]">
+                  <div class="status-icon">{{ index + 1 }}</div>
+                  <div class="status-label">{{ status }}</div>
+                </div>
               </div>
             </div>
           </div>

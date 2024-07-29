@@ -160,14 +160,14 @@ public class ProductService {
 
     @Transactional
     public void deleteImage(Long productId, Long imageId, User user) {
-        findById(productId);
+        Product product = findById(productId);
         ProductImage productImage =findImageById(imageId);
         if(!productImage.getUser().getId().equals(user.getId())){
             throw new CustomException(ErrorCode.NOT_SAME_USER);
         }
+        product.removeImage(productImage);
         s3Service.deleteImage(productImage.getFilename());
         productImageRepository.delete(productImage);
-        productImageRepository.flush();
     }
 
     @Transactional(readOnly = true)

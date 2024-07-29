@@ -42,6 +42,15 @@ public class OrderController {
 		return new ResponseEntity<>(responses, HttpStatus.OK);
 	}
 
+	@GetMapping("/order/buy/{orderId}")
+	public ResponseEntity<CommonResponse<OrderResponseDto>> getOrderByBuyer(@PathVariable("orderId") Long orderId,
+																			@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		OrderResponseDto responseDto = orderService.getOrderByBuyer(orderId, userDetails.getUser());
+
+		CommonResponse<OrderResponseDto> response = new CommonResponse("구매자의 단건 주문을 조회 성공했습니다.", 200, responseDto);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
 	@GetMapping("/orders/sell")
 	public ResponseEntity<CommonResponse<List<OrderItemBySellerResponseDto>>> getOrdersBySeller(
 		@RequestParam(defaultValue = "#{T(java.time.LocalDate).now().minusMonths(3)}")

@@ -130,7 +130,10 @@ public class PaymentService {
 
 			// 해당 Order의 모든 OrderItem 상태를 변경
 			List<OrderItem> orderItemList = orderService.findOrderItemsByOrderId(payment.getOrder().getId());
-			orderItemList.forEach(orderItem -> orderItem.updateOrderItemStatus(OrderStatus.PAID));
+			orderItemList.forEach(orderItem -> {
+				orderItem.updateOrderItemStatus(OrderStatus.PAID);
+				productService.updateStatus(orderItem.getId());
+			});
 
 		} else {
 			throw new IllegalArgumentException("결제 금액이 일치하지 않습니다.");
