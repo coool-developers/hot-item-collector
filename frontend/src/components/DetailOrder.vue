@@ -2,7 +2,7 @@
 import {onMounted, ref} from 'vue';
 import Cookies from "js-cookie";
 import axios from "axios";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 
 export default {
   setup() {
@@ -37,6 +37,8 @@ export default {
     const getStatusIndex = (status) => {
       return statusMapping[status] !== undefined ? statusMapping[status] : 0;
     };
+
+    const router = useRouter();
 
     const search = () => {
       alert(`검색 유형: ${searchType.value}, 검색어: ${searchQuery.value}`)
@@ -83,10 +85,13 @@ export default {
 
     const goToProductDetail = (productId) => {
       alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
+      router.push({ name: 'DetailProductPage', params: { productId } });
     }
 
     const goToSellerDetail = (sellerId) => {
       alert(`판매자 ID ${sellerId}의 상세 페이지로 이동합니다.`)
+      // 아직 안되는 듯
+      // router.push({ name: 'OtherProfilePage', params: { sellerId } });
     }
 
     const accessToken = Cookies.get('access_token');
@@ -118,7 +123,6 @@ export default {
             image: item.productImage.imageUrl,
             currentStatusIndex: getStatusIndex(item.orderStatus)
           }));
-          console.log(products)
         }
       } catch (err) {
         console.error('Failed to fetch order details:', err);
