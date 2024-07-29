@@ -523,9 +523,15 @@ const searchByCategory = (category) => {
 
 // search function
 const search = () => {
+
   router.push({
     name: 'SearchPage',
-    query: { pageMode: searchType.value, searchQuery: searchQuery.value }
+    query: { searchType: searchType.value, searchQuery: searchQuery.value }
+  }).then(() => {
+    // 강제 새로고침
+    window.location.reload();
+  }).catch(err => {
+    console.error('Routing error:', err);
   });
 };
 
