@@ -44,6 +44,15 @@
     </main>
     <AppFooter/>
   </div>
+<!--카트 모달-->
+  <div v-if="showCartModal" class="modal-overlay" @click.self="showCartModal = false">
+    <div class="modal-container">
+      <button class="close-btn" @click="showCartModal = false">&times;</button>
+      <h1>{{ buttonText }}</h1>
+      <button @click="goToCart">장바구니로 이동하기</button>
+    </div>
+  </div>
+
 </template>
 
 <script>
@@ -53,6 +62,8 @@ import axios from "axios";
 import {useRoute} from "vue-router";
 import AppFooter from "@/components/AppFooter.vue";
 import defaultUserImage from "../assets/user.png"
+import Cookies from "js-cookie";
+import router from "@/router";
 
 export default {
   components: {AppFooter, Header},
@@ -76,6 +87,12 @@ export default {
     const passwordError = ref('')
     const route = useRoute(); // useRoute를 통해 현재 라우트에 접근
     const productId = route.params.productId; // 라우트 파라미터에서 productId를 가져옴
+    const accessToken = Cookies.get('access_token')
+    const showCartModal = ref(false);
+    const cartExist = ref(false)
+    const buttonText = computed(() => {
+      return cartExist.value ? '선택한 상품이 이미 장바구니에 담겨있습니다.' : '선택한 상품을 장바구니에 담았습니다.';
+    });
 
     // 기본 프로필 이미지 URL
     const defaultProfileImage = defaultUserImage;
@@ -149,8 +166,29 @@ export default {
       currentImage.value = product.value.images[currentImageIndex.value]
     }
 
+    const goToCart = () => {
+      router.push({name: 'CartPage'})
+    }
+
     const addToCart = () => {
-      // 장바구니 추가 로직
+
+      axios.post(`http://localhost:8080/cart/${productId}`, {},{
+        headers: {
+          'Content-Type':'application/json',
+          'Authorization':accessToken
+        },
+      }).then(response => {
+        console.log(response)
+        cartExist.value = false
+        showCartModal.value = true
+
+      }).catch(error => {
+       // alert(`이미 장바구니에 존재하는 제품입니다.`)
+        cartExist.value = true
+        showCartModal.value = true
+
+        console.error(error); // 에러 처리
+      })
     }
 
     const buyNow = () => {
@@ -199,6 +237,11 @@ export default {
       showSignupModal.value = true
     }
 
+    const switchToCart = () => {
+      showCartModal.value = false
+      showCartModal.value = true
+    }
+
     return {
       isLoggedIn,
       searchType,
@@ -210,6 +253,7 @@ export default {
       isLiked,
       showLoginModal,
       showSignupModal,
+      showCartModal,
       signupLoginId,
       signupPassword,
       username,
@@ -224,6 +268,7 @@ export default {
       prevImage,
       nextImage,
       addToCart,
+      goToCart,
       buyNow,
       formatPrice,
       validateLoginId,
@@ -233,6 +278,8 @@ export default {
       kakaoLogin,
       switchToLogin,
       switchToSignup,
+      switchToCart,
+      buttonText
     }
   },
 }
@@ -738,21 +785,24 @@ footer {
 }
 
 .login-link,
-.signup-link {
+.signup-link,
+.cart-link {
   text-align: center;
   margin-top: 20px;
   font-size: 14px;
 }
 
 .login-link a,
-.signup-link a {
+.signup-link a,
+.cart-link a {
   color: var(--main-color);
   text-decoration: none;
   cursor: pointer;
 }
 
 .login-link a:hover,
-.signup-link a:hover {
+.signup-link a:hover
+.cart-link a:hover {
   text-decoration: underline;
 }
 
