@@ -4,29 +4,37 @@ import Header from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import axios from "axios";
 import Cookies from 'js-cookie';
-import {useRouter} from "vue-router";
+import { useRouter } from "vue-router";
 
 export default {
   components: { AppFooter, Header },
   setup() {
-    const searchType = ref('product')
-    const searchQuery = ref('')
-    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
-    const images = ref([])
-    const imageFiles = ref([])
-    const productCategory = ref('')
-    const productName = ref('')
-    const productPrice = ref(0)
-    const productDescription = ref('')
-    const fileInput = ref(null)
+    const searchType = ref('product');
+    const searchQuery = ref('');
+    const categories = ref([
+      { displayName: '식품', value: 'FOOD' },
+      { displayName: '뷰티', value: 'BEAUTY' },
+      { displayName: '패션&주얼리', value: 'FASHION' },
+      { displayName: '공예품', value: 'CRAFTS' },
+      { displayName: '홈리빙', value: 'HOME_LIVING' },
+      { displayName: '반려동물', value: 'PET' }
+    ]);
+
+    const images = ref([]);
+    const imageFiles = ref([]);
+    const productCategory = ref('');
+    const productName = ref('');
+    const productPrice = ref(0);
+    const productDescription = ref('');
+    const fileInput = ref(null);
     const router = useRouter();
 
     const triggerFileInput = () => {
-      fileInput.value.click()
-    }
+      fileInput.value.click();
+    };
 
     const handleFileUpload = (event) => {
-      const files = event.target.files
+      const files = event.target.files;
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         imageFiles.value.push(file);
@@ -37,41 +45,48 @@ export default {
         };
         reader.readAsDataURL(file);
       }
-    }
+    };
 
     const removeImage = (index) => {
-      images.value.splice(index, 1)
-      imageFiles.value.splice(index, 1)
-    }
+      images.value.splice(index, 1);
+      imageFiles.value.splice(index, 1);
+    };
 
     const submitProduct = async () => {
       try {
         const accessToken = Cookies.get('access_token');
+        if (!accessToken) {
+          throw new Error('Access token is missing.');
+        }
 
         const formData = new FormData();
         const requestDto = {
           name: productName.value,
           category: productCategory.value,
           price: productPrice.value,
-          info: productDescription.value
+          info: productDescription.value,
         };
 
         formData.append('requestDto', new Blob([JSON.stringify(requestDto)], { type: 'application/json' }));
 
-        imageFiles.value.forEach(imageFile => {
+        imageFiles.value.forEach((imageFile) => {
           formData.append('files', imageFile);
         });
 
         const response = await axios.post('http://localhost:8080/products', formData, {
           headers: {
             'Authorization': accessToken,
-            'Content-Type': 'multipart/form-data'
-          }
+            'Content-Type': 'multipart/form-data',
+          },
         });
 
-        alert('상품이 등록되었습니다.');
         const data = response.data.result;
-        console.log(data)
+        console.log(data);
+
+        setTimeout(() => {
+          alert('상품이 등록되었습니다.');
+          router.push(`/product/update/${data.id}`);
+        }, 500);
 
         // 폼 초기화
         productName.value = '';
@@ -80,11 +95,11 @@ export default {
         productDescription.value = '';
         images.value = [];
         imageFiles.value = [];
-        router.push(`/product/update/${data.id}`);
       } catch (error) {
         console.error('Failed to submit product:', error);
+        alert(`상품 등록에 실패했습니다: ${error.message}`);
       }
-    }
+    };
 
     return {
       searchType,
@@ -101,10 +116,11 @@ export default {
       handleFileUpload,
       removeImage,
       submitProduct,
-    }
-  }
-}
+    };
+  },
+};
 </script>
+
 
 <template>
   <div id="app">
@@ -133,8 +149,11 @@ export default {
                 <label for="category">상품 카테고리</label>
                 <select id="category" v-model="productCategory" required>
                   <option value="">카테고리 선택</option>
-                  <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+                  <option v-for="category in categories" :key="category.value" :value="category.value">
+                    {{ category.displayName }}
+                  </option>
                 </select>
+
               </div>
               <div class="form-group">
                 <label for="name">상품명</label>
