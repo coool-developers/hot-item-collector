@@ -32,7 +32,6 @@ export default {
       address: ''
     })
     const cartItems = ref([])
-    const token = process.env.VUE_APP_ACCESS_TOKEN
 
     const loadCartItems = () => {
       // 아까 저장했던 정보들이 storedData로 들어옴.
@@ -119,6 +118,15 @@ export default {
 
     const router = useRouter();
 
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) {
+        return decodeURIComponent(parts.pop().split(';').shift());
+      }
+      return null;
+    }
+
     const prepareAndPay = async () => {
       if (!shippingInfo.value.name || !shippingInfo.value.phone || !shippingInfo.value.address) {
         alert('배송지 정보를 모두 입력해주세요.');
@@ -126,6 +134,22 @@ export default {
       }
 
       try {
+        let token = getCookie('access_token');
+        if (!token) {
+          console.error('No token found');
+          return;
+        }
+        // Bearer 접두사 제거
+        if (token.startsWith('Bearer ')) {
+          token = token.substring(7);
+        }
+
+        if (!token) {
+          console.error('Token is empty after processing');
+          return;
+        }
+
+
         const orderResponse = await axios.post('http://localhost:8080/prepare/order', {
           cartItemList: cartItems.value.map(item => item.id),
           buyerName: shippingInfo.value.name,
@@ -133,7 +157,7 @@ export default {
           buyerAddr: shippingInfo.value.address
         }, {
           headers: {
-            'Authorization': token
+            'Authorization': `Bearer ${token}`
           }
         });
 
@@ -141,7 +165,7 @@ export default {
 
         const paymentResponse = await axios.get(`http://localhost:8080/prepare/payment?orderId=${orderId}`, {
           headers: {
-            'Authorization': token
+            'Authorization': `Bearer ${token}`
           }
         });
 
@@ -172,7 +196,7 @@ export default {
                 amount: rsp.paid_amount
               }, {
                 headers: {
-                  'Authorization': token
+                  'Authorization': `Bearer ${token}`
                 }
               });
 
