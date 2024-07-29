@@ -67,6 +67,12 @@ import router from "@/router";
 
 export default {
   components: {AppFooter, Header},
+  props: {
+    productId: {
+      type: String,
+      required: true
+    }
+  },
   setup() {
     const isLoggedIn = ref(true)
     const searchType = ref('product')

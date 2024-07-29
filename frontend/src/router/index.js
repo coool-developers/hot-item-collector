@@ -83,7 +83,7 @@ const routes = [
     component: ProfileUpdate,
   },
   {
-    path: '/profile/order',
+    path: '/orders/buy',
     name: 'OrderItem',
     component: OrderItem,
   },
