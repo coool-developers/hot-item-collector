@@ -68,7 +68,7 @@ public class ProductController {
     @PutMapping("/{productId}")
     public ResponseEntity<CommonResponse<ProductResponseDto>> updateProduct(
         @PathVariable(name = "productId") Long productId,
-        @Valid @RequestPart("requestDto") ProductRequestDto requestDto,
+        @Valid @RequestPart(value = "requestDto", required = false) ProductRequestDto requestDto,
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestPart(value = "files", required = false) List<MultipartFile> files)
         throws IOException {
@@ -81,12 +81,15 @@ public class ProductController {
             throw new CustomException(ErrorCode.NOT_SAME_USER);
         }
 
-        // 크기제한, 확장자 확인
-        for (MultipartFile file : files) {
-            imageService.validateFile(file);
+        // 파일이 있을 경우에만 크기제한 및 확장자 확인, S3 업로드 처리
+        List<ProductImageRequestDto> images = new ArrayList<>();
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                imageService.validateFile(file);
+            }
+            // S3에 파일 업로드
+            images = s3Service.uploadFiles(files);
         }
-        // S3에 파일 업로드
-        List<ProductImageRequestDto> images = s3Service.uploadFiles(files);
 
         requestDto.addImages(images);
 
@@ -107,6 +110,16 @@ public class ProductController {
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
         productService.deleteProduct(productId, userDetails.getUser());
         CommonResponse response = new CommonResponse("상품 삭제 성공", 204, "");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{productId}/image/{imageId}")
+    public ResponseEntity<CommonResponse> deleteImage(
+        @PathVariable(name = "productId") Long productId,
+        @PathVariable(name = "imageId") Long imageId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        productService.deleteImage(productId, imageId,userDetails.getUser());
+        CommonResponse response = new CommonResponse("이미지 삭제 성공", 204, "");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

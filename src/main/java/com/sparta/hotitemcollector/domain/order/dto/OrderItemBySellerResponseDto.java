@@ -12,6 +12,7 @@ import lombok.Getter;
 @Getter
 public class OrderItemBySellerResponseDto {
 
+	private Long orderItemId;
 	private Long productId;
 	private String productName;
 	private ProductImageResponseDto productImage;
@@ -25,6 +26,7 @@ public class OrderItemBySellerResponseDto {
 	private LocalDateTime createdAt;
 
 	public OrderItemBySellerResponseDto(OrderItem orderItem) {
+		this.orderItemId = orderItem.getId();
 		this.productId = orderItem.getProduct().getId();
 		this.productName = orderItem.getProduct().getName();
 		this.productImage = orderItem.getProduct().getImages().isEmpty() ? null

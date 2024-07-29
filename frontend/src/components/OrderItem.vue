@@ -1,29 +1,20 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { DateTime } from 'luxon'
+import {ref, onMounted} from 'vue'
+import {DateTime} from 'luxon'
+import Cookies from "js-cookie";
+import axios from "axios";
 
 const searchType = ref('product')
 const searchQuery = ref('')
 const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
 const startDate = ref('')
 const endDate = ref('')
-const purchasedProducts = ref([])
-
-const groupedProducts = computed(() => {
-  const grouped = {}
-  purchasedProducts.value.forEach(product => {
-    const date = product.purchaseDate.split('T')[0]
-    if (!grouped[date]) {
-      grouped[date] = []
-    }
-    grouped[date].push(product)
-  })
-  return grouped
-})
+const orders = ref([])
+const accessToken = Cookies.get('access_token')
 
 const formatDate = (dateString) => {
   const date = DateTime.fromISO(dateString)
-  return date.toFormat('yyyy년 MM월 dd일 (ccc)', { locale: 'ko' })
+  return date.toFormat('yyyy년 MM월 dd일 (ccc)', {locale: 'ko'})
 }
 
 const formatPrice = (price) => {
@@ -31,19 +22,26 @@ const formatPrice = (price) => {
 }
 
 const searchPurchases = () => {
-  purchasedProducts.value = [
-    { id: 1, name: '수제 초콜릿', image: 'https://example.com/chocolate.jpg', sellerId: 101, sellerName: '달콤공방', purchaseDate: '2023-06-01T10:00:00Z', status: '배송완료', price: 15000 },
-    { id: 2, name: '핸드메이드 비누', image: 'https://example.com/soap.jpg', sellerId: 102, sellerName: '향기나라', purchaseDate: '2023-06-01T14:30:00Z', status: '배송중', price: 8000 },
-    { id: 3, name: '니트 머플러', image: 'https://example.com/scarf.jpg', sellerId: 103, sellerName: '따뜻한손길', purchaseDate: '2023-05-28T09:15:00Z', status: '배송준비중', price: 25000 },
-    { id: 4, name: '도자기 화분', image: 'https://example.com/pot.jpg', sellerId: 104, sellerName: '흙으로빚다', purchaseDate: '2023-05-28T16:45:00Z', status: '배송완료', price: 30000 },
-    { id: 5, name: '수제 케이크', image: 'https://example.com/cake.jpg', sellerId: 105, sellerName: '달콤베이커리', purchaseDate: '2023-05-20T11:20:00Z', status: '배송완료', price: 35000 },
-  ]
+
+  axios.get('http://localhost:8080/orders/buy', {
+    params: {
+      startDate: startDate.value,
+      endDate: endDate.value,
+    },
+    headers: {
+      'Authorization': accessToken
+    }
+  }).then(response => {
+    orders.value = response.data.result;
+  }).catch(error => {
+    console.error(error)
+  })
 }
 
 onMounted(() => {
   const today = DateTime.now()
   endDate.value = today.toFormat('yyyy-MM-dd')
-  startDate.value = today.minus({ months: 3 }).toFormat('yyyy-MM-dd')
+  startDate.value = today.minus({months: 3}).toFormat('yyyy-MM-dd')
   searchPurchases()
 })
 
@@ -136,7 +134,8 @@ const goToProductDetail = (productId) => {
     <nav class="categories">
       <div class="container">
         <div class="categories-container">
-          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#" class="category-item">
+          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#"
+             class="category-item">
             {{ category }}
           </a>
         </div>
@@ -151,20 +150,23 @@ const goToProductDetail = (productId) => {
         <input type="date" v-model="endDate">
         <button @click="searchPurchases">검색</button>
       </div>
-      <div v-for="(products, date) in groupedProducts" :key="date">
-        <div class="purchase-date">{{ formatDate(date) }}</div>
+      <div v-for="order in orders" :key="order.id">
+        <div class="purchase-date">{{ formatDate(order.createdAt) }}</div>
         <div class="products-container">
-          <div v-for="product in products" :key="product.id" class="product-card" @click="goToProductDetail(product.id)">
-            <img :src="product.image" :alt="product.name" class="product-image">
+          <div v-for="item in order.orderItemResponseDtoList" :key="item.productId" class="product-card"
+               @click="goToProductDetail(item.productId)">
+            <img :src="item.productImage.imageUrl" :alt="item.productName" class="product-image">
             <div class="product-info">
               <div class="product-details">
-                <div class="product-name">{{ product.name }}</div>
+                <div class="product-name">{{ item.productName }}</div>
                 <div>
-                  판매자: <a :href="'/seller/' + product.sellerId" class="seller-name" @click.stop>{{ product.sellerName }}</a>
+                  판매자: <a :href="'/seller/' + item.sellerId" class="seller-name" @click.stop>{{
+                    item.sellerNickname
+                  }}</a>
                 </div>
               </div>
-              <div class="product-price">{{ formatPrice(product.price) }}원</div>
-              <div class="product-status">{{ product.status }}</div>
+              <div class="product-price">{{ formatPrice(item.price) }}원</div>
+              <div class="product-status">{{ item.orderStatus }}</div>
             </div>
           </div>
         </div>
@@ -309,7 +311,7 @@ header {
   right: 0;
   background-color: var(--bg-color);
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
   border-radius: 5px;
 }
@@ -423,7 +425,7 @@ header {
 }
 
 .product-card:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .product-image {

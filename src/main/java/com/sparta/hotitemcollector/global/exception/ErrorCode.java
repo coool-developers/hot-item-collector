@@ -36,6 +36,7 @@ public enum ErrorCode {
 	NOT_SAME_USER(HttpStatus.BAD_REQUEST, "사용자가 일치하지 않아 요청을 처리할 수 없습니다."),
 	ALREADY_SOLD_OUT(HttpStatus.BAD_REQUEST, "이미 판매 완료된 상품입니다."),
 	NON_EXISTENT_PRODUCT(HttpStatus.NO_CONTENT, "해당 사용자가 판매하는 상품이 없습니다."),
+	NOT_FOUND_IMAGE(HttpStatus.BAD_REQUEST,"이미지를 찾을 수 없습니다."),
 
 	// Cart
 	NOT_FOUND_CARTITEM(HttpStatus.NOT_FOUND, "NOT FOUND CART_ITEM"),
@@ -51,6 +52,7 @@ public enum ErrorCode {
 	SAME_USER_PRODUCT(HttpStatus.BAD_REQUEST, "SAME USER PRODUCT"),
 
 	// Follow
+	SELF_FOLLOW(HttpStatus.BAD_REQUEST,"IDENTICAL_USER"),
 	ALREADY_EXIST_FOLLOW(HttpStatus.CONFLICT, "ALREADY_EXIST FOLLOW"),
 	NOT_FOUND_FOLLOW(HttpStatus.NOT_FOUND, "NOT FOUND FOLLOW"),
 	ALREADY_UNFOLLOWED(HttpStatus.CONFLICT, "ALREADY_UNFOLLOW"),

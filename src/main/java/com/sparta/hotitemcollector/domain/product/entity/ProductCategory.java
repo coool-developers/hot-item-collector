@@ -3,7 +3,7 @@ package com.sparta.hotitemcollector.domain.product.entity;
 public enum ProductCategory {
     FOOD("식품"),
     BEAUTY("뷰티"),
-    FASION("패션&주얼리"),
+    FASHION("패션&주얼리"),
     CRAFTS("공예품"),
     HOME_LIVING("홈리빙"),
     PET("반려동물");
