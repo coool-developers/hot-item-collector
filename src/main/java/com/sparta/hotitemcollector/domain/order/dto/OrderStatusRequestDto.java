@@ -6,5 +6,5 @@ import lombok.Getter;
 
 @Getter
 public class OrderStatusRequestDto {
-	OrderStatus status;
+	private String status;
 }

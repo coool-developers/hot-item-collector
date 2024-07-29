@@ -2,6 +2,7 @@
 import {ref, computed, onMounted} from 'vue';
 import axios from "axios";
 import {useRouter} from "vue-router";
+import Cookies from "js-cookie";
 
 export default {
   setup() {
@@ -9,13 +10,13 @@ export default {
     const searchQuery = ref('')
     const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
     const cartItems = ref([]); // 장바구니 항목을 저장할 상태
-    const token = process.env.VUE_APP_ACCESS_TOKEN
+    const accessToken = Cookies.get('access_token');
 
     const loadCartItems = () => {
 
       axios.get('http://localhost:8080/cart', {
         headers: {
-          'Authorization': token
+          'Authorization': accessToken
         }
       }).then(response => {
         cartItems.value = response.data.result; // 응답 데이터를 상태에 저장
@@ -80,7 +81,7 @@ export default {
       }
       axios.delete(`http://localhost:8080/cart/${item.productId}`, {
         headers: {
-          'Authorization': token
+          'Authorization': accessToken
         }
       }).then(response => {
         if (response.status == 200) {

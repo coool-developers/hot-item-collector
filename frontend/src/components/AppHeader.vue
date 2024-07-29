@@ -260,7 +260,7 @@ function goToProductManagement() {
 
 function goToOrderManagement() {
   // 주문 관리 함수 구현
-  router.push('/order/manage');
+  router.push('/orders/sell');
 }
 
 function viewMyInfo() {

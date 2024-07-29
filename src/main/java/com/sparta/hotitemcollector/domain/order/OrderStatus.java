@@ -1,5 +1,8 @@
 package com.sparta.hotitemcollector.domain.order;
 
+import com.sparta.hotitemcollector.global.exception.CustomException;
+import com.sparta.hotitemcollector.global.exception.ErrorCode;
+
 public enum OrderStatus {
     SHIPMENT_START("배송 시작"),
     SHIPPING("배송 중"),
@@ -14,6 +17,16 @@ public enum OrderStatus {
     OrderStatus(String status) {
         this.status = status;
     }
+
+    public static OrderStatus fromString(String status) {
+        for (OrderStatus orderStatus : OrderStatus.values()) {
+            if (orderStatus.status.equals(status)) {
+                return orderStatus;
+            }
+        }
+        throw new CustomException(ErrorCode.NOT_FOUND_ORDERSTATUS);
+    }
+
     public String getStatus() {
         return this.status;
     }
