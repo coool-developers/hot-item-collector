@@ -1,7 +1,6 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-// import { ref, computed, onMounted } from 'vue'
-import { DateTime } from 'luxon'
+import {ref, onMounted} from 'vue'
+import {DateTime} from 'luxon'
 import Cookies from "js-cookie";
 import axios from "axios";
 
@@ -13,21 +12,9 @@ const endDate = ref('')
 const orders = ref([])
 const accessToken = Cookies.get('access_token')
 
-// const groupedProducts = computed(() => {
-//   const grouped = {}
-//   purchasedProducts.value.forEach(product => {
-//     const date = product.purchaseDate.split('T')[0]
-//     if (!grouped[date]) {
-//       grouped[date] = []
-//     }
-//     grouped[date].push(product)
-//   })
-//   return grouped
-// })
-
 const formatDate = (dateString) => {
   const date = DateTime.fromISO(dateString)
-  return date.toFormat('yyyy년 MM월 dd일 (ccc)', { locale: 'ko' })
+  return date.toFormat('yyyy년 MM월 dd일 (ccc)', {locale: 'ko'})
 }
 
 const formatPrice = (price) => {
@@ -54,7 +41,7 @@ const searchPurchases = () => {
 onMounted(() => {
   const today = DateTime.now()
   endDate.value = today.toFormat('yyyy-MM-dd')
-  startDate.value = today.minus({ months: 3 }).toFormat('yyyy-MM-dd')
+  startDate.value = today.minus({months: 3}).toFormat('yyyy-MM-dd')
   searchPurchases()
 })
 
@@ -147,7 +134,8 @@ const goToProductDetail = (productId) => {
     <nav class="categories">
       <div class="container">
         <div class="categories-container">
-          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#" class="category-item">
+          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#"
+             class="category-item">
             {{ category }}
           </a>
         </div>
@@ -165,13 +153,16 @@ const goToProductDetail = (productId) => {
       <div v-for="order in orders" :key="order.id">
         <div class="purchase-date">{{ formatDate(order.createdAt) }}</div>
         <div class="products-container">
-          <div v-for="item in order.orderItemResponseDtoList" :key="item.productId" class="product-card" @click="goToProductDetail(item.productId)">
+          <div v-for="item in order.orderItemResponseDtoList" :key="item.productId" class="product-card"
+               @click="goToProductDetail(item.productId)">
             <img :src="item.productImage.imageUrl" :alt="item.productName" class="product-image">
             <div class="product-info">
               <div class="product-details">
                 <div class="product-name">{{ item.productName }}</div>
                 <div>
-                  판매자: <a :href="'/seller/' + item.sellerId" class="seller-name" @click.stop>{{ item.sellerNickname }}</a>
+                  판매자: <a :href="'/seller/' + item.sellerId" class="seller-name" @click.stop>{{
+                    item.sellerNickname
+                  }}</a>
                 </div>
               </div>
               <div class="product-price">{{ formatPrice(item.price) }}원</div>
@@ -320,7 +311,7 @@ header {
   right: 0;
   background-color: var(--bg-color);
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
   border-radius: 5px;
 }
@@ -434,7 +425,7 @@ header {
 }
 
 .product-card:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .product-image {

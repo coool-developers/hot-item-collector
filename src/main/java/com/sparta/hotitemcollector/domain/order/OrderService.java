@@ -1,6 +1,7 @@
 package com.sparta.hotitemcollector.domain.order;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,7 +39,6 @@ public class OrderService {
 
 	@Transactional(readOnly = true)
 	public List<OrderResponseDto> getOrdersAllByBuyer(LocalDateTime startDate, LocalDateTime endDate, User user) {
-
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 		List<Orders> orderPage = orderRepository.findAllByUserIdAndCreatedAtBetween(user.getId(), startDate, endDate, sort);
 
@@ -49,32 +49,19 @@ public class OrderService {
 	}
 
 	@Transactional(readOnly = true)
-	public OrderResponseDto getOrderByBuyer(Long orderId, User user) {
-		Orders order = findOrderById(orderId);
-
-		if (!user.getId().equals(order.getUser().getId())) {
-			throw new CustomException(ErrorCode.NOT_SAME_USER);
-		}
-
-		return new OrderResponseDto(order);
-	}
-
-	@Transactional(readOnly = true)
-	public List<OrderItemBySellerResponseDto> getOrdersAllBySeller(int page, int size,
-		LocalDateTime startDate, LocalDateTime endDate, String status, User user) {
+	public List<OrderItemBySellerResponseDto> getOrdersAllBySeller(LocalDateTime startDate, LocalDateTime endDate, String status, User user) {
 
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-		Pageable pageable = PageRequest.of(page - 1, size, sort);
-		Page<OrderItem> orderItemPage = Page.empty(pageable);
+		List<OrderItem> orderItemList = new ArrayList<>();
 		List<Product> productList = productService.findByUserAndStatus(user, ProductStatus.SOLD_OUT);
 
 		if (status == null || status.isEmpty()) {
-			orderItemPage = orderItemRepository.findAllByCreatedAtBetweenAndProductIn(startDate, endDate, productList, pageable);
+			orderItemList = orderItemRepository.findAllByCreatedAtBetweenAndProductIn(startDate, endDate, productList, sort);
 		} else {
-			orderItemPage = orderItemRepository.findAllByStatusAndCreatedAtBetweenAndProductIn(OrderStatus.fromString(status), startDate, endDate, productList, pageable);
+			orderItemList = orderItemRepository.findAllByStatusAndCreatedAtBetweenAndProductIn(OrderStatus.fromString(status), startDate, endDate, productList, sort);
 		}
 
-		return orderItemPage.getContent()
+		return orderItemList
 			.stream()
 			.map(OrderItemBySellerResponseDto::new)
 			.collect(Collectors.toList());
