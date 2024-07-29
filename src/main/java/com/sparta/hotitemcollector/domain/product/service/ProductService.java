@@ -19,11 +19,15 @@ import com.sparta.hotitemcollector.domain.user.UserService;
 import com.sparta.hotitemcollector.domain.user.dto.user.ProfileImageResponseDto;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -31,17 +35,22 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
+    private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
     private final ProductRepository productRepository;
     private final FollowService followService;
     private final ProductImageRepository productImageRepository;
     private final S3Service s3Service;
     private final UserService userService;
+    @PersistenceContext
+    private final EntityManager entityManager;
 
     @Transactional
     public ProductResponseDto createProduct(ProductRequestDto requestDto, User user) {
