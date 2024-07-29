@@ -113,6 +113,16 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @DeleteMapping("/{productId}/image/{imageId}")
+    public ResponseEntity<CommonResponse> deleteImage(
+        @PathVariable(name = "productId") Long productId,
+        @PathVariable(name = "imageId") Long imageId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        productService.deleteImage(productId, imageId,userDetails.getUser());
+        CommonResponse response = new CommonResponse("이미지 삭제 성공", 204, "");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping("/{productId}")
     public ResponseEntity<CommonResponse<ProductResponseDto>> getProduct(
         @PathVariable(name = "productId") Long productId) {

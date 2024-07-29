@@ -21,6 +21,7 @@ import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -148,6 +149,17 @@ public class ProductService {
         productRepository.delete(product);
     }
 
+    @Transactional
+    public void deleteImage(Long productId, Long imageId, User user) {
+        findById(productId);
+        ProductImage productImage =findImageById(imageId);
+        if(!productImage.getUser().getId().equals(user.getId())){
+            throw new CustomException(ErrorCode.NOT_SAME_USER);
+        }
+        s3Service.deleteImage(productImage.getFilename());
+        productImageRepository.delete(productImage);
+    }
+
     @Transactional(readOnly = true)
     public ProductResponseDto getProduct(Long productId) {
         // Product와 관련된 이미지 정보를 가져옴
@@ -250,6 +262,12 @@ public class ProductService {
     public Product findById(Long productId) {
         return productRepository.findById(productId).orElseThrow(
             () -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT)
+        );
+    }
+
+    public ProductImage findImageById(Long imageId) {
+        return productImageRepository.findById(imageId).orElseThrow(
+            () -> new CustomException(ErrorCode.NOT_FOUND_IMAGE)
         );
     }
 
