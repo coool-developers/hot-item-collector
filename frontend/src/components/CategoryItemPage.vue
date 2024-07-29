@@ -4,7 +4,6 @@ import { ref, computed, onMounted } from 'vue';
 import axios from "axios";
 import { useRouter, useRoute } from "vue-router";
 import AppFooter from './AppFooter.vue';
-import Cookies from 'js-cookie';
 export default {
   components: { Header, AppFooter },
   setup() {
@@ -43,12 +42,7 @@ export default {
     const fetchProducts = async (page) => {
       try {
         const url = `/products/search?page=${page}&size=${itemsPerPage}&category=${searchQuery.value}`;
-        const accessToken = Cookies.get('access_token');
-        const response = await axios.get(url,{
-          headers: {
-            'Authorization': accessToken
-          }
-        });
+        const response = await axios.get(url);
         console.log(response.data);
         const data = response.data.result;
         products.value = data || [];
@@ -73,9 +67,7 @@ export default {
     };
 
     const selectCategory = (category) => {
-      const englishCategory = categories[category] || category;
-      console.log(englishCategory);
-      searchQuery.value = englishCategory;
+      searchQuery.value = categories[category] || category;
       currentPage.value = 1;
       fetchProducts(currentPage.value);
     };
@@ -121,18 +113,24 @@ export default {
     <main class="container">
       <section class="search-results">
         <h2>{{ pageTitle }}</h2>
-        <div class="item-grid">
+        <div v-if="displayedItems.length > 0" class="item-grid">
           <div v-for="item in displayedItems" :key="item.id" class="item-card"
-               @click="goToProduct(item.id)">
-            <img :src="item.image.imageUrl" :alt="item.name">
+               @click="item ? goToProduct(item.id) : null">
+            <img :src="item?.image?.imageUrl || '/path/to/default-image.jpg'"
+                 :alt="item?.name || 'Default Alt Text'">
             <div class="item-info">
-              <div class="item-name">{{ item.name }}</div>
+              <div class="item-name">{{ item?.name || 'Unnamed Item' }}</div>
               <div class="item-seller">
-                판매자: <a @click.stop="goToSellerPage(item.userId)" :href="'/seller/' + item.userId">{{ item.userName }}</a>
+                판매자: <a @click.stop="item ? goToSellerPage(item.userId) : null"
+                        :href="item ? '/seller/' + item.userId : '#'"
+                        :title="item ? item.userName : 'No Seller'">
+                {{ item?.userName || 'Unknown Seller' }}
+              </a>
               </div>
             </div>
           </div>
         </div>
+        <div v-else class="no-items-message">등록된 상품이 없습니다.</div>
         <div class="pagination">
           <button @click="prevPage" :disabled="currentPage === 1">&lt; 이전</button>
           <span class="page-number">{{ currentPage }} / {{ totalPages }}</span>
