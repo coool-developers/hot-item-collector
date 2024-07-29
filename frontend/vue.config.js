@@ -9,6 +9,14 @@ module.exports = defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
       },
+      '/prepare/order': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/prepare/payments': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
     },
   },
 });

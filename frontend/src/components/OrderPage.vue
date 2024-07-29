@@ -1,8 +1,28 @@
 <script>
+import axios from 'axios';
 import {ref, computed, onMounted} from 'vue';
+import {useRouter} from "vue-router";
 
 export default {
   setup() {
+    const jQueryScript = document.createElement('script');
+    jQueryScript.src = 'https://code.jquery.com/jquery-1.12.4.min.js';
+    jQueryScript.type = 'text/javascript';
+    document.head.appendChild(jQueryScript);
+
+    const IamportScript = document.createElement('script');
+    IamportScript.src = 'https://cdn.iamport.kr/js/iamport.payment-1.1.8.js';
+    IamportScript.type = 'text/javascript';
+    document.head.appendChild(IamportScript);
+
+    IamportScript.onload = () => {
+      console.log('Iamport script 로드');
+    };
+
+    jQueryScript.onload = () => {
+      console.log('jQuery script 로드');
+    };
+
     const searchQuery = ref('')
     const searchType = ref('product')
     const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
@@ -96,13 +116,107 @@ export default {
       }
     }
 
-    const checkout = () => {
-      if (!shippingInfo.value.name || !shippingInfo.value.phone || !shippingInfo.value.address) {
-        alert('배송지 정보를 모두 입력해주세요.')
-        return
+    const router = useRouter();
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) {
+        return decodeURIComponent(parts.pop().split(';').shift());
       }
-      alert('결제가 완료되었습니다. 감사합니다!')
+      return null;
     }
+
+    const prepareAndPay = async () => {
+      if (!shippingInfo.value.name || !shippingInfo.value.phone || !shippingInfo.value.address) {
+        alert('배송지 정보를 모두 입력해주세요.');
+        return;
+      }
+
+      try {
+        let token = getCookie('access_token');
+        if (!token) {
+          console.error('No token found');
+          return;
+        }
+        // Bearer 접두사 제거
+        if (token.startsWith('Bearer ')) {
+          token = token.substring(7);
+        }
+
+        if (!token) {
+          console.error('Token is empty after processing');
+          return;
+        }
+
+
+        const orderResponse = await axios.post('http://localhost:8080/prepare/order', {
+          cartItemList: cartItems.value.map(item => item.id),
+          buyerName: shippingInfo.value.name,
+          buyerTel: shippingInfo.value.phone,
+          buyerAddr: shippingInfo.value.address
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const orderId = orderResponse.data.result;
+
+        const paymentResponse = await axios.get(`http://localhost:8080/prepare/payment?orderId=${orderId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const paymentData = paymentResponse.data.result;
+        console.info(paymentData);
+
+        const IMP = window.IMP; // 아임포트 제공 javascript library
+        IMP.init("imp83178621");
+
+        // 결제 요청
+        IMP.request_pay({
+          pg: paymentData.pg,
+          pay_method: paymentData.payMethod,
+          merchant_uid: paymentData.merchantUid,
+          name: paymentData.name,
+          amount: paymentData.amount,
+          buyer_email: paymentData.buyerEmail,
+          buyer_name: paymentData.buyerName,
+          buyer_tel: paymentData.buyerTel,
+          buyer_addr: paymentData.buyerAddr,
+          buyer_postcode: paymentData.buyerPostcode
+        }, async function (rsp) { // callback
+          if (rsp.success) {
+            try {
+              const verifyResponse = await axios.post('http://localhost:8080/payments/verify', {
+                impUid: rsp.imp_uid,
+                merchantUid: rsp.merchant_uid,
+                amount: rsp.paid_amount
+              }, {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              });
+
+              alert('결제 검증 성공');
+              router.push({name: 'DetailOrder'})
+              console.log('결제 검증 성공:', verifyResponse.data);
+            } catch (error) {
+              alert('결제 검증 실패');
+              console.log('결제 검증 실패:', error);
+            }
+          } else {
+            alert("결제 실패");
+            console.log("결제 실패:", rsp);
+          }
+        });
+      } catch (error) {
+        alert('주문 준비 또는 결제 요청 중 오류가 발생했습니다.');
+        console.log('주문 준비 또는 결제 요청 중 오류:', error);
+      }
+    };
 
     onMounted(() => {
       loadCartItems(); // 컴포넌트가 마운트될 때 API 호출
@@ -126,7 +240,7 @@ export default {
       deleteAccount,
       goToCart,
       useMyAddress,
-      checkout
+      prepareAndPay
     }
   }
 }
@@ -212,7 +326,7 @@ export default {
             <!--             최종 결제금액: {{ totalAmount.toLocaleString() }}원-->
             최종 결제금액: {{ totalAmount }}원
           </div>
-          <button class="checkout-button" @click="checkout">결제하기</button>
+          <button class="checkout-button" @click="prepareAndPay">결제하기</button>
         </div>
       </div>
     </main>
