@@ -88,7 +88,8 @@ export default {
     }
 
     const goToProductManagement = () => {
-      alert('상품 관리 페이지로 이동합니다.')
+      alert('주문 관리 페이지로 이동합니다.')
+      router.push(`/orders/sell`)
     }
 
     const goToOrderManagement = () => {
@@ -160,7 +161,7 @@ export default {
       <div class="product-list-header">
         <h1 class="product-list-title">판매 상품 목록</h1>
         <div class="product-list-actions">
-          <button @click="goToProductManagement">상품 관리</button>
+          <button @click="goToProductManagement">주문 관리</button>
           <button @click="goToProductRegistration">상품 등록</button>
         </div>
       </div>

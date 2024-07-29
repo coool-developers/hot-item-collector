@@ -1,10 +1,11 @@
 <script>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import Header from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import axios from "axios";
 import Cookies from 'js-cookie';
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import defaultProfileImage from "@/assets/user.png";
 
 export default {
   components: { AppFooter, Header },
@@ -20,6 +21,21 @@ export default {
       { displayName: '반려동물', value: 'PET' }
     ]);
 
+    const product = ref({
+      id: null,
+      name: '',
+      category: '',
+      images: [],
+      price: 0,
+      info: '',
+      likes: 0,
+      profileImage: {
+        id: null,
+        filename: '',
+        imageUrl: defaultProfileImage
+      }
+    });
+
     const images = ref([]);
     const imageFiles = ref([]);
     const productCategory = ref('');
@@ -28,6 +44,8 @@ export default {
     const productDescription = ref('');
     const fileInput = ref(null);
     const router = useRouter();
+    const route = useRoute();
+    const productId = route.params.productId;
 
     const triggerFileInput = () => {
       fileInput.value.click();
@@ -52,52 +70,105 @@ export default {
       imageFiles.value.splice(index, 1);
     };
 
+    const fetchProduct = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/products/${productId}`);
+        const data = response.data.result;
+        console.log(data);
+
+        product.value = data;
+
+        productName.value = product.value.name;
+        productCategory.value = product.value.category;
+        productPrice.value = product.value.price;
+        productDescription.value = product.value.info;
+        images.value = product.value.images.map(image => image.imageUrl);
+
+        if (!product.value.profileImage || !product.value.profileImage.imageUrl) {
+          product.value.profileImage = {
+            id: null,
+            filename: '',
+            imageUrl: defaultProfileImage
+          };
+        }
+      } catch (error) {
+        console.error('Failed to fetch product data:', error);
+      }
+    };
+    onMounted(fetchProduct);
+
+    const deleteImage = async (index) => {
+      try {
+        const accessToken = Cookies.get('access_token');
+        if (!accessToken) {
+          throw new Error('Access token is missing.');
+        }
+        if (productId && product.value.images[index].id) {
+          const response = await axios.delete(`http://localhost:8080/products/${productId}/image/${product.value.images[index].id}`, {
+            headers: {
+              'Authorization': accessToken
+            }
+          });
+          console.log(response.data);
+
+          // 이미지 삭제 후 상태 업데이트
+          images.value.splice(index, 1);
+          product.value.images.splice(index, 1);
+        } else {
+          console.error('Product ID or image ID is missing.');
+        }
+      } catch (error) {
+        console.error('Failed to delete image:', error);
+        alert(`이미지 삭제에 실패했습니다: ${error.message}`);
+      }
+    };
+
     const submitProduct = async () => {
       try {
         const accessToken = Cookies.get('access_token');
         if (!accessToken) {
           throw new Error('Access token is missing.');
         }
+        if (productId) {
+          const formData = new FormData();
+          const requestDto = {
+            name: productName.value,
+            category: productCategory.value,
+            price: productPrice.value,
+            info: productDescription.value,
+            existingImages: images.value.filter(image => !image.startsWith('data:')) // 기존 이미지 URL만 필터링
+          };
+          formData.append('requestDto', new Blob([JSON.stringify(requestDto)], { type: 'application/json' }));
 
-        const formData = new FormData();
-        const requestDto = {
-          name: productName.value,
-          category: productCategory.value,
-          price: productPrice.value,
-          info: productDescription.value,
-        };
+          imageFiles.value.forEach((imageFile) => {
+            formData.append('files', imageFile);
+          });
 
-        formData.append('requestDto', new Blob([JSON.stringify(requestDto)], { type: 'application/json' }));
+          const response = await axios.put(`http://localhost:8080/products/${productId}`, formData, {
+            headers: {
+              'Authorization': accessToken,
+              'Content-Type': 'multipart/form-data',
+            },
+          });
 
-        imageFiles.value.forEach((imageFile) => {
-          formData.append('files', imageFile);
-        });
+          const data = response.data.result;
+          console.log(data);
 
-        const response = await axios.post('http://localhost:8080/products', formData, {
-          headers: {
-            'Authorization': accessToken,
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-
-        const data = response.data.result;
-        console.log(data);
-
-        setTimeout(() => {
-          alert('상품이 등록되었습니다.');
+          alert('상품이 수정되었습니다.');
           router.push(`/product/update/${data.id}`);
-        }, 500);
 
-        // 폼 초기화
-        productName.value = '';
-        productCategory.value = '';
-        productPrice.value = 0;
-        productDescription.value = '';
-        images.value = [];
-        imageFiles.value = [];
+          // 폼 초기화 (기존 이미지 제외)
+          productName.value = '';
+          productCategory.value = '';
+          productPrice.value = 0;
+          productDescription.value = '';
+          imageFiles.value = [];
+        } else {
+          console.error('Product ID is missing in route parameters');
+        }
       } catch (error) {
         console.error('Failed to submit product:', error);
-        alert(`상품 등록에 실패했습니다: ${error.message}`);
+        alert(`상품 수정에 실패했습니다: ${error.message}`);
       }
     };
 
@@ -116,11 +187,11 @@ export default {
       handleFileUpload,
       removeImage,
       submitProduct,
+      deleteImage
     };
   },
 };
 </script>
-
 
 <template>
   <div id="app">
@@ -139,7 +210,7 @@ export default {
                 <div class="image-preview">
                   <div v-for="(image, index) in images" :key="index" class="preview-image-container">
                     <img :src="image" class="preview-image">
-                    <button class="remove-image" @click="removeImage(index)">×</button>
+                    <button type="button" class="remove-image" @click="deleteImage(index)">×</button>
                   </div>
                 </div>
               </div>
@@ -153,7 +224,6 @@ export default {
                     {{ category.displayName }}
                   </option>
                 </select>
-
               </div>
               <div class="form-group">
                 <label for="name">상품명</label>
@@ -164,20 +234,19 @@ export default {
                 <input type="number" id="price" v-model="productPrice" required min="0" step="100">
               </div>
               <div class="form-group">
-                <label for="description">상품 설명</label>
+                <label for="description">설명</label>
                 <textarea id="description" v-model="productDescription" required></textarea>
               </div>
             </div>
           </div>
-          <div class="submit-button-container">
-            <button type="submit" class="submit-button">상품 등록</button>
-          </div>
+          <button type="submit">상품 등록</button>
         </form>
       </section>
     </main>
     <AppFooter />
   </div>
 </template>
+
 
 <style scoped>
 :root {

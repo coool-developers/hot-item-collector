@@ -1,7 +1,12 @@
 <script>
-import { ref, computed } from 'vue';
+import {ref, computed, onMounted} from 'vue';
+import AppHeader from "@/components/AppHeader.vue";
+import AppFooter from "@/components/AppFooter.vue";
+import {useRoute, useRouter} from "vue-router";
+import axios from "axios";
 
 export default {
+  components: {AppFooter, AppHeader},
   setup() {
     const isLoggedIn = ref(false)
     const searchType = ref('product')
@@ -17,32 +22,57 @@ export default {
     const password = ref('')
     const loginIdError = ref('')
     const passwordError = ref('')
+    const route = useRoute();
+    const userId = route.params.userId;
+    const router = useRouter();
 
     const user = ref({
-      name: '홍길동',
-      profileImage: 'https://example.com/profile.jpg',
-      bio: '안녕하세요, 핫아이템컬렉터에서 활동 중인 홍길동입니다. 수제 쿠키와 수공예품을 좋아하며, 다양한 핸드메이드 아이템을 수집하고 있습니다. 여러분의 특별한 아이템들을 기대하고 있어요!',
-      followers: 1234
-    })
+      id: '',
+      name: '',
+      profileImage: '',
+      bio: '',
+      followers: 0
+    });
 
-    const products = ref([
-      { id: 'R001', name: '수제 쿠키', image: 'https://example.com/cookie.jpg' },
-      { id: 'R002', name: '손뜨개 목도리', image: 'https://example.com/scarf.jpg' },
-      { id: 'R003', name: '천연 비누', image: 'https://example.com/soap.jpg' },
-      { id: 'R004', name: '수제 캔들', image: 'https://example.com/candle.jpg' },
-      { id: 'R005', name: '유기농 잼', image: 'https://example.com/jam.jpg' },
-      { id: 'R006', name: '핸드메이드 가방', image: 'https://example.com/bag.jpg' },
-      { id: 'R007', name: '아로마 오일', image: 'https://example.com/oil.jpg' },
-      { id: 'R008', name: '수제 초콜릿', image: 'https://example.com/chocolate.jpg' },
-      { id: 'R009', name: '수제 마카롱', image: 'https://example.com/macaron.jpg' },
-      { id: 'R010', name: '핸드메이드 악세서리', image: 'https://example.com/accessory.jpg' },
-      { id: 'R011', name: '친환경 텀블러', image: 'https://example.com/tumbler.jpg' },
-      { id: 'R012', name: '수제 도자기', image: 'https://example.com/pottery.jpg' },
-      { id: 'R013', name: '수제 빵', image: 'https://example.com/bread.jpg' },
-      { id: 'R014', name: '핸드메이드 인형', image: 'https://example.com/doll.jpg' },
-      { id: 'R015', name: '수제 비누', image: 'https://example.com/handmade-soap.jpg' },
-      { id: 'R016', name: '아로마 향초', image: 'https://example.com/aroma-candle.jpg' },
-    ])
+    const fetchUser = async () => {
+      if(userId){
+        const response = await axios.get(`http://localhost:8080/users/profile/${userId}`);
+        console.log(response.data.result);
+
+        user.value = response.data.result;
+      }else {
+        console.error('User Id is missing in route parameters');
+      }
+    }
+
+    onMounted(fetchUser);
+    const products = ref([])
+
+    const fetchProduct = async () => {
+      if(userId){
+        const response = await axios.get(`http://localhost:8080/products/sale/${userId}`,{
+          params: {
+            page: 1,
+            size: 4
+          }
+        });
+        console.log(response.data.result);
+
+        products.value = response.data.result.map(product =>({
+          id: product.id,
+          name: product.name,
+          image: product.image.imageUrl,
+          status:product.status
+        }));
+      }else {
+        console.error('User Id is missing in route parameters');
+      }
+    }
+    onMounted(fetchProduct);
+
+    const followUser = async () => {
+
+    }
 
     const itemsPerPage = 12
     const currentPage = ref(1)
@@ -75,10 +105,6 @@ export default {
       console.log(`Selected category: ${category}`)
     }
 
-    const followUser = () => {
-      alert('팔로우 기능은 아직 구현되지 않았습니다.')
-    }
-
     const viewMyInfo = () => {
       alert('현재 페이지가 내정보 페이지입니다.')
     }
@@ -102,6 +128,7 @@ export default {
 
     const goToProduct = (productId) => {
       alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
+      router.push(`/product/detail/${productId}`)
     }
 
     const goToProductRegistration = () => {
@@ -219,63 +246,13 @@ export default {
 
 <template>
   <div id="app">
-    <header>
-      <div class="container header-content">
-        <a href="/" class="logo">Hot Item Collector</a>
-        <div class="search-bar">
-          <select v-model="searchType">
-            <option value="product">상품명</option>
-            <option value="seller">판매자명</option>
-          </select>
-          <input type="text" v-model="searchQuery" placeholder="검색어를 입력하세요">
-          <button @click="search">검색</button>
-        </div>
-        <div class="user-actions">
-          <template v-if="isLoggedIn">
-            <div class="dropdown">
-              <button>상품</button>
-              <div class="dropdown-content">
-                <a href="#" @click="goToProductRegistration">상품 등록</a>
-                <a href="#" @click="goToProductManagement">판매 물품 관리</a>
-                <a href="#" @click="goToOrderManagement">주문 관리</a>
-              </div>
-            </div>
-            <div class="dropdown">
-              <button>내정보</button>
-              <div class="dropdown-content">
-                <a href="#" @click="viewMyInfo">내정보 보기</a>
-                <a href="#" @click="editProfile">정보 수정</a>
-                <a href="#" @click="logout">로그아웃</a>
-                <a href="#" @click="deleteAccount">회원 탈퇴</a>
-              </div>
-            </div>
-            <button @click="goToCart">장바구니</button>
-          </template>
-          <template v-else>
-            <button @click="showLoginModal = true">로그인</button>
-            <button @click="showSignupModal = true">회원가입</button>
-          </template>
-        </div>
-      </div>
-    </header>
-
-    <nav class="categories">
-      <div class="container">
-        <div class="categories-container">
-          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#"
-             class="category-item">
-            {{ category }}
-          </a>
-        </div>
-      </div>
-    </nav>
-
+    <AppHeader/>
     <main class="container my-info">
       <section class="profile-section">
-        <img :src="user.profileImage" alt="프로필 이미지" class="profile-image">
+        <img :src="user.profileImage.imageUrl" alt="프로필 이미지" class="profile-image">
         <div class="profile-details">
-          <h1 class="profile-name">{{ user.name }}</h1>
-          <p class="profile-bio">{{ user.bio }}</p>
+          <h1 class="profile-name">{{ user.nickname }}</h1>
+          <p class="profile-bio">{{ user.info }}</p>
           <div class="profile-stats">
             <span>팔로워: {{ user.followers }}</span>
             <button @click="followUser">팔로우</button>
@@ -302,86 +279,7 @@ export default {
         </div>
       </section>
     </main>
-
-    <footer>
-      <div class="container footer-content">
-        <div class="footer-links">
-          <a href="/about">회사 소개</a>
-          <a href="/terms">이용약관</a>
-          <a href="/privacy">개인정보처리방침</a>
-          <a href="/contact">고객센터</a>
-        </div>
-        <div class="footer-copyright">
-          &copy; 2023 Hot Item Collector. All rights reserved.
-        </div>
-      </div>
-    </footer>
-
-    <!-- 회원가입 모달 -->
-    <div v-if="showSignupModal" class="modal-overlay" @click.self="showSignupModal = false">
-      <div class="modal-container">
-        <button class="close-btn" @click="showSignupModal = false">&times;</button>
-        <h1>회원가입</h1>
-        <form @submit.prevent="register">
-          <div class="form-group">
-            <label for="auth-signupLoginId">아이디</label>
-            <input type="text" id="auth-signupLoginId" v-model="signupLoginId" @input="validateLoginId" required>
-            <div class="error" v-if="loginIdError">{{ loginIdError }}</div>
-          </div>
-          <div class="form-group">
-            <label for="auth-signupPassword">비밀번호</label>
-            <input type="password" id="auth-signupPassword" v-model="signupPassword" @input="validatePassword" required>
-            <div class="error" v-if="passwordError">{{ passwordError }}</div>
-          </div>
-          <div class="form-group">
-            <label for="auth-username">이름</label>
-            <input type="text" id="auth-username" v-model="username" required>
-          </div>
-          <div class="form-group">
-            <label for="auth-nickname">닉네임</label>
-            <input type="text" id="auth-nickname" v-model="nickname" required>
-          </div>
-          <button type="submit" :disabled="!isSignupFormValid">회원가입</button>
-        </form>
-        <div class="social-login">
-          <div class="social-login-divider">
-            <span>또는</span>
-          </div>
-          <button @click="kakaoLogin" class="kakao-login-btn">카카오톡으로 회원가입</button>
-        </div>
-        <div class="login-link">
-          이미 계정이 있으신가요? <a @click="switchToLogin">로그인</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- 로그인 모달 -->
-    <div v-if="showLoginModal" class="modal-overlay" @click.self="showLoginModal = false">
-      <div class="modal-container">
-        <button class="close-btn" @click="showLoginModal = false">&times;</button>
-        <h1>로그인</h1>
-        <form @submit.prevent="login">
-          <div class="form-group">
-            <label for="auth-loginId">아이디</label>
-            <input type="text" id="auth-loginId" v-model="loginId" required>
-          </div>
-          <div class="form-group">
-            <label for="auth-password">비밀번호</label>
-            <input type="password" id="auth-password" v-model="password" required>
-          </div>
-          <button type="submit">로그인</button>
-        </form>
-        <div class="social-login">
-          <div class="social-login-divider">
-            <span>또는</span>
-          </div>
-          <button @click="kakaoLogin" class="kakao-login-btn">카카오톡으로 로그인</button>
-        </div>
-        <div class="signup-link">
-          계정이 없으신가요? <a @click="switchToSignup">회원가입</a>
-        </div>
-      </div>
-    </div>
+   <AppFooter/>
   </div>
 </template>
 
