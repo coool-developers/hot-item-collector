@@ -64,9 +64,15 @@ export default {
           image: product.image.imageUrl,
           status:product.status
         }));
+      }else {
+        console.error('User Id is missing in route parameters');
       }
     }
     onMounted(fetchProduct);
+
+    const followUser = async () => {
+
+    }
 
     const itemsPerPage = 12
     const currentPage = ref(1)
@@ -97,10 +103,6 @@ export default {
 
     const selectCategory = (category) => {
       console.log(`Selected category: ${category}`)
-    }
-
-    const followUser = () => {
-      alert('팔로우 기능은 아직 구현되지 않았습니다.')
     }
 
     const viewMyInfo = () => {
