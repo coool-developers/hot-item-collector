@@ -29,9 +29,8 @@ public class PaymentController {
         return ResponseEntity.ok(new CommonResponse<>("결제 검증 완료", 200, "결제 검증 성공"));
     }
 
-    // ToDo : 추후에 order로 리팩토링 진행
     @PostMapping("/prepare/order")
-    public ResponseEntity<CommonResponse> prepareOrder(@RequestBody OrderPrepareRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<CommonResponse> prepareOrder(@RequestBody OrderPrepareRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IamportResponseException, IOException {
         Long orderId = paymentService.prepareOrder(userDetails.getUser(), requestDto);
 
         CommonResponse response = new CommonResponse<>("주문에 필요한 정보 입력 완료", 200, orderId);
