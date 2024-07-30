@@ -91,6 +91,7 @@ const goToCart = () => {
 
 const goToProductDetail = (productId) => {
   router.push(`/product/detail/${productId}`)
+  alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
 }
 
 </script>
@@ -312,7 +313,7 @@ header {
   right: 0;
   background-color: var(--bg-color);
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
   border-radius: 5px;
 }
@@ -426,7 +427,7 @@ header {
 }
 
 .product-card:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .product-image {

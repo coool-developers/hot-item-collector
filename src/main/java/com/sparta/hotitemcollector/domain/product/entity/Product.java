@@ -86,4 +86,8 @@ public class Product extends Timestamped {
     public void updateStatus() {
         this.status = ProductStatus.SOLD_OUT;
     }
+
+    public void removeImage(ProductImage productImage) {
+        this.images.remove(productImage);
+    }
 }

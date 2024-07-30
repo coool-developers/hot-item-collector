@@ -99,8 +99,7 @@ public class UserController {
     }
 
     @GetMapping("/profile/{userId}")
-    public ResponseEntity<CommonResponse> getUserProfile(@PathVariable Long userId,
-                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<CommonResponse> getUserProfile(@PathVariable Long userId) {
         GetUserProfileDto profile = userService.getUserProfile(userId);
         CommonResponse response = new CommonResponse<>("유저 프로필 조회 성공", 200, profile);
         return new ResponseEntity<>(response, HttpStatus.OK);

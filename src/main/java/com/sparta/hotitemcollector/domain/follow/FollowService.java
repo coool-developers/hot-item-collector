@@ -22,6 +22,9 @@ public class FollowService {
 
     @Transactional
     public void createFollow(Long userId, User followerUser) {
+        if(userId.equals(followerUser.getId())){
+            throw new CustomException(ErrorCode.SELF_FOLLOW);
+        }
         // 팔로우 당하는 사람 ERD에서 following_id
         User followingUser = userService.findByUserId(userId);
 

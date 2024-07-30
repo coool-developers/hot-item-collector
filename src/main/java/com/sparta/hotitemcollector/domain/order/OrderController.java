@@ -31,20 +31,20 @@ public class OrderController {
 
 	@GetMapping("/orders/buy")
 	public ResponseEntity<CommonResponse<List<OrderResponseDto>>> getOrdersAllByBuyer(
-		@RequestParam(defaultValue = "1") int page,
-		@RequestParam(defaultValue = "10") int size,
-		@RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now().minusMonths(3)}") LocalDateTime startDate,
-		@RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now()}") LocalDateTime endDate,
+		@RequestParam(defaultValue = "#{T(java.time.LocalDate).now().minusMonths(3)}")
+		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+		@RequestParam(defaultValue = "#{T(java.time.LocalDate).now()}")
+		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		List<OrderResponseDto> responseDtoList = orderService.getOrdersAllByBuyer(page, size, startDate, endDate, userDetails.getUser());
+		List<OrderResponseDto> responseDtoList = orderService.getOrdersAllByBuyer(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), userDetails.getUser());
 
 		CommonResponse<List<OrderResponseDto>> responses = new CommonResponse("구매자의 주문 목록을 조회 성공했습니다.", 200, responseDtoList);
 		return new ResponseEntity<>(responses, HttpStatus.OK);
 	}
 
-	@GetMapping("/orders/buy/{orderId}")
+	@GetMapping("/order/buy/{orderId}")
 	public ResponseEntity<CommonResponse<OrderResponseDto>> getOrderByBuyer(@PathVariable("orderId") Long orderId,
-		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+																			@AuthenticationPrincipal UserDetailsImpl userDetails) {
 		OrderResponseDto responseDto = orderService.getOrderByBuyer(orderId, userDetails.getUser());
 
 		CommonResponse<OrderResponseDto> response = new CommonResponse("구매자의 단건 주문을 조회 성공했습니다.", 200, responseDto);
@@ -53,15 +53,13 @@ public class OrderController {
 
 	@GetMapping("/orders/sell")
 	public ResponseEntity<CommonResponse<List<OrderItemBySellerResponseDto>>> getOrdersBySeller(
-		@RequestParam(defaultValue = "1") int page,
-		@RequestParam(defaultValue = "10") int size,
 		@RequestParam(defaultValue = "#{T(java.time.LocalDate).now().minusMonths(3)}")
 		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 		@RequestParam(defaultValue = "#{T(java.time.LocalDate).now()}")
 		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 		@RequestParam(required = false) String status,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		List<OrderItemBySellerResponseDto> responseDtoList = orderService.getOrdersAllBySeller(page, size,
+		List<OrderItemBySellerResponseDto> responseDtoList = orderService.getOrdersAllBySeller(
 			startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), status, userDetails.getUser());
 
 		CommonResponse<List<OrderItemBySellerResponseDto>> response = new CommonResponse("판매자의 주문 목록을 조회 성공했습니다.", 200, responseDtoList);

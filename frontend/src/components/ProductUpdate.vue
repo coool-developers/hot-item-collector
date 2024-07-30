@@ -214,7 +214,7 @@ body {
             <div class="product-actions-container">
               <p class="product-price">{{ formatPrice(product.price) }}원</p>
               <div class="buy-actions">
-                <button v-if="product.status !== 'SOLD_OUT'" class="edit-now" @click="editProduct">상품정보 수정</button>
+                <button v-if="product.status !== 'SOLD_OUT'" class="edit-now" :key="product.id" @click="editProduct(product.id)">상품정보 수정</button>
                 <button v-else class="sold-out" disabled>판매완료</button>
                 <button class="delete-now" @click="deleteProduct">상품정보 삭제</button>
               </div>
@@ -334,13 +334,19 @@ export default {
       }
     }}
 
+    const editProduct = (productId) => {
+      alert(`상품 ID ${productId}의 수정 페이지로 이동합니다.`)
+      router.push(`/product/edit/${productId}`);
+    }
+
     return {
       product,
       currentImage,
       formatPrice,
       prevImage,
       nextImage,
-      deleteProduct
+      deleteProduct,
+      editProduct
     }
   }
 }
