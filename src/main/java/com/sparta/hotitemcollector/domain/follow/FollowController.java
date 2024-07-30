@@ -34,6 +34,16 @@ public class FollowController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    //팔로우 여부를 확인하는 메소드
+    @GetMapping("/follow/{userId}")
+    public ResponseEntity<CommonResponse<UserFollowResponseDto>> getUserFollow(@PathVariable("userId") Long userId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        UserFollowResponseDto responseDto = followService.getUserFollow(userId, userDetails.getUser());
+
+        CommonResponse response = new CommonResponse<>("팔로우 여부 확인 완료", 200, responseDto);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping("/follows")
     public ResponseEntity<CommonResponse> getFollows(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         List<GetAllFollowsResponseDto> followingList = followService.getFollows(userDetails.getUser());

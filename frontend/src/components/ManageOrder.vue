@@ -8,7 +8,7 @@ import AppFooter from './AppFooter.vue';
 export default {
   components: { Header, AppFooter },
   setup() {
-    const deliveryStatuses = ref(['결제 완료', '배송 시작', '배송 중', '배송 완료'])
+    const deliveryStatuses = ref(['결제 대기중', '결제 완료', '상품 준비중', '배송 시작', '배송 중', '배송 완료', '주문 취소'])
     const statusFilter = ref('')
     const orders = ref([]) // order 상태
     const today = new Date().toISOString().split('T')[0]

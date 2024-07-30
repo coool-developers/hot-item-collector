@@ -48,6 +48,16 @@ public class LikeService {
     }
 
     @Transactional(readOnly = true)
+    public UserLikeResponseDto getUserLike(Long productId, User user) {
+        Optional<Likes> existingLike = likeRepository.findByProductIdAndUser(productId, user);
+        if (existingLike.isPresent()) {
+            return new UserLikeResponseDto(true);
+        } else {
+            return new UserLikeResponseDto(false);
+        }
+    }
+
+    @Transactional(readOnly = true)
     public List<ProductSimpleResponseDto> getLikeProduct(User user, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage = findLikeProductIdByUser(user, pageable);

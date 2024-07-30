@@ -44,6 +44,15 @@
     </main>
     <AppFooter/>
   </div>
+<!--카트 모달-->
+  <div v-if="showCartModal" class="modal-overlay" @click.self="showCartModal = false">
+    <div class="modal-container">
+      <button class="close-btn" @click="showCartModal = false">&times;</button>
+      <h1>{{ buttonText }}</h1>
+      <button @click="goToCart">장바구니로 이동하기</button>
+    </div>
+  </div>
+
 </template>
 
 <script>
@@ -53,9 +62,17 @@ import axios from "axios";
 import {useRoute} from "vue-router";
 import AppFooter from "@/components/AppFooter.vue";
 import defaultUserImage from "../assets/user.png"
+import Cookies from "js-cookie";
+import router from "@/router";
 
 export default {
   components: {AppFooter, Header},
+  props: {
+    productId: {
+      type: String,
+      required: true
+    }
+  },
   setup() {
     const isLoggedIn = ref(true)
     const isFollowing = ref(false)
@@ -63,6 +80,12 @@ export default {
     const currentImageIndex = ref(0)
     const route = useRoute(); // useRoute를 통해 현재 라우트에 접근
     const productId = route.params.productId; // 라우트 파라미터에서 productId를 가져옴
+    const accessToken = Cookies.get('access_token')
+    const showCartModal = ref(false);
+    const cartExist = ref(false)
+    const buttonText = computed(() => {
+      return cartExist.value ? '선택한 상품이 이미 장바구니에 담겨있습니다.' : '선택한 상품을 장바구니에 담았습니다.';
+    });
 
     // 기본 프로필 이미지 URL
     const defaultProfileImage = defaultUserImage;
@@ -80,7 +103,8 @@ export default {
         id: null,
         filename: '',
         imageUrl: defaultProfileImage
-      }
+      },
+      userId: null
     });
 
     const fetchProduct = async () => {
@@ -107,21 +131,95 @@ export default {
       }
     };
 
-    onMounted(fetchProduct);
+    const fetchLikeStatus = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/likes/${productId}`, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        isLiked.value = response.data.result.userLike
+      } catch(error) {
+        console.error(error)
+      }
+    }
+
+    const fetchFollowStatus = async () => {
+      try {
+        await fetchProduct()
+        const response = await axios.get(`http://localhost:8080/follow/${product.value.userId}`, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        isFollowing.value = response.data.result.userFollow
+        console.log("팔로우 여부 불러오기 완료")
+      } catch(error) {
+        console.error(error)
+      }
+    }
+
+    onMounted(() => {
+      fetchProduct();
+      fetchLikeStatus();
+      fetchFollowStatus();
+    });
 
     const currentImage = computed(() => {
       return product.value.images.length > 0 ? product.value.images[currentImageIndex.value].imageUrl : '';
     });
 
 
-    const toggleFollow = () => {
-      isFollowing.value = !isFollowing.value
+    const follow = async () => {
+      try {
+        await axios.post(`http://localhost:8080/follow/${product.value.userId}`, {}, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        isFollowing.value = true;
+        console.log('팔로우 성공')
+      } catch (error) {
+        console.error('팔로우 실패:', error);
+      }
+    };
+
+    const unfollow = async () => {
+      try {
+        await axios.delete(`http://localhost:8080/follow/${product.value.userId}`, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        isFollowing.value = false;
+        console.log('팔로우 취소 성공');
+      } catch (error) {
+        console.error('팔로우 취소 실패:', error);
+      }
+    };
+
+    const toggleFollow = async () => {
+      if (isFollowing.value) {
+        await unfollow();
+      } else {
+        await follow();
+      }
     }
 
-    const toggleLike = () => {
-      isLiked.value = !isLiked.value
-      product.value.likes += isLiked.value ? 1 : -1
-    }
+    const toggleLike = async () => {
+
+      try {
+        await axios.post(`http://localhost:8080/likes/${productId}`, {}, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        isLiked.value = !isLiked.value;
+        product.value.likes += isLiked.value ? 1 : -1;
+      } catch (error) {
+        console.error('Error toggling like:', error);
+      }
+     }
 
     const prevImage = () => {
       currentImageIndex.value = (currentImageIndex.value - 1 + product.value.images.length) % product.value.images.length
@@ -133,8 +231,53 @@ export default {
       currentImage.value = product.value.images[currentImageIndex.value]
     }
 
+    const goToCart = () => {
+      router.push({name: 'CartPage'})
+    }
+
+    const addToCart = () => {
+
+      axios.post(`http://localhost:8080/cart/${productId}`, {},{
+        headers: {
+          'Content-Type':'application/json',
+          'Authorization':accessToken
+        },
+      }).then(response => {
+        console.log(response)
+        cartExist.value = false
+        showCartModal.value = true
+
+      }).catch(error => {
+        cartExist.value = true
+        showCartModal.value = true
+
+        console.error(error); // 에러 처리
+      })
+    }
+
+    const buyNow = async () => {
+      await fetchProduct();
+
+      const orderData = {
+        productId: product.value.id,
+        productName: product.value.name,
+        price: product.value.price,
+        seller: product.value.nickname,
+        productImage: product.value.images[0]
+      };
+
+     // const orderData = response
+      sessionStorage.setItem('orderData', JSON.stringify([orderData]))
+      router.push({name: 'OrderPage'})
+    }
+
     const formatPrice = (price) => {
       return price.toLocaleString()
+    }
+
+    const switchToCart = () => {
+      showCartModal.value = false
+      showCartModal.value = true
     }
 
     return {
@@ -143,11 +286,17 @@ export default {
       currentImage,
       isFollowing,
       isLiked,
+      showCartModal,
       formatPrice,
       toggleFollow,
       toggleLike,
       prevImage,
       nextImage,
+      addToCart,
+      goToCart,
+      buyNow,
+      switchToCart,
+      buttonText
     }
   },
 }

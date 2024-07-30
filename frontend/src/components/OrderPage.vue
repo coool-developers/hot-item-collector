@@ -43,7 +43,7 @@ export default {
 
       orderDataArray.forEach(orderData => {
         cartItems.value.push({
-          id: orderData.id,
+          productId: orderData.productId,
           productName: orderData.productName,
           price: orderData.price,
           seller: orderData.seller,
@@ -91,7 +91,7 @@ export default {
       try {
 
         const orderResponse = await axios.post('http://localhost:8080/prepare/order', {
-          cartItemList: cartItems.value.map(item => item.id),
+          productItemList: cartItems.value.map(item => item.productId),
           buyerName: shippingInfo.value.name,
           buyerTel: shippingInfo.value.phone,
           buyerAddr: shippingInfo.value.address

@@ -62,8 +62,9 @@ public class PaymentService {
 
 		BigDecimal totalAmount = BigDecimal.ZERO; // 총 결제 금액을 저장할 변수
 
-		for (Long itemId : requestDto.getCartItemList()) {
-			Product product = cartService.findById(itemId).getProduct();
+		for (Long itemId : requestDto.getProductItemList()) {
+			// 기존 cartItem에서 제품을 찾는 것에서 제품 id를 바로 입력하도록 변경
+			Product product = productService.findById(itemId);
 			OrderItem orderItem = orderService.createOrderItem(order, product);
 
 			totalAmount = totalAmount.add(product.getPrice());

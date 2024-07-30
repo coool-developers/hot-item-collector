@@ -39,6 +39,16 @@ public class LikeController {
         }
     }
 
+    // 로그인한 유저의 상품 좋아요 여부를 확인하는 메소드
+    @GetMapping("/likes/{productId}")
+    public ResponseEntity<CommonResponse<UserLikeResponseDto>> getUserLike(@PathVariable("productId") Long productId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        User user = userDetails.getUser();
+        UserLikeResponseDto responseDto = likeService.getUserLike(productId, user);
+        CommonResponse response = new CommonResponse<>("로그인한 유저의 상품 좋아요 여부 확인 완료", 200, responseDto);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping("/products/like")
     public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getLikeProduct(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
