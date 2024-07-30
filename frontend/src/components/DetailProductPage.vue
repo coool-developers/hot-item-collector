@@ -116,7 +116,8 @@ export default {
         id: null,
         filename: '',
         imageUrl: defaultProfileImage
-      }
+      },
+      userId: null
     });
 
     const fetchProduct = async () => {
@@ -156,9 +157,25 @@ export default {
       }
     }
 
+    const fetchFollowStatus = async () => {
+      try {
+        await fetchProduct()
+        const response = await axios.get(`http://localhost:8080/follow/${product.value.userId}`, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        isFollowing.value = response.data.result.userFollow
+        console.log("팔로우 여부 불러오기 완료")
+      } catch(error) {
+        console.error(error)
+      }
+    }
+
     onMounted(() => {
       fetchProduct();
       fetchLikeStatus();
+      fetchFollowStatus();
     });
 
     const currentImage = computed(() => {
@@ -169,8 +186,40 @@ export default {
       // 검색 로직
     }
 
-    const toggleFollow = () => {
-      isFollowing.value = !isFollowing.value
+    const follow = async () => {
+      try {
+        await axios.post(`http://localhost:8080/follow/${product.value.userId}`, {}, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        isFollowing.value = true;
+        console.log('팔로우 성공')
+      } catch (error) {
+        console.error('팔로우 실패:', error);
+      }
+    };
+
+    const unfollow = async () => {
+      try {
+        await axios.delete(`http://localhost:8080/follow/${product.value.userId}`, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        isFollowing.value = false;
+        console.log('팔로우 취소 성공');
+      } catch (error) {
+        console.error('팔로우 취소 실패:', error);
+      }
+    };
+
+    const toggleFollow = async () => {
+      if (isFollowing.value) {
+        await unfollow();
+      } else {
+        await follow();
+      }
     }
 
     const toggleLike = async () => {
