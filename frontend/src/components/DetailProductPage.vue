@@ -170,8 +170,40 @@ export default {
     });
 
 
-    const toggleFollow = () => {
-      isFollowing.value = !isFollowing.value
+    const follow = async () => {
+      try {
+        await axios.post(`http://localhost:8080/follow/${product.value.userId}`, {}, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        isFollowing.value = true;
+        console.log('팔로우 성공')
+      } catch (error) {
+        console.error('팔로우 실패:', error);
+      }
+    };
+
+    const unfollow = async () => {
+      try {
+        await axios.delete(`http://localhost:8080/follow/${product.value.userId}`, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        isFollowing.value = false;
+        console.log('팔로우 취소 성공');
+      } catch (error) {
+        console.error('팔로우 취소 실패:', error);
+      }
+    };
+
+    const toggleFollow = async () => {
+      if (isFollowing.value) {
+        await unfollow();
+      } else {
+        await follow();
+      }
     }
 
     const toggleLike = async () => {
