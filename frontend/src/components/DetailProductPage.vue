@@ -225,16 +225,9 @@ export default {
 
     const buyNow = async () => {
       await fetchProduct();
-      // 장바구니에 값이 이미 있으면 409 에러, 확인 필요
-      axios.post(`http://localhost:8080/cart/${productId}`, {},{
-        headers: {
-          'Content-Type':'application/json',
-          'Authorization':accessToken
-        },
-      })
 
       const orderData = {
-        id: product.value.id,
+        productId: product.value.id,
         productName: product.value.name,
         price: product.value.price,
         seller: product.value.nickname,

@@ -7,14 +7,14 @@ import java.util.List;
 
 @Getter
 public class OrderPrepareRequestDto {
-    private List<Long> cartItemList;
+    private List<Long> productItemList;
     private String buyerName;
     private String buyerTel;
     private String buyerAddr;
 
     @Builder
-    public OrderPrepareRequestDto(List<Long> cartItemList, String buyerName, String buyerTel, String buyerAddr) {
-        this.cartItemList = cartItemList;
+    public OrderPrepareRequestDto(List<Long> productItemList, String buyerName, String buyerTel, String buyerAddr) {
+        this.productItemList = productItemList;
         this.buyerName = buyerName;
         this.buyerTel = buyerTel;
         this.buyerAddr = buyerAddr;
