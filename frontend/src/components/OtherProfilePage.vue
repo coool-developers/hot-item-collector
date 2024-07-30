@@ -165,7 +165,7 @@ export default {
           <h1 class="profile-name">{{ user.nickname }}</h1>
           <p class="profile-bio">{{ user.info }}</p>
           <div class="profile-stats">
-            <span>팔로워: {{ user.followers }}</span>
+            <span>팔로워: {{ user.followerCount }}</span>
             <button v-if="isLoggedIn" class="follow-button" @click="toggleFollow">
               {{ isFollowing ? '팔로우 취소' : '팔로우' }}
             </button>

@@ -14,8 +14,9 @@ public class GetMyProfileDto {
     private ProfileImageResponseDto profileImage;
     private String phoneNumber;
     private String address;
+    private Long followerCount;
 
-    public GetMyProfileDto(User user, ProfileImageResponseDto profileImageResponseDto) {
+    public GetMyProfileDto(User user, ProfileImageResponseDto profileImageResponseDto,Long followerCount) {
         this.id = user.getId();
         this.username = user.getUsername();
         this.loginId = user.getLoginId();
@@ -24,5 +25,6 @@ public class GetMyProfileDto {
         this.address = user.getAddress();
         this.phoneNumber = user.getPhoneNumber();
         this.profileImage = profileImageResponseDto;
+        this.followerCount=followerCount;
     }
 }

@@ -1,5 +1,7 @@
 package com.sparta.hotitemcollector.domain.user;
 
+import com.sparta.hotitemcollector.domain.follow.FollowRepository;
+import com.sparta.hotitemcollector.domain.follow.FollowService;
 import com.sparta.hotitemcollector.domain.s3.service.S3Service;
 import com.sparta.hotitemcollector.domain.token.Token;
 import com.sparta.hotitemcollector.domain.token.TokenService;
@@ -32,6 +34,7 @@ public class UserService {
     private final TokenService tokenService;
     private final S3Service s3Service;
     private final ProfileImageRepository profileImageRepository;
+    private final FollowRepository followRepository;
 
     public void signup(SignupRequestDto signupRequestDto) {
         Optional<User> finduser = userRepository.findByLoginId(signupRequestDto.getLoginId());
@@ -255,18 +258,20 @@ public class UserService {
     public GetUserProfileDto getUserProfile(Long userId) {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+        Long followerCount = followRepository.countByFollowing(findUser);
         ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(findUser.getProfileImage());
-            return new GetUserProfileDto(findUser,profileImageResponseDto);
+            return new GetUserProfileDto(findUser,profileImageResponseDto,followerCount);
     }
 
     public GetMyProfileDto getMyProfile(User user) {
         User findUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+        Long followerCount = followRepository.countByFollowing(findUser);
         if(findUser.getProfileImage()!=null){
             ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(findUser.getProfileImage());
-            return new GetMyProfileDto(findUser,profileImageResponseDto);
+            return new GetMyProfileDto(findUser,profileImageResponseDto,followerCount);
         }
-        return new GetMyProfileDto(findUser,null);
+        return new GetMyProfileDto(findUser,null,followerCount);
 
     }
 

@@ -268,7 +268,7 @@ export default {
           name: userResponse.data.result.nickname,
           profileImage: userResponse.data.result.profileImage.imageUrl,
           bio: userResponse.data.result.info,
-          followers: userResponse.data.result.followers || 0
+          followers: userResponse.data.result.followerCount || 0
         };
 
         // Fetch registered products
