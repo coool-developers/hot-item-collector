@@ -50,6 +50,12 @@ public class FollowService {
     }
 
     @Transactional(readOnly = true)
+    public UserFollowResponseDto getUserFollow(Long userId, User followerUser) {
+        User followingUser = userService.findByUserId(userId);
+        return new UserFollowResponseDto(checkFollowAlready(followerUser, followingUser));
+    }
+
+    @Transactional(readOnly = true)
     public List<GetAllFollowsResponseDto> getFollows(User user) {
         List<Follow> followList = getAllFollowers(user);
 
