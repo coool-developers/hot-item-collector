@@ -4,13 +4,16 @@ import Header from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import {useRoute} from "vue-router";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 export default {
   components: { Header, AppFooter },
   setup() {
-    const isLoggedIn = ref(false)
+    const isLoggedIn = ref(true)
     const route = useRoute();
     const userId = route.params.userId;
+    const accessToken = Cookies.get('access_token')
+    const isFollowing = ref(false)
 
     const user = ref({
       id: '',
@@ -56,6 +59,54 @@ export default {
     }
     onMounted(fetchProduct);
 
+    const fetchFollowStatus = async () => {
+      try {
+        await fetchProduct()
+        const response = await axios.get(`http://localhost:8080/follow/${userId}`, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        isFollowing.value = response.data.result.userFollow
+        console.log("팔로우 여부 불러오기 완료")
+      } catch(error) {
+        console.error(error)
+      }
+    }
+
+    onMounted(() => {
+      fetchProduct();
+      fetchFollowStatus();
+    });
+
+
+    const follow = async () => {
+      try {
+        await axios.post(`http://localhost:8080/follow/${userId}`, {}, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        isFollowing.value = true;
+        console.log('팔로우 성공')
+      } catch (error) {
+        console.error('팔로우 실패:', error);
+      }
+    };
+
+    const unfollow = async () => {
+      try {
+        await axios.delete(`http://localhost:8080/follow/${userId}`, {
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        isFollowing.value = false;
+        console.log('팔로우 취소 성공');
+      } catch (error) {
+        console.error('팔로우 취소 실패:', error);
+      }
+    };
 
     const itemsPerPage = 12
     const currentPage = ref(1)
@@ -80,16 +131,25 @@ export default {
       }
     }
 
+    const toggleFollow = async () => {
+      if (isFollowing.value) {
+        await unfollow();
+      } else {
+        await follow();
+      }
+    }
 
 
     return {
       isLoggedIn,
+      isFollowing,
       user,
       displayedProducts,
       currentPage,
       totalPages,
       prevPage,
       nextPage,
+      toggleFollow
     }
   }
 }
@@ -106,7 +166,9 @@ export default {
           <p class="profile-bio">{{ user.info }}</p>
           <div class="profile-stats">
             <span>팔로워: {{ user.followers }}</span>
-            <button @click="followUser">팔로우</button>
+            <button v-if="isLoggedIn" class="follow-button" @click="toggleFollow">
+              {{ isFollowing ? '팔로우 취소' : '팔로우' }}
+            </button>
           </div>
         </div>
       </section>
@@ -307,6 +369,19 @@ body {
 .pagination button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+.follow-button {
+  padding: 5px 15px;
+  background-color: var(--main-color);
+  color: var(--bg-color);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.follow-button:hover {
+  background-color: var(--hover-color);
 }
 
 </style>
