@@ -43,7 +43,7 @@
   <nav class="categories">
     <div class="container">
       <div class="categories-container">
-        <a v-for="category in categories" :key="category" :href="'/category/' + category" class="category-item">{{ category }}</a>
+        <a v-for="category in categories" :key="category" @click="searchByCategory(category)" class="category-item">{{ category }}</a>
       </div>
     </div>
   </nav>
@@ -241,10 +241,7 @@ onMounted(async () => {
 
 
 
-function search() {
-  // 검색 함수 구현
-  router.push('/product/upload');
-}
+
 
 function goToProductRegistration() {
   // 상품 등록 함수 구현
@@ -510,6 +507,35 @@ async function changePassword() {
     changePasswordSuccess.value = '';
   }
 }
+// searchByCategory function
+const searchByCategory = (category) => {
+  console.log(category);
+  router.push({
+    name: 'CategoryItemPage',
+    query: { searchQuery: category }
+  }).then(() => {
+    // 강제 새로고침
+    window.location.reload();
+  }).catch(err => {
+    console.error('Routing error:', err);
+  });
+};
+
+// search function
+const search = () => {
+
+  router.push({
+    name: 'SearchPage',
+    query: { searchType: searchType.value, searchQuery: searchQuery.value }
+  }).then(() => {
+    // 강제 새로고침
+    window.location.reload();
+  }).catch(err => {
+    console.error('Routing error:', err);
+  });
+};
+
+
 </script>
 
 <style>

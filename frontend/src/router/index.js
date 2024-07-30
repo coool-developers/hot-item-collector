@@ -18,6 +18,7 @@ import SaleProductPage from "@/components/SaleProductPage.vue";
 import FollowItemPage from "@/components/FollowItemPage.vue";
 import NewItemPage from "@/components/NewItemPage.vue";
 import LikeItemPage from "@/components/LikeItemPage.vue";
+import CategoryItemPage from "@/components/CategoryItemPage.vue";
 import EditProduct from "@/components/EditProduct.vue";
 
 const routes = [
@@ -108,6 +109,11 @@ const routes = [
     path: '/followed-items',
     name: 'FollowItemPage',
     component: FollowItemPage,
+  },
+  {
+    path: '/category-items',
+    name: 'CategoryItemPage',
+    component: CategoryItemPage,
   },
   {
     path: '/new-items',

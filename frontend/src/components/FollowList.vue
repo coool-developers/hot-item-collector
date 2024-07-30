@@ -1,49 +1,6 @@
 <template>
   <div>
-    <header>
-      <div class="container header-content">
-        <a href="/" class="logo">Hot Item Collector</a>
-        <div class="search-bar">
-          <select v-model="searchType">
-            <option value="product">상품명</option>
-            <option value="seller">판매자명</option>
-          </select>
-          <input type="text" v-model="searchQuery" placeholder="검색어를 입력하세요">
-          <button @click="search">검색</button>
-        </div>
-        <div class="user-actions">
-          <div class="dropdown">
-            <button>상품</button>
-            <div class="dropdown-content">
-              <a href="#" @click="goToProductRegistration">상품 등록</a>
-              <a href="#" @click="goToProductManagement">판매 물품 관리</a>
-              <a href="#" @click="goToOrderManagement">주문 관리</a>
-            </div>
-          </div>
-          <div class="dropdown">
-            <button>내정보</button>
-            <div class="dropdown-content">
-              <a href="#" @click="viewMyInfo">내정보 보기</a>
-              <a href="#" @click="editProfile">정보 수정</a>
-              <a href="#" @click="logout">로그아웃</a>
-              <a href="#" @click="deleteAccount">회원 탈퇴</a>
-            </div>
-          </div>
-          <button @click="goToCart">장바구니</button>
-        </div>
-      </div>
-    </header>
-
-    <nav class="categories">
-      <div class="container">
-        <div class="categories-container">
-          <a v-for="category in categories" :key="category" @click.prevent="selectCategory(category)" href="#" class="category-item">
-            {{ category }}
-          </a>
-        </div>
-      </div>
-    </nav>
-
+    <Header />
     <main class="container following-list">
       <h1>팔로우 목록</h1>
       <div v-for="user in followingUsers" :key="user.id" class="following-item" @click="goToUserProfile(user.id)">
@@ -57,124 +14,85 @@
         </button>
       </div>
     </main>
-
-    <footer>
-      <div class="container footer-content">
-        <div class="footer-links">
-          <a href="/about">회사 소개</a>
-          <a href="/terms">이용약관</a>
-          <a href="/privacy">개인정보처리방침</a>
-          <a href="/contact">고객센터</a>
-        </div>
-        <div class="footer-copyright">
-          &copy; 2023 Hot Item Collector. All rights reserved.
-        </div>
-      </div>
-    </footer>
+    <AppFooter />
   </div>
 </template>
 
 <script>
-import { ref } from 'vue'
+import Header from './AppHeader.vue';
+import AppFooter from './AppFooter.vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import { useRouter } from "vue-router";
+import Cookies from "js-cookie";
 
 export default {
+  components: { Header, AppFooter },
   setup() {
-    const searchType = ref('product')
-    const searchQuery = ref('')
-    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
+    const router = useRouter();
 
-    const followingUsers = ref([
-      {
-        id: 1,
-        name: '김민수',
-        profileImage: 'https://example.com/profile1.jpg',
-        bio: '수제 쿠키 전문가, 달콤한 행복을 나눕니다.',
-        isFollowing: true
-      },
-      {
-        id: 2,
-        name: '이지은',
-        profileImage: 'https://example.com/profile2.jpg',
-        bio: '핸드메이드 액세서리 디자이너, 특별한 아이템을 만듭니다.',
-        isFollowing: true
-      },
-      {
-        id: 3,
-        name: '박준호',
-        profileImage: 'https://example.com/profile3.jpg',
-        bio: '수제 가죽 제품 장인, 오래 사용할 수 있는 제품을 만듭니다.',
-        isFollowing: true
+    const followingUsers = ref([]);
+
+    const toggleFollow = async (user) => {
+      const accessToken = Cookies.get('access_token');
+      try {
+        if (user.isFollowing) {
+          // 팔로우 취소 요청
+          await axios.delete(`http://localhost:8080/follow/${user.id}`, {
+            headers: {
+              'Authorization': accessToken
+            }
+          });
+        } else {
+          // 팔로우 요청
+          await axios.post(`http://localhost:8080/follow/${user.id}`, {}, {
+            headers: {
+              'Authorization': accessToken
+            }
+          });
+        }
+        user.isFollowing = !user.isFollowing;
+        console.log('팔로우 상태 변경 성공');
+      } catch (error) {
+        console.error('팔로우 상태 변경 실패:', error);
       }
-    ])
-
-    const toggleFollow = (user) => {
-      user.isFollowing = !user.isFollowing
     }
 
     const goToUserProfile = (userId) => {
-      alert(`사용자 ID ${userId}의 프로필 페이지로 이동합니다.`)
+      alert(`사용자 ID ${userId}의 프로필 페이지로 이동합니다.`);
+      router.push('/profile');
     }
 
-    const search = () => {
-      alert(`검색 유형: ${searchType.value}, 검색어: ${searchQuery.value}`)
-    }
-
-    const selectCategory = (category) => {
-      alert(`선택한 카테고리: ${category}`)
-    }
-
-    const goToProductRegistration = () => {
-      alert('상품 등록 페이지로 이동합니다.')
-    }
-
-    const goToProductManagement = () => {
-      alert('판매 물품 관리 페이지로 이동합니다.')
-    }
-
-    const goToOrderManagement = () => {
-      alert('주문 관리 페이지로 이동합니다.')
-    }
-
-    const viewMyInfo = () => {
-      alert('내 정보 페이지로 이동합니다.')
-    }
-
-    const editProfile = () => {
-      alert('프로필 수정 페이지로 이동합니다.')
-    }
-
-    const logout = () => {
-      alert('로그아웃 되었습니다.')
-    }
-
-    const deleteAccount = () => {
-      const confirmed = confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')
-      if (confirmed) {
-        alert('회원 탈퇴 처리되었습니다. 이용해 주셔서 감사합니다.')
+    // API 요청을 통해 데이터를 가져오는 함수
+    const fetchFollowingUsers = async () => {
+      try {
+        const accessToken = Cookies.get('access_token');
+        const response = await axios.get('http://localhost:8080/follows', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': accessToken
+          }
+        });
+        console.log(response.data);
+        // 응답 데이터 매핑
+        followingUsers.value = response.data.result.map((item) => ({
+          id: item.userId,
+          name: item.userName,
+          profileImage: item.profileImage.imageUrl,
+          bio: item.profileInfo,
+          isFollowing: true // Assume all users in the list are being followed
+        }));
+      } catch (error) {
+        console.error('팔로잉 유저 목록을 가져오는 데 실패했습니다.', error);
       }
-    }
+    };
 
-    const goToCart = () => {
-      alert('장바구니 페이지로 이동합니다.')
-    }
+    onMounted(fetchFollowingUsers);
 
     return {
-      searchType,
-      searchQuery,
-      categories,
       followingUsers,
       toggleFollow,
       goToUserProfile,
-      search,
-      selectCategory,
-      goToProductRegistration,
-      goToProductManagement,
-      goToOrderManagement,
-      viewMyInfo,
-      editProfile,
-      logout,
-      deleteAccount,
-      goToCart
     }
   }
 }
@@ -205,157 +123,6 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
-}
-
-/* Header Styles */
-header {
-  background-color: var(--main-color);
-  padding: 15px 0;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--bg-color);
-  text-decoration: none;
-  margin-right: 20px;
-}
-
-.search-bar {
-  display: flex;
-  align-items: stretch;
-  flex-grow: 1;
-  margin: 10px 0;
-  max-width: 600px;
-}
-
-.search-bar select {
-  padding: 10px;
-  font-size: 16px;
-  border: none;
-  border-radius: 5px 0 0 5px;
-}
-
-.search-bar input {
-  padding: 10px;
-  font-size: 16px;
-  border: none;
-  flex-grow: 1;
-  min-width: 200px;
-}
-
-.search-bar button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: var(--button-color);
-  color: var(--bg-color);
-  border: none;
-  cursor: pointer;
-  border-radius: 0 5px 5px 0;
-  transition: background-color 0.3s ease;
-}
-
-.search-bar button:hover {
-  background-color: var(--hover-color);
-}
-
-.user-actions {
-  display: flex;
-  align-items: center;
-}
-
-.user-actions button {
-  margin-left: 10px;
-  padding: 10px 20px;
-  background-color: transparent;
-  color: var(--bg-color);
-  border: 2px solid var(--bg-color);
-  cursor: pointer;
-  border-radius: 5px;
-  font-weight: bold;
-  transition: all 0.3s ease;
-}
-
-.user-actions button:hover {
-  background-color: var(--bg-color);
-  color: var(--main-color);
-}
-
-/* Dropdown Menu Styles */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  right: 0;
-  background-color: var(--bg-color);
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-  border-radius: 5px;
-}
-
-.dropdown-content a {
-  color: var(--text-color);
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-  transition: background-color 0.3s ease;
-}
-
-.dropdown-content a:hover {
-  background-color: var(--hover-color);
-  color: var(--bg-color);
-}
-
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-
-/* Categories Styles */
-.categories {
-  background-color: #f1f1f1;
-  padding: 15px 0;
-}
-
-.categories-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: var(--bg-color);
-  border-radius: 5px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.category-item {
-  flex: 1;
-  text-align: center;
-  padding: 15px 0;
-  color: var(--text-color);
-  text-decoration: none;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  border-right: 1px solid #e0e0e0;
-}
-
-.category-item:last-child {
-  border-right: none;
-}
-
-.category-item:hover {
-  background-color: var(--hover-color);
-  color: var(--bg-color);
 }
 
 /* Following List Styles */
@@ -428,40 +195,4 @@ header {
   color: var(--bg-color);
 }
 
-/* Footer Styles */
-footer {
-  background-color: var(--footer-bg);
-  padding: 30px 0;
-  margin-top: auto;
-}
-
-.footer-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.footer-links {
-  display: flex;
-  gap: 20px;
-}
-
-.footer-links a {
-  color: var(--text-color);
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-  color: var(--main-color);
-}
-
-.footer-copyright {
-  margin-top: 20px;
-  text-align: center;
-  width: 100%;
-  font-size: 14px;
-  color: #666;
-}
 </style>

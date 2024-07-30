@@ -5,7 +5,7 @@
     <main class="container">
       <section class="product-detail">
         <div class="seller-info">
-          <img :src="product.profileImage.imageUrl || defaultProfileImage" alt="Profile Image" width="70px">
+          <img class="seller-photo" :src="product.profileImage.imageUrl || defaultProfileImage" alt="Profile Image" width="70px">
           <div class="seller-name-follow">
             <span class="seller-name">{{ product.nickname }}</span>
             <button v-if="isLoggedIn" class="follow-button" @click="toggleFollow">
@@ -58,22 +58,9 @@ export default {
   components: {AppFooter, Header},
   setup() {
     const isLoggedIn = ref(true)
-    const searchType = ref('product')
-    const searchQuery = ref('')
-    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
     const isFollowing = ref(false)
     const isLiked = ref(false)
     const currentImageIndex = ref(0)
-    const showLoginModal = ref(false)
-    const showSignupModal = ref(false)
-    const signupLoginId = ref('')
-    const signupPassword = ref('')
-    const username = ref('')
-    const nickname = ref('')
-    const loginId = ref('')
-    const password = ref('')
-    const loginIdError = ref('')
-    const passwordError = ref('')
     const route = useRoute(); // useRoute를 통해 현재 라우트에 접근
     const productId = route.params.productId; // 라우트 파라미터에서 productId를 가져옴
 
@@ -126,9 +113,6 @@ export default {
       return product.value.images.length > 0 ? product.value.images[currentImageIndex.value].imageUrl : '';
     });
 
-    const search = () => {
-      // 검색 로직
-    }
 
     const toggleFollow = () => {
       isFollowing.value = !isFollowing.value
@@ -149,96 +133,27 @@ export default {
       currentImage.value = product.value.images[currentImageIndex.value]
     }
 
-    const addToCart = () => {
-      // 장바구니 추가 로직
-    }
-
-    const buyNow = () => {
-      // 구매 로직
-    }
-
     const formatPrice = (price) => {
       return price.toLocaleString()
     }
 
-    const validateLoginId = () => {
-      if (signupLoginId.value.length < 5) {
-        loginIdError.value = '아이디는 5자 이상이어야 합니다.'
-      } else {
-        loginIdError.value = ''
-      }
-    }
-
-    const validatePassword = () => {
-      if (signupPassword.value.length < 8) {
-        passwordError.value = '비밀번호는 8자 이상이어야 합니다.'
-      } else {
-        passwordError.value = ''
-      }
-    }
-
-    const register = () => {
-      // 회원가입 로직
-    }
-
-    const login = () => {
-      // 로그인 로직
-    }
-
-    const kakaoLogin = () => {
-      // 카카오 로그인 로직
-    }
-
-    const switchToLogin = () => {
-      showSignupModal.value = false
-      showLoginModal.value = true
-    }
-
-    const switchToSignup = () => {
-      showLoginModal.value = false
-      showSignupModal.value = true
-    }
-
     return {
       isLoggedIn,
-      searchType,
-      searchQuery,
-      categories,
       product,
       currentImage,
       isFollowing,
       isLiked,
-      showLoginModal,
-      showSignupModal,
-      signupLoginId,
-      signupPassword,
-      username,
-      nickname,
-      loginId,
-      password,
-      loginIdError,
-      passwordError,
-      search,
+      formatPrice,
       toggleFollow,
       toggleLike,
       prevImage,
       nextImage,
-      addToCart,
-      buyNow,
-      formatPrice,
-      validateLoginId,
-      validatePassword,
-      register,
-      login,
-      kakaoLogin,
-      switchToLogin,
-      switchToSignup,
     }
   },
 }
 </script>
 
-<style>
+<style scoped>
 :root {
   --main-color: #FF0000;
   --text-color: #333;
@@ -265,122 +180,6 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
-}
-
-/* Header Styles */
-header {
-  background-color: var(--main-color);
-  padding: 15px 0;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--bg-color);
-  text-decoration: none;
-  margin-right: 20px;
-}
-
-.search-bar {
-  display: flex;
-  align-items: stretch;
-  flex-grow: 1;
-  margin: 10px 0;
-  max-width: 600px;
-}
-
-.search-bar select,
-.search-bar input,
-.search-bar button {
-  padding: 10px;
-  font-size: 16px;
-  border: none;
-}
-
-.search-bar select {
-  border-radius: 5px 0 0 5px;
-}
-
-.search-bar input {
-  flex-grow: 1;
-  min-width: 200px;
-}
-
-.search-bar button {
-  background-color: var(--button-color);
-  color: var(--bg-color);
-  cursor: pointer;
-  border-radius: 0 5px 5px 0;
-  transition: background-color 0.3s ease;
-}
-
-.search-bar button:hover {
-  background-color: var(--hover-color);
-}
-
-.user-actions {
-  display: flex;
-  align-items: center;
-}
-
-.user-actions button {
-  margin-left: 10px;
-  padding: 10px 20px;
-  background-color: transparent;
-  color: var(--bg-color);
-  border: 2px solid var(--bg-color);
-  cursor: pointer;
-  border-radius: 5px;
-  font-weight: bold;
-  transition: all 0.3s ease;
-}
-
-.user-actions button:hover {
-  background-color: var(--bg-color);
-  color: var(--main-color);
-}
-
-/* Categories Styles */
-.categories {
-  background-color: #FFFFFF;
-  padding: 15px 0;
-}
-
-.categories-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: var(--bg-color);
-  border-radius: 5px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.category-item {
-  flex: 1;
-  text-align: center;
-  padding: 15px 0;
-  color: var(--text-color);
-  text-decoration: none;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  border-right: 1px solid #e0e0e0;
-}
-
-.category-item:last-child {
-  border-right: none;
-}
-
-.category-item:hover {
-  background-color: var(--hover-color);
-  color: var(--bg-color);
 }
 
 /* Product Detail Styles */
@@ -571,222 +370,4 @@ header {
   background-color: var(--hover-color);
 }
 
-/* Footer Styles */
-footer {
-  background-color: var(--footer-bg);
-  padding: 30px 0;
-  margin-top: auto;
-}
-
-.footer-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.footer-links {
-  display: flex;
-  gap: 20px;
-}
-
-.footer-links a {
-  color: var(--text-color);
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-  color: var(--main-color);
-}
-
-.footer-copyright {
-  margin-top: 20px;
-  text-align: center;
-  width: 100%;
-  font-size: 14px;
-  color: #666;
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-container {
-  background-color: var(--bg-color);
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  max-width: 400px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-}
-
-.modal-container .close-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 24px;
-  cursor: pointer;
-  background: none;
-  border: none;
-  color: var(--text-color);
-  padding: 0;
-  width: auto;
-}
-
-.modal-container .close-btn:hover {
-  color: var(--main-color);
-}
-
-.modal-container h1 {
-  text-align: center;
-  color: var(--text-color);
-  margin-bottom: 20px;
-}
-
-.modal-container .form-group {
-  margin-bottom: 20px;
-}
-
-.modal-container label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.modal-container input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid var(--input-border);
-  border-radius: 4px;
-  font-size: 16px;
-  box-sizing: border-box;
-}
-
-.modal-container .error {
-  color: var(--main-color);
-  font-size: 14px;
-  margin-top: 5px;
-}
-
-.modal-overlay button {
-  width: 100%;
-  padding: 10px;
-  background-color: var(--button-color);
-  color: var(--bg-color);
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.modal-overlay button:hover {
-  background-color: var(--hover-color);
-}
-
-.modal-overlay button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.modal-container .social-login {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.modal-container .social-login-divider {
-  display: flex;
-  align-items: center;
-  margin: 15px 0;
-}
-
-.modal-container .social-login-divider::before,
-.modal-container .social-login-divider::after {
-  content: "";
-  flex: 1;
-  border-bottom: 1px solid var(--input-border);
-}
-
-.modal-container .social-login-divider span {
-  padding: 0 10px;
-  color: var(--text-color);
-  font-size: 14px;
-}
-
-.modal-container .kakao-login-btn {
-  background-color: var(--kakao-color);
-  color: #3C1E1E;
-  font-weight: bold;
-}
-
-.modal-container .kakao-login-btn:hover {
-  background-color: #E6D100;
-}
-
-.login-link,
-.signup-link {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 14px;
-}
-
-.login-link a,
-.signup-link a {
-  color: var(--main-color);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.login-link a:hover,
-.signup-link a:hover {
-  text-decoration: underline;
-}
-
-/* Dropdown Menu Styles */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  right: 0;
-  background-color: var(--bg-color);
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-  border-radius: 5px;
-}
-
-.dropdown-content a {
-  color: var(--text-color);
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-  transition: background-color 0.3s ease;
-}
-
-.dropdown-content a:hover {
-  background-color: var(--hover-color);
-  color: var(--bg-color);
-}
-
-.dropdown:hover .dropdown-content {
-  display: block;
-}
 </style>
