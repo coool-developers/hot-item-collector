@@ -46,6 +46,10 @@ public class UserService {
         String password = signupRequestDto.getPassword();
         String encodedPassword = passwordEncoder.encode(password);
 
+        String defaultFilename = "기본 프로필 이미지";
+        String defaultImageUrl = "https://www.pngarts.com/files/10/Default-Profile-Picture-PNG-Download-Image.png";
+        ProfileImageRequestDto requestDto = new ProfileImageRequestDto(defaultFilename,defaultImageUrl);
+
         User user = User.builder()
                 .loginId(signupRequestDto.getLoginId())
                 .password(encodedPassword)
@@ -53,6 +57,8 @@ public class UserService {
                 .nickname(signupRequestDto.getNickname())
                 .build();
 
+        ProfileImage profileImage = new ProfileImage(requestDto,user);
+        user.updateProfileImage(profileImage);
         User saveUser = userRepository.save(user);
     }
 
