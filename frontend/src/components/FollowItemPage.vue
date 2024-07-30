@@ -3,9 +3,10 @@ import Header from './AppHeader.vue';
 import { ref, computed, onMounted } from 'vue';
 import axios from "axios";
 import {useRouter} from "vue-router";
+import AppFooter from "@/components/AppFooter.vue";
 
 export default {
-  components: {Header},
+  components: {AppFooter, Header},
   setup() {
     const isLoggedIn = ref(false);
     const currentPage = ref(1);
@@ -263,70 +264,7 @@ export default {
         </div>
       </section>
     </main>
-    <footer>
-      <div class="container footer-content">
-        <div class="footer-links">
-          <a href="/about">회사 소개</a>
-          <a href="/terms">이용약관</a>
-          <a href="/privacy">개인정보처리방침</a>
-          <a href="/contact">고객센터</a>
-        </div>
-        <div class="footer-copyright">&copy; 2023 Hot Item Collector. All rights reserved.</div>
-      </div>
-    </footer>
-
-    <!-- 회원가입 모달 -->
-    <div v-if="showSignupModal" class="modal-overlay" @click.self="showSignupModal = false">
-      <div class="modal-container">
-        <button class="close-btn" @click="showSignupModal = false">&times;</button>
-        <h1>회원가입</h1>
-        <form @submit.prevent="register">
-          <div class="form-group">
-            <label for="auth-signupLoginId">아이디</label>
-            <input type="text" id="auth-signupLoginId" v-model="signupLoginId"
-                   @input="validateLoginId" required>
-            <div class="error" v-if="loginIdError">{{ loginIdError }}</div>
-          </div>
-          <div class="form-group">
-            <label for="auth-signupPassword">비밀번호</label>
-            <input type="password" id="auth-signupPassword" v-model="signupPassword"
-                   @input="validatePassword" required>
-            <div class="error" v-if="passwordError">{{ passwordError }}</div>
-          </div>
-          <div class="form-group">
-            <label for="auth-username">이름</label>
-            <input type="text" id="auth-username" v-model="username" required>
-          </div>
-          <div class="form-group">
-            <label for="auth-nickname">닉네임</label>
-            <input type="text" id="auth-nickname" v-model="nickname" required>
-          </div>
-          <button type="submit" :disabled="!isSignupFormValid">회원가입</button>
-        </form>
-        <p>계정이 이미 있으신가요? <a href="#" @click.prevent="switchToLogin">로그인</a></p>
-      </div>
-    </div>
-
-    <!-- 로그인 모달 -->
-    <div v-if="showLoginModal" class="modal-overlay" @click.self="showLoginModal = false">
-      <div class="modal-container">
-        <button class="close-btn" @click="showLoginModal = false">&times;</button>
-        <h1>로그인</h1>
-        <form @submit.prevent="login">
-          <div class="form-group">
-            <label for="auth-loginId">아이디</label>
-            <input type="text" id="auth-loginId" v-model="loginId" required>
-          </div>
-          <div class="form-group">
-            <label for="auth-password">비밀번호</label>
-            <input type="password" id="auth-password" v-model="password" required>
-          </div>
-          <button type="submit">로그인</button>
-          <button type="button" @click="kakaoLogin">카카오 로그인</button>
-        </form>
-        <p>계정이 없으신가요? <a href="#" @click.prevent="switchToSignup">회원가입</a></p>
-      </div>
-    </div>
+    <AppFooter/>
   </div>
 </template>
 

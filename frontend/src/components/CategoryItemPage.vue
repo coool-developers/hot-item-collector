@@ -1,10 +1,9 @@
 <script>
+import Header from './AppHeader.vue';
 import { ref, computed, onMounted } from 'vue';
 import axios from "axios";
-import {useRouter} from "vue-router";
-import Header from './AppHeader.vue';
+import { useRouter, useRoute } from "vue-router";
 import AppFooter from './AppFooter.vue';
-
 export default {
   components: { Header, AppFooter },
   setup() {
@@ -13,10 +12,22 @@ export default {
     const totalPages = ref(1);
     const itemsPerPage = 16;
     const products = ref([]); // 초기값을 빈 배열로 설정
+    const searchQuery = ref('');
+    const categoryType = ref('');
+
+    const categories = {
+      '식품': 'FOOD',
+      '뷰티': 'BEAUTY',
+      '패션&주얼리': 'FAHSION',
+      '공예품': 'CRAFTS',
+      '홈리빙': 'HOME_LIVING',
+      '반려동물': 'PET'
+    };
 
     const router = useRouter();
+    const route = useRoute();
 
-    const pageTitle = computed(() => '새로 등록된 상품 목록');
+    const pageTitle = computed(() => `${categoryType.value} 상품 목록`);
 
     const displayedItems = computed(() => {
       if (!Array.isArray(products.value)) {
@@ -27,10 +38,12 @@ export default {
       return products.value.slice(start, end);
     });
 
+
     const fetchProducts = async (page) => {
       try {
-        const url = `/products/new?page=${page}&size=${itemsPerPage}`;
+        const url = `/products/search?page=${page}&size=${itemsPerPage}&category=${searchQuery.value}`;
         const response = await axios.get(url);
+        console.log(response.data);
         const data = response.data.result;
         products.value = data || [];
         totalPages.value = Math.ceil((data.total || 0) / itemsPerPage);
@@ -53,25 +66,31 @@ export default {
       }
     };
 
-    const goToItemPage = (itemId) => {
-      window.location.href = `/products/${itemId}`;
+    const selectCategory = (category) => {
+      searchQuery.value = categories[category] || category;
+      currentPage.value = 1;
+      fetchProducts(currentPage.value);
     };
 
     const goToSellerPage = (userId) => {
-      window.location.href = `/seller/${userId}`;
+      router.push(`/seller/${userId}`);
     };
 
+    const goToProduct = (productId) => {
+      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`);
+      router.push(`/product/detail/${productId}`);
+    };
 
     onMounted(() => {
+      const initialCategory = route.query.searchQuery;
+      categoryType.value = initialCategory;
+      searchQuery.value = categories[initialCategory] || initialCategory;
       fetchProducts(currentPage.value);
     });
-    const goToProduct = (productId) => {
-      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
-      router.push(`/product/detail/${productId}`);
-    }
 
     return {
       isLoggedIn,
+      searchQuery,
       currentPage,
       totalPages,
       itemsPerPage,
@@ -80,12 +99,12 @@ export default {
       pageTitle,
       prevPage,
       nextPage,
-      goToItemPage,
+      goToProduct,
       goToSellerPage,
-      goToProduct
+      selectCategory
     };
   }
-}
+};
 </script>
 
 <template>
@@ -94,20 +113,24 @@ export default {
     <main class="container">
       <section class="search-results">
         <h2>{{ pageTitle }}</h2>
-        <div class="item-grid">
+        <div v-if="displayedItems.length > 0" class="item-grid">
           <div v-for="item in displayedItems" :key="item.id" class="item-card"
-               @click="goToProduct(item.id)">
-            <img :src="item.image.imageUrl" :alt="item.name">
+               @click="item ? goToProduct(item.id) : null">
+            <img :src="item?.image?.imageUrl || '/path/to/default-image.jpg'"
+                 :alt="item?.name || 'Default Alt Text'">
             <div class="item-info">
-              <div class="item-name">{{ item.name }}</div>
+              <div class="item-name">{{ item?.name || 'Unnamed Item' }}</div>
               <div class="item-seller">
-                판매자: <a @click.stop="goToSellerPage(item.userId)" :href="'/seller/' + item.userId">{{
-                  item.userName
-                }}</a>
+                판매자: <a @click.stop="item ? goToSellerPage(item.userId) : null"
+                        :href="item ? '/seller/' + item.userId : '#'"
+                        :title="item ? item.userName : 'No Seller'">
+                {{ item?.userName || 'Unknown Seller' }}
+              </a>
               </div>
             </div>
           </div>
         </div>
+        <div v-else class="no-items-message">등록된 상품이 없습니다.</div>
         <div class="pagination">
           <button @click="prevPage" :disabled="currentPage === 1">&lt; 이전</button>
           <span class="page-number">{{ currentPage }} / {{ totalPages }}</span>
@@ -115,7 +138,7 @@ export default {
         </div>
       </section>
     </main>
-    <AppFooter/>
+    <AppFooter />
   </div>
 </template>
 
@@ -187,23 +210,7 @@ button:disabled {
   background-color: #ddd;
 }
 
-footer {
-  background-color: #f8f9fa;
-  padding: 20px;
-  text-align: center;
-}
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 
 label {
   display: block;
@@ -216,5 +223,6 @@ input {
   border: 1px solid #ddd;
   border-radius: 4px;
 }
+
 
 </style>

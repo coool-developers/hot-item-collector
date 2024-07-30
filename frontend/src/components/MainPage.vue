@@ -57,9 +57,6 @@ export default {
   components: {Header, AppFooter},
   setup() {
     const isLoggedIn = ref(false);
-    const searchType = ref('product');
-    const searchQuery = ref('');
-    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물']);
     const hotTopItems = ref([]);
     const router = useRouter();
 
@@ -77,9 +74,9 @@ export default {
         });
 
         // 응답 데이터 매핑
-        hotTopItems.value = response.data.result.map((item, index) => ({
+        hotTopItems.value = response.data.result.map((item) => ({
           id: item.id,
-          name: `${index + 1}위: ${item.name}`,
+          name: item.name,
         }));
       } catch (error) {
         console.error('Failed to fetch hot top items', error);
@@ -177,15 +174,8 @@ export default {
     const loginIdError = ref('');
     const passwordError = ref('');
 
-    const search = () => {
-      console.log(`Searching for ${searchQuery.value} in ${searchType.value}`);
-    };
 
-    const login = () => {
-      console.log('Login clicked');
-      isLoggedIn.value = true;
-      showLoginModal.value = false;
-    };
+
 
     const checkLoginStatus = () => {
       const token = getCookie('access_token'); // 쿠키에서 토큰 가져오기
@@ -193,12 +183,6 @@ export default {
     };
 
     onMounted(checkLoginStatus);
-
-    const register = () => {
-      console.log('Register clicked');
-      isLoggedIn.value = true;
-      showSignupModal.value = false;
-    };
 
 
     const viewMoreNewItems = () => {
@@ -210,6 +194,7 @@ export default {
       console.log('View more followed items');
       window.location.href = '/followed-items';
     };
+
     const goToProduct = (productId) => {
       alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
       router.push(`/product/detail/${productId}`);
@@ -218,9 +203,6 @@ export default {
 
     return {
       isLoggedIn,
-      searchType,
-      searchQuery,
-      categories,
       hotTopItems,
       newItems,
       followedUsersItems,
@@ -234,9 +216,6 @@ export default {
       password,
       loginIdError,
       passwordError,
-      search,
-      login,
-      register,
       viewMoreNewItems,
       viewMoreFollowedItems,
       goToProduct,

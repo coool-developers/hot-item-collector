@@ -187,11 +187,10 @@ body {
 <template>
   <div id="app">
     <Header />
-
     <main class="container">
       <section class="product-detail">
         <div class="seller-info">
-          <img :src="product.profileImage.imageUrl || defaultProfileImage" alt="Profile Image" width="70px">
+          <img class="seller-photo" :src="product.profileImage.imageUrl || defaultProfileImage" alt="Profile Image" width="70px">
           <div class="seller-name-follow">
             <span class="seller-name">{{ product.nickname }}</span>
           </div>
@@ -224,7 +223,6 @@ body {
       </section>
     </main>
     <AppFooter />
-
   </div>
 </template>
 <script>
