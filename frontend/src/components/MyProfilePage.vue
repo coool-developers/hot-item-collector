@@ -282,7 +282,7 @@ export default {
           }
         });
         console.log(registeredResponse.data);
-        registeredProducts.value = registeredResponse.data.result.map(product => ({
+        registeredProducts.value = registeredResponse.data.result.content.map(product => ({
           id: product.id,
           name: product.name,
           image: product.image.imageUrl
@@ -299,7 +299,7 @@ export default {
         });
         console.log(likedResponse.data);
 
-        likedProducts.value = likedResponse.data.result.map(product => ({
+        likedProducts.value = likedResponse.data.result.content.map(product => ({
           id: product.id,
           name: product.name,
           image: product.image.imageUrl
