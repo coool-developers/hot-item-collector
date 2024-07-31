@@ -185,7 +185,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getFollowProduct(User user, int page, int size) {
+    public Page<ProductSimpleResponseDto> getFollowProduct(User user, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         List<Follow> followList = followService.getAllFollowers(user);
 
@@ -195,10 +195,7 @@ public class ProductService {
 
         Page<Product> productPage = productRepository.findByUserIn(followingUsers, pageable);
 
-        return productPage.getContent()
-            .stream()
-            .map(ProductSimpleResponseDto::new)
-            .collect(Collectors.toList());
+        return productPage.map(ProductSimpleResponseDto::new);
     }
 
     @Transactional(readOnly = true)
@@ -213,7 +210,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getSaleProduct(User user, ProductStatus status, int page,
+    public Page<ProductSimpleResponseDto> getSaleProduct(User user, ProductStatus status, int page,
         int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage=Page.empty(pageable);
@@ -225,14 +222,11 @@ public class ProductService {
             productPage = productRepository.findByUser(user,pageable);
         }
 
-        return productPage.getContent()
-            .stream()
-            .map(ProductSimpleResponseDto::new)
-            .collect(Collectors.toList());
+        return productPage.map(ProductSimpleResponseDto::new);
     }
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getSaleYourProduct(Long userId, ProductStatus status, int page, int size) {
+    public Page<ProductSimpleResponseDto> getSaleYourProduct(Long userId, ProductStatus status, int page, int size) {
         User user = userService.findByUserId(userId);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -245,10 +239,7 @@ public class ProductService {
             productPage = productRepository.findByUser(user,pageable);
         }
 
-        return productPage.getContent()
-            .stream()
-            .map(ProductSimpleResponseDto::new)
-            .collect(Collectors.toList());
+        return productPage.map(ProductSimpleResponseDto::new);
     }
 
     @Transactional(readOnly = true)

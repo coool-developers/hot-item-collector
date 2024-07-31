@@ -11,7 +11,7 @@ export default {
     const isLoggedIn = ref(false);
     const currentPage = ref(1);
     const totalPages = ref(1);
-    const itemsPerPage = 2;
+    const itemsPerPage = 16;
     const products = ref([]); // 초기값을 빈 배열로 설정
 
     const router = useRouter();
