@@ -152,7 +152,7 @@ export default {
           }
         });
 
-        followedUsersItems.value = response.data.result;
+        followedUsersItems.value = response.data.result.content;
       } catch (error) {
         console.error('Error fetching followed users items:', error);
         if (error.response) {
