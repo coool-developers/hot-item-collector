@@ -34,8 +34,8 @@
             <div class="product-actions-container">
               <p class="product-price">{{ formatPrice(product.price) }}원</p>
               <div class="buy-actions">
-                <button class="add-to-cart" @click="addToCart">장바구니 담기</button>
-                <button class="buy-now" @click="buyNow">구매하기</button>
+                <button v-if="isLoggedIn" class="add-to-cart" @click="addToCart">장바구니 담기</button>
+                <button v-if="isLoggedIn" class="buy-now" @click="buyNow">구매하기</button>
               </div>
             </div>
           </div>
@@ -45,9 +45,9 @@
     <AppFooter/>
   </div>
 <!--카트 모달-->
-  <div v-if="showCartModal" class="modal-overlay" @click.self="showCartModal = false">
+  <div v-if="showModal" class="modal-overlay" @click.self= "showModal = false">
     <div class="modal-container">
-      <button class="close-btn" @click="showCartModal = false">&times;</button>
+      <button class="close-btn" @click="showModal = false">&times;</button>
       <h1>{{ buttonText }}</h1>
       <button v-if="showGoToCartButton" @click="goToCart">장바구니로 이동하기</button>
     </div>
@@ -81,7 +81,7 @@ export default {
     const route = useRoute(); // useRoute를 통해 현재 라우트에 접근
     const productId = route.params.productId; // 라우트 파라미터에서 productId를 가져옴
     const accessToken = Cookies.get('access_token')
-    const showCartModal = ref(false);
+    const showModal = ref(false);
     const showGoToCartButton = ref(false);
     const cartError = ref(false)
     const buttonText = ref('')
@@ -89,6 +89,11 @@ export default {
 
     // 기본 프로필 이미지 URL
     const defaultProfileImage = defaultUserImage;
+
+    const checkLoginStatus = () => {
+      isLoggedIn.value = Boolean(accessToken); // 토큰이 있으면 로그인 상태로 간주
+    };
+    onMounted(checkLoginStatus);
 
     // Product 초기화
     const product = ref({
@@ -181,6 +186,9 @@ export default {
         console.log('팔로우 성공')
       } catch (error) {
         console.error('팔로우 실패:', error);
+        buttonText.value ='자신은 팔로우할 수 없습니다.'
+        showGoToCartButton.value = false
+        showModal.value = true
       }
     };
 
@@ -246,13 +254,12 @@ export default {
         console.log(response)
         buttonText.value = '장바구니에 상품을 담았습니다.'
         cartError.value = false
-        showCartModal.value = true
+        showModal.value = true
         showGoToCartButton.value = true
 
       }).catch(error => {
         /*에러가 있는 상황*/
          cartError.value = true
-        // showCartModal.value = true
 
         if (error.response.data.message){
           errorMessage.value = error.response.data.message
@@ -268,7 +275,7 @@ export default {
           buttonText.value = '상품을 장바구니에 담는 중 오류가 발생했습니다.'
           showGoToCartButton.value = false
         }
-        showCartModal.value = true
+        showModal.value = true
         console.error(error); // 에러 처리
       })
     }
@@ -293,8 +300,8 @@ export default {
     }
 
     const switchToCart = () => {
-      showCartModal.value = false
-      showCartModal.value = true
+      showModal.value = false
+      showModal.value = true
     }
 
     return {
@@ -303,7 +310,7 @@ export default {
       currentImage,
       isFollowing,
       isLiked,
-      showCartModal,
+      showModal,
       formatPrice,
       toggleFollow,
       toggleLike,
