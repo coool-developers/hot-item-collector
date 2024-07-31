@@ -137,11 +137,11 @@ public class PaymentService {
 			List<OrderItem> orderItemList = orderService.findOrderItemsByOrderId(payment.getOrder().getId());
 			orderItemList.forEach(orderItem -> {
 				orderItem.updateOrderItemStatus(OrderStatus.PAID);
-				productService.updateStatus(orderItem.getId());
+				productService.updateStatus(orderItem.getProduct().getId());
 			});
 
 		} else {
-			throw new IllegalArgumentException("결제 금액이 일치하지 않습니다.");
+			throw new CustomException(ErrorCode.PAY_AMOUNT_MISMATCH);
 		}
 	}
 
