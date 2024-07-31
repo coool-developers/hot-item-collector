@@ -49,7 +49,7 @@
     <div class="modal-container">
       <button class="close-btn" @click="showCartModal = false">&times;</button>
       <h1>{{ buttonText }}</h1>
-      <button @click="goToCart">장바구니로 이동하기</button>
+      <button v-if="showGoToCartButton" @click="goToCart">장바구니로 이동하기</button>
     </div>
   </div>
 
@@ -82,10 +82,10 @@ export default {
     const productId = route.params.productId; // 라우트 파라미터에서 productId를 가져옴
     const accessToken = Cookies.get('access_token')
     const showCartModal = ref(false);
-    const cartExist = ref(false)
-    const buttonText = computed(() => {
-      return cartExist.value ? '선택한 상품이 이미 장바구니에 담겨있습니다.' : '선택한 상품을 장바구니에 담았습니다.';
-    });
+    const showGoToCartButton = ref(false);
+    const cartError = ref(false)
+    const buttonText = ref('')
+    const errorMessage = ref('')
 
     // 기본 프로필 이미지 URL
     const defaultProfileImage = defaultUserImage;
@@ -244,13 +244,31 @@ export default {
         },
       }).then(response => {
         console.log(response)
-        cartExist.value = false
+        buttonText.value = '장바구니에 상품을 담았습니다.'
+        cartError.value = false
         showCartModal.value = true
+        showGoToCartButton.value = true
 
       }).catch(error => {
-        cartExist.value = true
-        showCartModal.value = true
+        /*에러가 있는 상황*/
+         cartError.value = true
+        // showCartModal.value = true
 
+        if (error.response.data.message){
+          errorMessage.value = error.response.data.message
+        }
+
+        if (errorMessage.value === 'SAME USER PRODUCT'){
+           buttonText.value = '자신이 판매하는 상품을 구매할 수 없습니다.'
+          showGoToCartButton.value = false
+        } else if (errorMessage.value === 'ALREADY_EXIST_CARTITEM'){
+          buttonText.value = '이미 카트에 존재하는 상품입니다.'
+          showGoToCartButton.value = true
+        } else {
+          buttonText.value = '상품을 장바구니에 담는 중 오류가 발생했습니다.'
+          showGoToCartButton.value = false
+        }
+        showCartModal.value = true
         console.error(error); // 에러 처리
       })
     }
@@ -266,7 +284,6 @@ export default {
         productImage: product.value.images[0]
       };
 
-     // const orderData = response
       sessionStorage.setItem('orderData', JSON.stringify([orderData]))
       router.push({name: 'OrderPage'})
     }
@@ -296,7 +313,8 @@ export default {
       goToCart,
       buyNow,
       switchToCart,
-      buttonText
+      buttonText,
+      showGoToCartButton
     }
   },
 }

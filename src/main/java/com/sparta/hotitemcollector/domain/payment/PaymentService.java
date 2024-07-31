@@ -66,6 +66,11 @@ public class PaymentService {
 		for (Long itemId : requestDto.getProductItemList()) {
 			// 기존 cartItem에서 제품을 찾는 것에서 제품 id를 바로 입력하도록 변경
 			Product product = productService.findById(itemId);
+
+			if (product.getUser().getId().equals(user.getId())) {
+				throw new CustomException(ErrorCode.SAME_USER_PRODUCT);
+			}
+
 			OrderItem orderItem = orderService.createOrderItem(order, product);
 
 			totalAmount = totalAmount.add(product.getPrice());
