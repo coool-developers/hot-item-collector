@@ -100,7 +100,7 @@ export default {
         });
 
         if (response.data && response.data.result) {
-          newItems.value = response.data.result;
+          newItems.value = response.data.result.content;
         } else {
           console.error('Unexpected response format:', response.data);
         }

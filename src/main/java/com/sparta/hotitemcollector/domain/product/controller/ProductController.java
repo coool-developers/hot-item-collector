@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -186,12 +187,12 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @GetMapping("/new")
-    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getNewProduct(
-        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "16") int size){
-        List<ProductSimpleResponseDto> responseDtoList = productService.getNewProduct(page-1,size);
-        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
-            "새로 등록된 상품 목록 조회 성공",200,responseDtoList
+    public ResponseEntity<CommonResponse<Page<ProductSimpleResponseDto>>> getNewProduct(
+        @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "16") int size) {
+        Page<ProductSimpleResponseDto> responseDtoPage = productService.getNewProduct(page - 1, size);
+        CommonResponse<Page<ProductSimpleResponseDto>> response = new CommonResponse<>(
+            "새로 등록된 상품 목록 조회 성공", 200, responseDtoPage
         );
-          return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

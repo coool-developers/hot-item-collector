@@ -1,7 +1,7 @@
 <script>
 import { ref, computed, onMounted } from 'vue';
 import axios from "axios";
-import {useRouter} from "vue-router";
+import { useRouter } from "vue-router";
 import Header from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 
@@ -11,7 +11,7 @@ export default {
     const isLoggedIn = ref(false);
     const currentPage = ref(1);
     const totalPages = ref(1);
-    const itemsPerPage = 16;
+    const itemsPerPage = 2;
     const products = ref([]); // 초기값을 빈 배열로 설정
 
     const router = useRouter();
@@ -29,11 +29,12 @@ export default {
 
     const fetchProducts = async (page) => {
       try {
-        const url = `/products/new?page=${page}&size=${itemsPerPage}`;
+        const url = `/products/new?page=${page}&size=${itemsPerPage}`; // 페이지 인덱스는 0부터 시작
         const response = await axios.get(url);
         const data = response.data.result;
-        products.value = data || [];
-        totalPages.value = Math.ceil((data.total || 0) / itemsPerPage);
+        products.value = data.content || [];
+        totalPages.value = data.totalPages;
+        console.log(totalPages.value);
       } catch (error) {
         console.error('Failed to fetch products:', error);
       }
@@ -61,14 +62,14 @@ export default {
       window.location.href = `/seller/${userId}`;
     };
 
-
     onMounted(() => {
       fetchProducts(currentPage.value);
     });
+
     const goToProduct = (productId) => {
-      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
+      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`);
       router.push(`/product/detail/${productId}`);
-    }
+    };
 
     return {
       isLoggedIn,
@@ -101,9 +102,7 @@ export default {
             <div class="item-info">
               <div class="item-name">{{ item.name }}</div>
               <div class="item-seller">
-                판매자: <a @click.stop="goToSellerPage(item.userId)" :href="'/seller/' + item.userId">{{
-                  item.userName
-                }}</a>
+                판매자: <a @click.stop="goToSellerPage(item.userId)" :href="'/seller/' + item.userId">{{ item.userName }}</a>
               </div>
             </div>
           </div>
