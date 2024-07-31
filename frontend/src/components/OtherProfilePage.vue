@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import Header from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
-import { useRoute } from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import axios from "axios";
 import Cookies from "js-cookie";
 
@@ -18,6 +18,7 @@ export default {
     const totalPages = ref(1);
     const itemsPerPage = 12;
     const products = ref([]);
+    const router = useRouter();
 
     const user = ref({
       id: '',
@@ -125,6 +126,10 @@ export default {
         await follow();
       }
     };
+    const goToProduct = (productId) => {
+      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`);
+      router.push(`/product/detail/${productId}`);
+    };
 
     return {
       isLoggedIn,
@@ -135,7 +140,8 @@ export default {
       prevPage,
       nextPage,
       products,
-      toggleFollow
+      toggleFollow,
+      goToProduct
     };
   }
 }
