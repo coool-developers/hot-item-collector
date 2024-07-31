@@ -34,8 +34,8 @@
             <div class="product-actions-container">
               <p class="product-price">{{ formatPrice(product.price) }}원</p>
               <div class="buy-actions">
-                <button class="add-to-cart" @click="addToCart">장바구니 담기</button>
-                <button class="buy-now" @click="buyNow">구매하기</button>
+                <button v-if="isLoggedIn" class="add-to-cart" @click="addToCart">장바구니 담기</button>
+                <button v-if="isLoggedIn" class="buy-now" @click="buyNow">구매하기</button>
               </div>
             </div>
           </div>
@@ -45,11 +45,11 @@
     <AppFooter/>
   </div>
 <!--카트 모달-->
-  <div v-if="showCartModal" class="modal-overlay" @click.self="showCartModal = false">
+  <div v-if="showModal" class="modal-overlay" @click.self= "showModal = false">
     <div class="modal-container">
-      <button class="close-btn" @click="showCartModal = false">&times;</button>
+      <button class="close-btn" @click="showModal = false">&times;</button>
       <h1>{{ buttonText }}</h1>
-      <button @click="goToCart">장바구니로 이동하기</button>
+      <button v-if="showGoToCartButton" @click="goToCart">장바구니로 이동하기</button>
     </div>
   </div>
 
@@ -81,14 +81,19 @@ export default {
     const route = useRoute(); // useRoute를 통해 현재 라우트에 접근
     const productId = route.params.productId; // 라우트 파라미터에서 productId를 가져옴
     const accessToken = Cookies.get('access_token')
-    const showCartModal = ref(false);
-    const cartExist = ref(false)
-    const buttonText = computed(() => {
-      return cartExist.value ? '선택한 상품이 이미 장바구니에 담겨있습니다.' : '선택한 상품을 장바구니에 담았습니다.';
-    });
+    const showModal = ref(false);
+    const showGoToCartButton = ref(false);
+    const cartError = ref(false)
+    const buttonText = ref('')
+    const errorMessage = ref('')
 
     // 기본 프로필 이미지 URL
     const defaultProfileImage = defaultUserImage;
+
+    const checkLoginStatus = () => {
+      isLoggedIn.value = Boolean(accessToken); // 토큰이 있으면 로그인 상태로 간주
+    };
+    onMounted(checkLoginStatus);
 
     // Product 초기화
     const product = ref({
@@ -181,6 +186,9 @@ export default {
         console.log('팔로우 성공')
       } catch (error) {
         console.error('팔로우 실패:', error);
+        buttonText.value ='자신은 팔로우할 수 없습니다.'
+        showGoToCartButton.value = false
+        showModal.value = true
       }
     };
 
@@ -244,13 +252,30 @@ export default {
         },
       }).then(response => {
         console.log(response)
-        cartExist.value = false
-        showCartModal.value = true
+        buttonText.value = '장바구니에 상품을 담았습니다.'
+        cartError.value = false
+        showModal.value = true
+        showGoToCartButton.value = true
 
       }).catch(error => {
-        cartExist.value = true
-        showCartModal.value = true
+        /*에러가 있는 상황*/
+         cartError.value = true
 
+        if (error.response.data.message){
+          errorMessage.value = error.response.data.message
+        }
+
+        if (errorMessage.value === 'SAME USER PRODUCT'){
+           buttonText.value = '자신이 판매하는 상품을 구매할 수 없습니다.'
+          showGoToCartButton.value = false
+        } else if (errorMessage.value === 'ALREADY_EXIST_CARTITEM'){
+          buttonText.value = '이미 카트에 존재하는 상품입니다.'
+          showGoToCartButton.value = true
+        } else {
+          buttonText.value = '상품을 장바구니에 담는 중 오류가 발생했습니다.'
+          showGoToCartButton.value = false
+        }
+        showModal.value = true
         console.error(error); // 에러 처리
       })
     }
@@ -266,7 +291,6 @@ export default {
         productImage: product.value.images[0]
       };
 
-     // const orderData = response
       sessionStorage.setItem('orderData', JSON.stringify([orderData]))
       router.push({name: 'OrderPage'})
     }
@@ -276,8 +300,8 @@ export default {
     }
 
     const switchToCart = () => {
-      showCartModal.value = false
-      showCartModal.value = true
+      showModal.value = false
+      showModal.value = true
     }
 
     return {
@@ -286,7 +310,7 @@ export default {
       currentImage,
       isFollowing,
       isLiked,
-      showCartModal,
+      showModal,
       formatPrice,
       toggleFollow,
       toggleLike,
@@ -296,7 +320,8 @@ export default {
       goToCart,
       buyNow,
       switchToCart,
-      buttonText
+      buttonText,
+      showGoToCartButton
     }
   },
 }
