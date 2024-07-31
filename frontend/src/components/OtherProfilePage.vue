@@ -1,19 +1,23 @@
 <script>
-import {ref, computed, onMounted} from 'vue';
+import { ref, onMounted } from 'vue';
 import Header from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
-import {useRoute} from "vue-router";
+import { useRoute } from "vue-router";
 import axios from "axios";
 import Cookies from "js-cookie";
 
 export default {
   components: { Header, AppFooter },
   setup() {
-    const isLoggedIn = ref(true)
+    const isLoggedIn = ref(true);
     const route = useRoute();
     const userId = route.params.userId;
-    const accessToken = Cookies.get('access_token')
-    const isFollowing = ref(false)
+    const accessToken = Cookies.get('access_token');
+    const isFollowing = ref(false);
+    const currentPage = ref(1);
+    const totalPages = ref(1);
+    const itemsPerPage = 12;
+    const products = ref([]);
 
     const user = ref({
       id: '',
@@ -24,61 +28,53 @@ export default {
     });
 
     const fetchUser = async () => {
-      if(userId){
+      if (userId) {
         const response = await axios.get(`http://localhost:8080/users/profile/${userId}`);
         console.log(response.data.result);
 
         user.value = response.data.result;
-      }else {
+      } else {
         console.error('User Id is missing in route parameters');
       }
-    }
+    };
 
-    onMounted(fetchUser);
-    const products = ref([])
-
-    const fetchProduct = async () => {
-      if(userId){
-        const response = await axios.get(`http://localhost:8080/products/sale/${userId}`,{
-          params: {
-            page: 1,
-            size: 4
-          }
-        });
+    const fetchProduct = async (page = 1) => {
+      if (userId) {
+        const response = await axios.get(`http://localhost:8080/products/sale/${userId}?page=${page}&size=${itemsPerPage}`);
         console.log(response.data.result);
 
-        products.value = response.data.result.map(product =>({
+        products.value = response.data.result.content.map(product => ({
           id: product.id,
           name: product.name,
           image: product.image.imageUrl,
-          status:product.status
+          status: product.status
         }));
-      }else {
+        const data = response.data.result;
+        totalPages.value = data.totalPages || 1;
+      } else {
         console.error('User Id is missing in route parameters');
       }
-    }
-    onMounted(fetchProduct);
+    };
 
     const fetchFollowStatus = async () => {
       try {
-        await fetchProduct()
         const response = await axios.get(`http://localhost:8080/follow/${userId}`, {
           headers: {
             'Authorization': accessToken
           }
         });
-        isFollowing.value = response.data.result.userFollow
-        console.log("팔로우 여부 불러오기 완료")
-      } catch(error) {
-        console.error(error)
+        isFollowing.value = response.data.result.userFollow;
+        console.log("팔로우 여부 불러오기 완료");
+      } catch (error) {
+        console.error(error);
       }
-    }
+    };
 
     onMounted(() => {
-      fetchProduct();
+      fetchUser();
+      fetchProduct(currentPage.value);
       fetchFollowStatus();
     });
-
 
     const follow = async () => {
       try {
@@ -88,7 +84,7 @@ export default {
           }
         });
         isFollowing.value = true;
-        console.log('팔로우 성공')
+        console.log('팔로우 성공');
       } catch (error) {
         console.error('팔로우 실패:', error);
       }
@@ -108,28 +104,19 @@ export default {
       }
     };
 
-    const itemsPerPage = 12
-    const currentPage = ref(1)
-
-    const totalPages = computed(() => Math.ceil(products.value.length / itemsPerPage))
-
-    const displayedProducts = computed(() => {
-      const start = (currentPage.value - 1) * itemsPerPage
-      const end = start + itemsPerPage
-      return products.value.slice(start, end)
-    })
-
     const prevPage = () => {
       if (currentPage.value > 1) {
-        currentPage.value--
+        currentPage.value--;
+        fetchProduct(currentPage.value);
       }
-    }
+    };
 
     const nextPage = () => {
       if (currentPage.value < totalPages.value) {
-        currentPage.value++
+        currentPage.value++;
+        fetchProduct(currentPage.value);
       }
-    }
+    };
 
     const toggleFollow = async () => {
       if (isFollowing.value) {
@@ -137,20 +124,19 @@ export default {
       } else {
         await follow();
       }
-    }
-
+    };
 
     return {
       isLoggedIn,
       isFollowing,
       user,
-      displayedProducts,
       currentPage,
       totalPages,
       prevPage,
       nextPage,
+      products,
       toggleFollow
-    }
+    };
   }
 }
 </script>
@@ -176,7 +162,7 @@ export default {
       <section class="product-section">
         <h2>판매 상품</h2>
         <div class="product-list">
-          <div v-for="product in displayedProducts" :key="product.id" class="product-card"
+          <div v-for="product in products" :key="product.id" class="product-card"
                @click="goToProduct(product.id)">
             <img :src="product.image" :alt="product.name" class="product-image">
             <div class="product-info">
@@ -192,7 +178,7 @@ export default {
         </div>
       </section>
     </main>
-   <AppFooter/>
+    <AppFooter/>
   </div>
 </template>
 
