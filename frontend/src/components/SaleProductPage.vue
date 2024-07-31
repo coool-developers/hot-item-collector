@@ -79,6 +79,16 @@ export default {
       router.push(`/product/update/${productId}`);
     }
 
+    const goToProductManagement = () => {
+      alert('주문 관리 페이지로 이동합니다.')
+      router.push('/orders/sell');
+    }
+
+    const goToProductRegistration = () => {
+      alert('상품 등록 페이지로 이동합니다.')
+      router.push('/product/upload');
+    }
+
     // Initial fetch
     fetchProducts()
 
@@ -93,7 +103,9 @@ export default {
       setFilter,
       prevPage,
       nextPage,
-      goToProduct
+      goToProduct,
+      goToProductManagement,
+      goToProductRegistration
     }
   }
 }

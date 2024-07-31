@@ -302,6 +302,7 @@ async function logout() {
       isLoggedIn.value = false;
 
       console.log('로그아웃 성공');
+      window.location.reload()
       router.push('/');
     } else {
       console.error('로그아웃 실패:', response.data);
@@ -339,6 +340,7 @@ async function deleteAccount() {
           // Update login state
           isLoggedIn.value = false;
 
+          window.location.reload()
           // Optionally redirect to the home page or login page
           router.push('/');
         } else {
@@ -379,6 +381,7 @@ async function register() {
     console.log('회원가입 성공:', response.data);
 
     // 추가적으로 회원가입 성공 시 수행할 작업을 여기에 추가합니다.
+    window.location.reload()
   } catch (error) {
     console.error('회원가입 실패:', error.response.data);
     // 서버 응답에서 에러 메시지를 처리
@@ -419,6 +422,7 @@ async function login() {
       isLoggedIn.value = true;
       showLoginModal.value = false;
       // 로그인 후 추가 작업이 있다면 여기에 추가
+      window.location.reload()
     } catch (error) {
       console.error('로그인 실패:', error.response.data);
       loginError.value = '로그인에 실패하였습니다.';

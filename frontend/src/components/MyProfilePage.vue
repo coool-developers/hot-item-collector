@@ -260,7 +260,7 @@ export default {
         });
         // Check if bio is missing
         if (!userResponse.data.result.info) {
-          router.push('/profile');
+          router.push('/profile/update');
           return; // Exit the function if redirecting
         }
         user.value = {
@@ -268,7 +268,7 @@ export default {
           name: userResponse.data.result.nickname,
           profileImage: userResponse.data.result.profileImage.imageUrl,
           bio: userResponse.data.result.info,
-          followers: userResponse.data.result.followers || 0
+          followers: userResponse.data.result.followerCount || 0
         };
 
         // Fetch registered products
