@@ -18,23 +18,13 @@ export default {
 
     const pageTitle = computed(() => '새로 등록된 상품 목록');
 
-    const displayedItems = computed(() => {
-      if (!Array.isArray(products.value)) {
-        return []; // products가 배열이 아닌 경우 빈 배열 반환
-      }
-      const start = (currentPage.value - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      return products.value.slice(start, end);
-    });
-
     const fetchProducts = async (page) => {
       try {
         const url = `/products/new?page=${page}&size=${itemsPerPage}`; // 페이지 인덱스는 0부터 시작
         const response = await axios.get(url);
         const data = response.data.result;
         products.value = data.content || [];
-        totalPages.value = data.totalPages;
-        console.log(totalPages.value);
+        totalPages.value = data.totalPages || 1;
       } catch (error) {
         console.error('Failed to fetch products:', error);
       }
@@ -77,7 +67,6 @@ export default {
       totalPages,
       itemsPerPage,
       products,
-      displayedItems,
       pageTitle,
       prevPage,
       nextPage,
@@ -96,7 +85,7 @@ export default {
       <section class="search-results">
         <h2>{{ pageTitle }}</h2>
         <div class="item-grid">
-          <div v-for="item in displayedItems" :key="item.id" class="item-card"
+          <div v-for="item in products" :key="item.id" class="item-card"
                @click="goToProduct(item.id)">
             <img :src="item.image.imageUrl" :alt="item.name">
             <div class="item-info">
