@@ -1,7 +1,7 @@
 <script>
 import { ref, computed, onMounted } from 'vue';
 import axios from "axios";
-import {useRouter} from "vue-router";
+import { useRouter } from "vue-router";
 import Header from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 
@@ -18,22 +18,13 @@ export default {
 
     const pageTitle = computed(() => '새로 등록된 상품 목록');
 
-    const displayedItems = computed(() => {
-      if (!Array.isArray(products.value)) {
-        return []; // products가 배열이 아닌 경우 빈 배열 반환
-      }
-      const start = (currentPage.value - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      return products.value.slice(start, end);
-    });
-
     const fetchProducts = async (page) => {
       try {
-        const url = `/products/new?page=${page}&size=${itemsPerPage}`;
+        const url = `/products/new?page=${page}&size=${itemsPerPage}`; // 페이지 인덱스는 0부터 시작
         const response = await axios.get(url);
         const data = response.data.result;
-        products.value = data || [];
-        totalPages.value = Math.ceil((data.total || 0) / itemsPerPage);
+        products.value = data.content || [];
+        totalPages.value = data.totalPages || 1;
       } catch (error) {
         console.error('Failed to fetch products:', error);
       }
@@ -61,14 +52,14 @@ export default {
       window.location.href = `/seller/${userId}`;
     };
 
-
     onMounted(() => {
       fetchProducts(currentPage.value);
     });
+
     const goToProduct = (productId) => {
-      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
+      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`);
       router.push(`/product/detail/${productId}`);
-    }
+    };
 
     return {
       isLoggedIn,
@@ -76,7 +67,6 @@ export default {
       totalPages,
       itemsPerPage,
       products,
-      displayedItems,
       pageTitle,
       prevPage,
       nextPage,
@@ -95,15 +85,13 @@ export default {
       <section class="search-results">
         <h2>{{ pageTitle }}</h2>
         <div class="item-grid">
-          <div v-for="item in displayedItems" :key="item.id" class="item-card"
+          <div v-for="item in products" :key="item.id" class="item-card"
                @click="goToProduct(item.id)">
             <img :src="item.image.imageUrl" :alt="item.name">
             <div class="item-info">
               <div class="item-name">{{ item.name }}</div>
               <div class="item-seller">
-                판매자: <a @click.stop="goToSellerPage(item.userId)" :href="'/seller/' + item.userId">{{
-                  item.userName
-                }}</a>
+                판매자: <a @click.stop="goToSellerPage(item.userId)" :href="'/seller/' + item.userId">{{ item.userName }}</a>
               </div>
             </div>
           </div>

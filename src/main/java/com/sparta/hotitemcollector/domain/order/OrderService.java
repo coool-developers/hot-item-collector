@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.hotitemcollector.domain.cart.CartService;
 import com.sparta.hotitemcollector.domain.order.dto.OrderItemBySellerResponseDto;
+import com.sparta.hotitemcollector.domain.order.dto.OrderItemResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.hotitemcollector.domain.orderitem.OrderItem;
@@ -38,14 +39,23 @@ public class OrderService {
 	private final CartService cartService;
 
 	@Transactional(readOnly = true)
-	public List<OrderResponseDto> getOrdersAllByBuyer(LocalDateTime startDate, LocalDateTime endDate, User user) {
+	public Page<OrderResponseDto> getOrdersAllByBuyer(int page, int size, LocalDateTime startDate, LocalDateTime endDate, User user) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-		List<Orders> orderPage = orderRepository.findAllByUserIdAndCreatedAtBetween(user.getId(), startDate, endDate, sort);
+		Pageable pageable = PageRequest.of(page, size, sort);
+		Page<Orders> orderPage = orderRepository.findAllByUserIdAndCreatedAtBetween(user.getId(), startDate, endDate, pageable);
 
-		return orderPage
-			.stream()
-			.map(OrderResponseDto::new)
-			.collect(Collectors.toList());
+		return orderPage.map(OrderResponseDto::new);
+	}
+
+	//구매자가 산 오더아이템 목록
+	@Transactional(readOnly = true)
+	public Page<OrderItemResponseDto> getOrderItemsAllByBuyer(int page, int size, LocalDateTime startDate, LocalDateTime endDate, User user) {
+		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+		Pageable pageable = PageRequest.of(page, size, sort);
+
+		Page<OrderItem> orderItemPage = orderItemRepository.findAllByUserId(user.getId(), startDate, endDate, pageable);
+
+		return orderItemPage.map(OrderItemResponseDto::new);
 	}
 
 	@Transactional(readOnly = true)

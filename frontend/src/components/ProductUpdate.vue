@@ -246,6 +246,15 @@ export default {
     // 기본 프로필 이미지 URL
     const defaultProfileImage = defaultProfile;
 
+    const categoryMap = {
+      FOOD: '식품',
+      BEAUTY: '뷰티',
+      FASHION: '패션&주얼리',
+      CRAFTS: '공예품',
+      HOME_LIVING: '홈리빙',
+      PET: '반려동물'
+    };
+
     // 상품 상세 정보 (실제로는 API에서 가져와야 함)
     const product = ref({
       id: null,
@@ -293,6 +302,11 @@ export default {
           console.log(response.data.result);
 
           product.value = response.data.result;
+
+          // 카테고리 한글 변환
+          if (product.value.category && categoryMap[product.value.category]) {
+            product.value.category = categoryMap[product.value.category];
+          }
 
           // 프로필 이미지가 null일 경우 기본 이미지 설정
           if (!product.value.profileImage || !product.value.profileImage.imageUrl) {

@@ -16,6 +16,9 @@ export default {
     const endDate = ref(today)
     const accessToken = Cookies.get('access_token')
 
+    const formatDate = (date) => {
+      return date.split('T')[0]
+    }
     const searchOrders = () => {
       axios.get('http://localhost:8080/orders/sell', {
         params: {
@@ -73,7 +76,8 @@ export default {
       startDate,
       endDate,
       searchOrders,
-      updateStatus
+      updateStatus,
+      formatDate
     }
   }
 }
@@ -101,6 +105,7 @@ export default {
             <p><strong>주문자:</strong> {{ order.userNickname }}</p>
             <p><strong>연락처:</strong> {{ order.phoneNumber }}</p>
             <p><strong>주소:</strong> {{ order.address }}</p>
+            <p><strong>주문일시:</strong> {{formatDate(order.createdAt)}}</p>
           </div>
           <div class="order-details">
             <div class="order-info">

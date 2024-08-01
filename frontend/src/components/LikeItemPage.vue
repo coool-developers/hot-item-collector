@@ -18,15 +18,6 @@ export default {
 
     const pageTitle = computed(() => '좋아요 누른 상품 목록');
 
-    const displayedItems = computed(() => {
-      if (!Array.isArray(products.value)) {
-        return []; // products가 배열이 아닌 경우 빈 배열 반환
-      }
-      const start = (currentPage.value - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      return products.value.slice(start, end);
-    });
-
     function getCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
@@ -60,8 +51,8 @@ export default {
           }
         });
         const data = response.data.result;
-        products.value = data || [];
-        totalPages.value = Math.ceil((data.total || 0) / itemsPerPage);
+        products.value = data.content || [];
+        totalPages.value = data.totalPages || 1;
       } catch (error) {
         console.error('Failed to fetch products:', error);
       }
@@ -96,7 +87,6 @@ export default {
       totalPages,
       itemsPerPage,
       products,
-      displayedItems,
       pageTitle,
       prevPage,
       nextPage,
@@ -113,7 +103,7 @@ export default {
       <section class="search-results">
         <h2>{{ pageTitle }}</h2>
         <div class="item-grid">
-          <div v-for="item in displayedItems" :key="item.id" class="item-card"
+          <div v-for="item in products" :key="item.id" class="item-card"
                @click="goToProduct(item.id)">
             <img :src="item.image.imageUrl" :alt="item.name">
             <div class="item-info">

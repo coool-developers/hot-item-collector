@@ -95,6 +95,15 @@ export default {
     };
     onMounted(checkLoginStatus);
 
+    const categoryMap = {
+      FOOD: '식품',
+      BEAUTY: '뷰티',
+      FASHION: '패션&주얼리',
+      CRAFTS: '공예품',
+      HOME_LIVING: '홈리빙',
+      PET: '반려동물'
+    };
+
     // Product 초기화
     const product = ref({
       id: null,
@@ -122,6 +131,11 @@ export default {
 
         // product 데이터 설정
         product.value = response.data.result;
+
+        // 카테고리 한글 변환
+        if (product.value.category && categoryMap[product.value.category]) {
+          product.value.category = categoryMap[product.value.category];
+        }
 
         // 프로필 이미지가 null일 경우 기본 이미지 설정
         if (!product.value.profileImage || !product.value.profileImage.imageUrl) {
