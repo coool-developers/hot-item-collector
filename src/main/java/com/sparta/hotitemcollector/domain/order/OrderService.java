@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.hotitemcollector.domain.cart.CartService;
 import com.sparta.hotitemcollector.domain.order.dto.OrderItemBySellerResponseDto;
+import com.sparta.hotitemcollector.domain.order.dto.OrderItemResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderResponseDto;
 import com.sparta.hotitemcollector.domain.order.dto.OrderStatusRequestDto;
 import com.sparta.hotitemcollector.domain.orderitem.OrderItem;
@@ -46,6 +47,16 @@ public class OrderService {
 		return orderPage.map(OrderResponseDto::new);
 	}
 
+	//구매자가 산 오더아이템 목록
+	@Transactional(readOnly = true)
+	public Page<OrderItemResponseDto> getOrderItemsAllByBuyer(int page, int size, LocalDateTime startDate, LocalDateTime endDate, User user) {
+		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+		Pageable pageable = PageRequest.of(page, size, sort);
+
+		Page<OrderItem> orderItemPage = orderItemRepository.findAllByUserId(user.getId(), pageable);
+
+		return orderItemPage.map(OrderItemResponseDto::new);
+	}
 
 	@Transactional(readOnly = true)
 	public OrderResponseDto getOrderByBuyer(Long orderId, User user) {
