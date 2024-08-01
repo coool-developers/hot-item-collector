@@ -20,6 +20,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
 	List<OrderItem> findAllByStatusAndCreatedAtBetweenAndProductIn(OrderStatus status, LocalDateTime startDate, LocalDateTime endDate, List<Product> productList, Sort sort);
 
-	@Query("SELECT oi FROM OrderItem oi JOIN oi.order o WHERE o.user.id = :userId")
-	Page<OrderItem> findAllByUserId(Long userId, Pageable pageable);
+	@Query("SELECT oi FROM OrderItem oi JOIN oi.order o WHERE o.user.id = :userId "
+		+ "AND o.createdAt BETWEEN :startDate AND :endDate")
+	Page<OrderItem> findAllByUserId(Long userId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 }
