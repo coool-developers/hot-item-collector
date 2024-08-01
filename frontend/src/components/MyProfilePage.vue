@@ -288,6 +288,25 @@ export default {
           image: product.image.imageUrl
         }));
 
+        const purchaseResponse = await axios.get(`http://localhost:8080/orderitems/buy`, {
+          params: {
+            page: 1,
+            size: 4
+          },
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        console.log(purchaseResponse.data);
+
+        purchasedProducts.value = purchaseResponse.data.result.content.map(product => ({
+          id: product.productId,
+          name: product.productName,
+          image: product.productImage.imageUrl
+        }));
+
+
+
         const likedResponse = await axios.get('http://localhost:8080/products/like', {
           params: {
             page: 1,
@@ -304,6 +323,8 @@ export default {
           name: product.name,
           image: product.image.imageUrl
         }));
+
+
 
       } catch (error) {
         console.error('Failed to fetch data:', error);
@@ -336,6 +357,7 @@ export default {
     const goToPurchasedProducts = () => {
       alert('내가 구매한 상품 목록 페이지로 이동합니다.')
       router.push(`/orders/buy`)
+
       //alert('내가 구매한 상품 목록 페이지로 이동합니다.')
     }
 
