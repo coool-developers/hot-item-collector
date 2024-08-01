@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,15 +31,17 @@ public class OrderController {
 	private final OrderService orderService;
 
 	@GetMapping("/orders/buy")
-	public ResponseEntity<CommonResponse<List<OrderResponseDto>>> getOrdersAllByBuyer(
+	public ResponseEntity<CommonResponse<Page<OrderResponseDto>>> getOrdersAllByBuyer(
+		@RequestParam(defaultValue="1") int page,
+		@RequestParam(defaultValue="4") int size,
 		@RequestParam(defaultValue = "#{T(java.time.LocalDate).now().minusMonths(3)}")
 		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 		@RequestParam(defaultValue = "#{T(java.time.LocalDate).now()}")
 		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		List<OrderResponseDto> responseDtoList = orderService.getOrdersAllByBuyer(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), userDetails.getUser());
+		Page<OrderResponseDto> responseDtoList = orderService.getOrdersAllByBuyer(page - 1, size, startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), userDetails.getUser());
 
-		CommonResponse<List<OrderResponseDto>> responses = new CommonResponse("구매자의 주문 목록을 조회 성공했습니다.", 200, responseDtoList);
+		CommonResponse<Page<OrderResponseDto>> responses = new CommonResponse("구매자의 주문 목록을 조회 성공했습니다.", 200, responseDtoList);
 		return new ResponseEntity<>(responses, HttpStatus.OK);
 	}
 

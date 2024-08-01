@@ -34,7 +34,7 @@ export default {
           'Authorization': accessToken
         }
       }).then(response => {
-        orders.value = response.data.result;
+        orders.value = response.data.result.content;
       }).catch(error => {
         console.error(error)
       })
@@ -76,7 +76,7 @@ export default {
       <div v-for="order in orders" :key="order.id">
         <div class="purchase-date">{{ formatDate(order.createdAt) }}</div>
         <div class="products-container">
-          <div v-for="item in order.productItemResponseDtoList" :key="item.productId" class="product-card"
+          <div v-for="item in order.orderItemResponseDtoList" :key="item.productId" class="product-card"
                @click="goToProductDetail(item.productId)">
             <img :src="item.productImage.imageUrl" :alt="item.productName" class="product-image">
             <div class="product-info">
