@@ -146,7 +146,7 @@ body {
   margin-bottom: 5px;
 }
 
-.product-id {
+.seller-info {
   color: #666;
   font-size: 14px;
 }
@@ -198,7 +198,7 @@ body {
             <img :src="product.image" :alt="product.name" class="product-image">
             <div class="product-info">
               <div class="product-name">{{ product.name }}</div>
-              <div class="product-id">ID: {{ product.id }}</div>
+              <div class="seller-info">판매자: <a :href="'/seller/' + product.sellerId">{{ product.sellerNickname }}</a></div>
             </div>
           </div>
         </div>
@@ -212,7 +212,7 @@ body {
             <img :src="product.image" :alt="product.name" class="product-image">
             <div class="product-info">
               <div class="product-name">{{ product.name }}</div>
-              <div class="product-id">ID: {{ product.id }}</div>
+              <div class="seller-info">판매자: <a :href="'/seller/' + product.userId">{{ product.userNickname }}</a></div>
             </div>
           </div>
         </div>
@@ -302,6 +302,8 @@ export default {
         purchasedProducts.value = purchaseResponse.data.result.content.map(product => ({
           id: product.productId,
           name: product.productName,
+          sellerId: product.sellerId,
+          sellerNickname: product.sellerNickname,
           image: product.productImage.imageUrl
         }));
 
@@ -321,6 +323,8 @@ export default {
         likedProducts.value = likedResponse.data.result.content.map(product => ({
           id: product.id,
           name: product.name,
+          userId: product.userId,
+          userNickname: product.userName,
           image: product.image.imageUrl
         }));
 
