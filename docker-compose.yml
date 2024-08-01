@@ -18,3 +18,8 @@ services:
     container_name: hot-item-collector-redis
     ports:
       - "6379:6379"
+  mongodb:
+    image: mongo:latest
+    container_name: hot-item-collector-mongo
+    ports:
+      - "27017:27017"
