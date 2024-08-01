@@ -9,5 +9,5 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface OrderRepository extends JpaRepository<Orders, Long> {
-	List<Orders> findAllByUserIdAndCreatedAtBetween(Long id, LocalDateTime startDate, LocalDateTime endDate, Sort sort);
+	Page<Orders> findAllByUserIdAndCreatedAtBetween(Long id, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 }

@@ -48,7 +48,7 @@ export default {
           id: product.id,
           name: product.name,
           image: product.image.imageUrl,
-          status: product.status
+          status: product.status,
         }));
         const data = response.data.result;
         totalPages.value = data.totalPages || 1;
@@ -173,7 +173,7 @@ export default {
             <img :src="product.image" :alt="product.name" class="product-image">
             <div class="product-info">
               <div class="product-name">{{ product.name }}</div>
-              <div class="product-id">ID: {{ product.id }}</div>
+              <div class="seller-info">판매자: <a :href="'/seller/' + user.id">{{ user.nickname }}</a></div>
             </div>
           </div>
         </div>
@@ -332,9 +332,14 @@ body {
   margin-bottom: 5px;
 }
 
-.product-id {
+.seller-info {
   color: #666;
   font-size: 14px;
+}
+
+.seller-info a {
+  color: var(--main-color);
+  text-decoration: none;
 }
 
 .pagination {
