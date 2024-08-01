@@ -150,6 +150,12 @@ body {
   color: #666;
   font-size: 14px;
 }
+
+.seller-info a {
+  color: var(--main-color);
+  text-decoration: none;
+}
+
 .no-items-message {
   text-align: center;
   padding: 20px;
