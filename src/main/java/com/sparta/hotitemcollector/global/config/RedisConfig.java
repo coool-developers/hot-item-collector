@@ -73,4 +73,17 @@ public class RedisConfig {
     public MessageListenerAdapter listenerAdapter(RedisSubscriber redisSubscriber) {
         return new MessageListenerAdapter(redisSubscriber, "sendMessage");
     }
+
+    /**
+     * String, String RedisTemplate이 없어서 NullPointerException 발생
+     */
+
+    @Bean
+    public RedisTemplate<String, String> chattingRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        return redisTemplate;
+    }
 }

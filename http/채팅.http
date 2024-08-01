@@ -1,0 +1,18 @@
+### 로그인 - 유저1
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "loginId": "user1",
+  "password": "passWord123!"
+}
+
+> {%
+    client.global.set("access_token", response.body.result.access);
+    client.global.set("refresh_token", response.body.result.refresh);
+%}
+
+### 채팅 보내기
+POST http://localhost:8080/chat/publish?message=채팅이 되는겨?
+Content-Type: application/json
+Authorization: {{access_token}}
