@@ -58,6 +58,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // messaging (STOMP)
+    implementation 'org.springframework:spring-messaging'
+
 }
 
 tasks.named('test') {
