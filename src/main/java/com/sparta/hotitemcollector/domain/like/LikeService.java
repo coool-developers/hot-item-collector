@@ -58,14 +58,11 @@ public class LikeService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getLikeProduct(User user, int page, int size) {
+    public Page<ProductSimpleResponseDto> getLikeProduct(User user, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage = findLikeProductIdByUser(user, pageable);
 
-        return productPage.getContent()
-            .stream()
-            .map(ProductSimpleResponseDto::new)
-            .collect(Collectors.toList());
+        return productPage.map(ProductSimpleResponseDto::new);
     }
 
     @Transactional(readOnly = true)

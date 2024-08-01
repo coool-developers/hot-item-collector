@@ -14,28 +14,10 @@ export default {
     const itemsPerPage = 16;
     const products = ref([]); // 초기값을 빈 배열로 설정
 
-    const showLoginModal = ref(false);
-    const showSignupModal = ref(false);
-    const signupLoginId = ref('');
-    const signupPassword = ref('');
-    const username = ref('');
-    const nickname = ref('');
-    const loginId = ref('');
-    const password = ref('');
-    const loginIdError = ref('');
-    const passwordError = ref('');
     const router = useRouter();
 
     const pageTitle = computed(() => '팔로우 사용자 상품 목록');
 
-    const displayedItems = computed(() => {
-      if (!Array.isArray(products.value)) {
-        return []; // products가 배열이 아닌 경우 빈 배열 반환
-      }
-      const start = (currentPage.value - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      return products.value.slice(start, end);
-    });
 
     function getCookie(name) {
       const value = `; ${document.cookie}`;
@@ -70,8 +52,8 @@ export default {
           }
         });
         const data = response.data.result;
-        products.value = data || [];
-        totalPages.value = Math.ceil((data.total || 0) / itemsPerPage);
+        products.value = data.content || [];
+        totalPages.value = data.totalPages || 1;
       } catch (error) {
         console.error('Failed to fetch products:', error);
       }
@@ -99,92 +81,6 @@ export default {
       window.location.href = `/seller/${userId}`;
     };
 
-    const login = () => {
-      console.log('Login clicked');
-      isLoggedIn.value = true;
-      showLoginModal.value = false;
-    };
-
-    const register = () => {
-      console.log('Register clicked');
-      isLoggedIn.value = true;
-      showSignupModal.value = false;
-    };
-
-    const validateLoginId = () => {
-      const loginIdRegex = /^[a-z0-9]{4,10}$/;
-      if (!loginIdRegex.test(signupLoginId.value)) {
-        loginIdError.value = '아이디는 4~10자의 영문 소문자와 숫자만 사용 가능합니다.';
-      } else {
-        loginIdError.value = '';
-      }
-    };
-
-    const validatePassword = () => {
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/;
-      if (!passwordRegex.test(signupPassword.value)) {
-        passwordError.value = '비밀번호는 8~15자의 영문 대/소문자, 숫자, 특수문자를 포함해야 합니다.';
-      } else {
-        passwordError.value = '';
-      }
-    };
-
-    const isSignupFormValid = computed(() => {
-      return signupLoginId.value && signupPassword.value && username.value && nickname.value
-          && !loginIdError.value && !passwordError.value;
-    });
-
-    const kakaoLogin = () => {
-      console.log('Kakao Login clicked');
-      // Implement Kakao login logic here
-    };
-
-    const switchToLogin = () => {
-      showSignupModal.value = false;
-      showLoginModal.value = true;
-    };
-
-    const switchToSignup = () => {
-      showLoginModal.value = false;
-      showSignupModal.value = true;
-    };
-
-    const goToProductRegistration = () => {
-      console.log('Going to product registration');
-    };
-
-    const goToProductManagement = () => {
-      console.log('Going to product management');
-    };
-
-    const goToOrderManagement = () => {
-      console.log('Going to order management');
-    };
-
-    const viewMyInfo = () => {
-      console.log('Going to my info');
-    };
-
-    const editProfile = () => {
-      console.log('Going to edit profile');
-    };
-
-    const logout = () => {
-      console.log('Logging out');
-      isLoggedIn.value = false;
-    };
-
-    const deleteAccount = () => {
-      if (confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-        console.log('Deleting account');
-        isLoggedIn.value = false;
-      }
-    };
-
-    const goToCart = () => {
-      console.log('Going to cart');
-    };
-
     onMounted(() => {
       fetchProducts(currentPage.value);
     });
@@ -199,38 +95,11 @@ export default {
       totalPages,
       itemsPerPage,
       products,
-      displayedItems,
       pageTitle,
-      showLoginModal,
-      showSignupModal,
-      signupLoginId,
-      signupPassword,
-      username,
-      nickname,
-      loginId,
-      password,
-      loginIdError,
-      passwordError,
       prevPage,
       nextPage,
       goToItemPage,
       goToSellerPage,
-      login,
-      register,
-      validateLoginId,
-      validatePassword,
-      isSignupFormValid,
-      kakaoLogin,
-      switchToLogin,
-      switchToSignup,
-      goToProductRegistration,
-      goToProductManagement,
-      goToOrderManagement,
-      viewMyInfo,
-      editProfile,
-      logout,
-      deleteAccount,
-      goToCart,
       goToProduct
     };
   }
@@ -244,15 +113,13 @@ export default {
       <section class="search-results">
         <h2>{{ pageTitle }}</h2>
         <div class="item-grid">
-          <div v-for="item in displayedItems" :key="item.id" class="item-card"
+          <div v-for="item in products" :key="item.id" class="item-card"
                @click="goToProduct(item.id)">
             <img :src="item.image.imageUrl" :alt="item.name">
             <div class="item-info">
               <div class="item-name">{{ item.name }}</div>
               <div class="item-seller">
-                판매자: <a @click.stop="goToSellerPage(item.userId)" :href="'/seller/' + item.userId">{{
-                  item.userName
-                }}</a>
+                판매자: <a @click.stop="goToSellerPage(item.userId)" :href="'/seller/' + item.userId">{{ item.userName }}</a>
               </div>
             </div>
           </div>

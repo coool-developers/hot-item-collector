@@ -6,6 +6,7 @@ import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -50,13 +51,13 @@ public class LikeController {
     }
 
     @GetMapping("/products/like")
-    public ResponseEntity<CommonResponse<List<ProductSimpleResponseDto>>> getLikeProduct(
+    public ResponseEntity<CommonResponse<Page<ProductSimpleResponseDto>>> getLikeProduct(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
-        List<ProductSimpleResponseDto> responseDtoList = likeService.getLikeProduct(
+        Page<ProductSimpleResponseDto> responseDtoPage = likeService.getLikeProduct(
             userDetails.getUser(), page - 1, size);
-        CommonResponse<List<ProductSimpleResponseDto>> response = new CommonResponse<>(
-            "좋아요한 상품 목록 조회 성공", 200, responseDtoList);
+        CommonResponse<Page<ProductSimpleResponseDto>> response = new CommonResponse<>(
+            "좋아요한 상품 목록 조회 성공", 200, responseDtoPage);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

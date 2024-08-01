@@ -100,7 +100,7 @@ export default {
         });
 
         if (response.data && response.data.result) {
-          newItems.value = response.data.result;
+          newItems.value = response.data.result.content;
         } else {
           console.error('Unexpected response format:', response.data);
         }
@@ -152,7 +152,7 @@ export default {
           }
         });
 
-        followedUsersItems.value = response.data.result;
+        followedUsersItems.value = response.data.result.content;
       } catch (error) {
         console.error('Error fetching followed users items:', error);
         if (error.response) {

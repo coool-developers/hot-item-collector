@@ -24,7 +24,7 @@ public class SearchService {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getSearchProduct(String nickname, String productName,
+    public Page<ProductSimpleResponseDto> getSearchProduct(String nickname, String productName,
         ProductCategory category, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage = Page.empty(pageable);
@@ -44,9 +44,6 @@ public class SearchService {
             productPage = productRepository.findByCategory(category, pageable);
         }
 
-        return productPage.getContent()
-            .stream()
-            .map(ProductSimpleResponseDto::new)
-            .collect(Collectors.toList());
+        return productPage.map(ProductSimpleResponseDto::new);
     }
 }
