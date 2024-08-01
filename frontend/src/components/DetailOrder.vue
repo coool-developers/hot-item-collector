@@ -23,7 +23,7 @@ export default {
     const route = useRoute();
     const orderId = route.query.orderId;
 
-    const deliveryStatuses = ref(['결제완료', '상품준비중', '배송중', '배송완료']);
+    const deliveryStatuses = ref(['결제 완료', '상품 준비중', '배송 중', '배송 완료']);
     const currentStatusIndex = ref(0); // 현재 상태 (배송완료)
 
     const statusMapping = {
@@ -62,9 +62,10 @@ export default {
         });
 
         const orderDataResponse = response.data.result;
+        console.log(response.data);
 
         if (orderDataResponse) {
-          orderDataResponse.value = orderDataResponse;
+          // orderDataResponse.value = orderDataResponse;
           shippingInfo.value = {
             name: orderDataResponse.userName,
             phone: orderDataResponse.phoneNumber,
@@ -81,6 +82,7 @@ export default {
             currentStatusIndex: getStatusIndex(item.orderStatus)
           }));
         }
+        console.log(products.value)
       } catch (err) {
         console.error('Failed to fetch order details:', err);
       }
@@ -145,6 +147,7 @@ export default {
                   <div class="status-icon">{{ index + 1 }}</div>
                   <div class="status-label">{{ status }}</div>
                 </div>
+                <pre>현재 상태 인덱스: {{ product.currentStatusIndex }}</pre>
               </div>
             </div>
           </div>

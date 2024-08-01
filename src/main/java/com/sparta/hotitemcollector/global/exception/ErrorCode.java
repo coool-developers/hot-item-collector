@@ -66,8 +66,9 @@ public enum ErrorCode {
     INCORRECT_EXTENSION(HttpStatus.BAD_REQUEST,"파일 확장자를 찾을 수 없습니다."),
 
 	// Payment
-	NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND,"결제 내역을 찾을 수 없습니다.");
+	NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND,"결제 내역을 찾을 수 없습니다."),
+	PAY_AMOUNT_MISMATCH(HttpStatus.CONFLICT, "결제 금액이 일치하지 않습니다.");
 
-	private final HttpStatus status;
+    private final HttpStatus status;
 	private final String message;
 }

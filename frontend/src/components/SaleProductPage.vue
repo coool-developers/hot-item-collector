@@ -1,5 +1,5 @@
 <script>
-import { ref,computed } from 'vue';
+import { ref } from 'vue';
 import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
 import Cookies from "js-cookie";
@@ -9,17 +9,17 @@ import {useRouter} from "vue-router";
 export default {
   components: {AppFooter, AppHeader},
   setup() {
-    const searchType = ref('product')
-    const searchQuery = ref('')
-    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물'])
-    const filter = ref('all')
-    const currentPage = ref(1)
-    const itemsPerPage = 8
-    const products = ref()
-    const totalPages = ref(1)
+    const searchType = ref('product');
+    const searchQuery = ref('');
+    const categories = ref(['식품', '뷰티', '패션&주얼리', '공예품', '홈리빙', '반려동물']);
+    const filter = ref('all');
+    const currentPage = ref(1);
+    const products = ref([]);
+    const totalPages = ref(1);
+    const itemsPerPage = 12;
     const router = useRouter();
 
-    const fetchProducts = async (filterType) => {
+    const fetchProducts = async (filterType, page) => {
       const accessToken = Cookies.get('access_token');
       let status;
 
@@ -36,61 +36,57 @@ export default {
 
       try {
         const params = status ? { status } : {};
-        const response = await axios.get('http://localhost:8080/products/sale', {
+        const response = await axios.get(`http://localhost:8080/products/sale?page=${page}&size=${itemsPerPage}`, {
           headers: {
             'Authorization': accessToken
           },
           params
         });
-        const data = response.data;
-        products.value = data.result;
-        totalPages.value = Math.ceil(data.total / itemsPerPage);
+        const data = response.data.result;
+        products.value = data.content || [];
+        totalPages.value = data.totalPages || 1;
       } catch (error) {
         console.error('Error fetching products:', error);
       }
     };
 
-    const displayedProducts = computed(() => {
-      return products.value
-    })
+    const setFilter = (filterType) => {
+      filter.value = filterType;
+      currentPage.value = 1;
+      fetchProducts(filterType, currentPage.value);
+    };
 
-    const setFilter = (FilterType) => {
-      filter.value = FilterType
-      currentPage.value = 1
-      fetchProducts(FilterType);
-    }
-
-    const prevPage = async () => {
+    const prevPage = () => {
       if (currentPage.value > 1) {
-        currentPage.value--
-        await fetchProducts()
+        currentPage.value--;
+        fetchProducts(filter.value, currentPage.value);
       }
-    }
+    };
 
-    const nextPage = async () => {
+    const nextPage = () => {
       if (currentPage.value < totalPages.value) {
-        currentPage.value++
-        await fetchProducts()
+        currentPage.value++;
+        fetchProducts(filter.value, currentPage.value);
       }
-    }
+    };
 
     const goToProduct = (productId) => {
-      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`)
+      alert(`상품 ID ${productId}의 상세 페이지로 이동합니다.`);
       router.push(`/product/update/${productId}`);
-    }
+    };
 
     const goToProductManagement = () => {
-      alert('주문 관리 페이지로 이동합니다.')
+      alert('주문 관리 페이지로 이동합니다.');
       router.push('/orders/sell');
-    }
+    };
 
     const goToProductRegistration = () => {
-      alert('상품 등록 페이지로 이동합니다.')
+      alert('상품 등록 페이지로 이동합니다.');
       router.push('/product/upload');
-    }
+    };
 
     // Initial fetch
-    fetchProducts()
+    fetchProducts(filter.value, currentPage.value);
 
     return {
       searchType,
@@ -99,21 +95,21 @@ export default {
       filter,
       currentPage,
       totalPages,
-      displayedProducts,
+      products,
       setFilter,
       prevPage,
       nextPage,
       goToProduct,
       goToProductManagement,
       goToProductRegistration
-    }
+    };
   }
 }
 </script>
 
 <template>
   <div id="app">
-   <AppHeader />
+    <AppHeader />
 
     <main class="container product-list">
       <div class="product-list-header">
@@ -129,7 +125,7 @@ export default {
         <button :class="{ active: filter === 'sold' }" @click="setFilter('sold')">판매완료</button>
       </div>
       <div class="product-grid">
-        <div v-for="product in displayedProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
+        <div v-for="product in products" :key="product.id" class="product-card" @click="goToProduct(product.id)">
           <img :src="product.image.imageUrl" :alt="product.name" class="product-image">
           <div class="product-info">
             <div class="product-id">ID: {{ product.id }}</div>
@@ -147,7 +143,7 @@ export default {
       </div>
     </main>
 
-   <AppFooter/>
+    <AppFooter/>
   </div>
 </template>
 
