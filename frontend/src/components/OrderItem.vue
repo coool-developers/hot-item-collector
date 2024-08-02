@@ -3,12 +3,12 @@ import {ref, onMounted} from 'vue'
 import {DateTime} from 'luxon'
 import Cookies from "js-cookie";
 import axios from "axios";
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import router from "@/router";
 
 export default {
-  components: {Header, AppFooter},
+  components: {AppHeader, AppFooter},
   setup() {
     const startDate = ref('')
     const endDate = ref('')
@@ -90,7 +90,7 @@ export default {
 
 <template>
   <div id="app">
-    <Header/>
+    <AppHeader/>
     <main class="container purchased-products">
       <h1>구매한 상품 목록</h1>
       <div class="date-range-selector">

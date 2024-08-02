@@ -1,11 +1,11 @@
 <script>
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import { ref, computed, onMounted } from 'vue';
 import axios from "axios";
 import { useRouter, useRoute } from "vue-router";
 import AppFooter from './AppFooter.vue';
 export default {
-  components: { Header, AppFooter },
+  components: { AppHeader, AppFooter },
   setup() {
     const isLoggedIn = ref(false);
     const currentPage = ref(1);
@@ -98,7 +98,7 @@ export default {
 
 <template>
   <div id="app">
-    <Header/>
+    <AppHeader/>
     <main class="container">
       <section class="search-results">
         <h2>{{ pageTitle }}</h2>

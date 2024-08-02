@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Header/>
+    <AppHeader/>
     <main class="container">
       <section class="search-results">
         <h2>{{ pageTitle }}</h2>
@@ -35,14 +35,14 @@
 
 
 <script>
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import { ref, computed, onMounted } from 'vue';
 import axios from "axios";
 import { useRouter, useRoute } from "vue-router";
 
 export default {
-  components: { Header, AppFooter },
+  components: { AppHeader, AppFooter },
   setup() {
     const isLoggedIn = ref(false);
     const currentPage = ref(1);

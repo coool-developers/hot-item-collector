@@ -3,11 +3,11 @@ import axios from 'axios';
 import {ref, computed, onMounted} from 'vue';
 import {useRouter} from "vue-router";
 import Cookies from "js-cookie";
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 
 export default {
-  components: { Header, AppFooter },
+  components: { AppHeader, AppFooter },
   setup() {
     const jQueryScript = document.createElement('script');
     jQueryScript.src = 'https://code.jquery.com/jquery-1.12.4.min.js';
@@ -175,7 +175,7 @@ export default {
 
 <template>
   <div id="app">
-    <Header/>
+    <AppHeader/>
     <main class="container">
       <div class="order-details">
         <div class="shipping-info">

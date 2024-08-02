@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-   <Header/>
+   <AppHeader/>
 
     <main class="container">
       <section class="product-detail">
@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import {ref, onMounted, computed} from 'vue'
 import axios from "axios";
 import {useRoute} from "vue-router";
@@ -66,7 +66,7 @@ import Cookies from "js-cookie";
 import router from "@/router";
 
 export default {
-  components: {AppFooter, Header},
+  components: {AppFooter, AppHeader},
   props: {
     productId: {
       type: String,

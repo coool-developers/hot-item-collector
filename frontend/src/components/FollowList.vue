@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Header />
+    <AppHeader />
     <main class="container following-list">
       <h1>팔로우 목록</h1>
       <div v-for="user in followingUsers" :key="user.id" class="following-item" @click="goToUserProfile(user.id)">
@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
@@ -27,7 +27,7 @@ import { useRouter } from "vue-router";
 import Cookies from "js-cookie";
 
 export default {
-  components: { Header, AppFooter },
+  components: { AppHeader, AppFooter },
   setup() {
     const router = useRouter();
 

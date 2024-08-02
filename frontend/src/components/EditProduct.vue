@@ -1,6 +1,6 @@
 <script>
 import { onMounted, ref } from 'vue';
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import axios from "axios";
 import Cookies from 'js-cookie';
@@ -8,7 +8,7 @@ import { useRoute, useRouter } from "vue-router";
 import defaultProfileImage from "@/assets/user.png";
 
 export default {
-  components: { AppFooter, Header },
+  components: { AppFooter, AppHeader },
   setup() {
     const searchType = ref('product');
     const searchQuery = ref('');
@@ -195,7 +195,7 @@ export default {
 
 <template>
   <div id="app">
-    <Header />
+    <AppHeader />
     <main class="container">
       <section class="product-registration">
         <h1>판매 상품 등록</h1>

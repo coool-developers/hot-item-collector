@@ -1,13 +1,13 @@
 <script>
 import { ref, onMounted } from 'vue';
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import {useRoute, useRouter} from "vue-router";
 import axios from "axios";
 import Cookies from "js-cookie";
 
 export default {
-  components: { Header, AppFooter },
+  components: { AppHeader, AppFooter },
   setup() {
     const isLoggedIn = ref(true);
     const route = useRoute();
@@ -149,7 +149,7 @@ export default {
 
 <template>
   <div id="app">
-    <Header/>
+    <AppHeader/>
     <main class="container my-info">
       <section class="profile-section">
         <img :src="user.profileImage.imageUrl" alt="프로필 이미지" class="profile-image">

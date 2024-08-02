@@ -170,7 +170,7 @@ body {
 
 <template>
   <div id="app">
-    <Header />
+    <AppHeader />
     <main class="container my-info">
       <section class="profile-section">
         <img :src="user.profileImage" alt="프로필 이미지" class="profile-image">
@@ -231,7 +231,7 @@ body {
 
 <script>
 import { ref, onMounted  } from 'vue'
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import axios from 'axios';
 import Cookies from "js-cookie";
@@ -239,7 +239,7 @@ import { useRouter } from 'vue-router';
 
 export default {
   name: 'App',
-  components: {Header, AppFooter},
+  components: {AppHeader, AppFooter},
   setup() {
     const router = useRouter(); // For navigation
     const user = ref({

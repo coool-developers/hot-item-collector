@@ -186,7 +186,7 @@ body {
 
 <template>
   <div id="app">
-    <Header />
+    <AppHeader />
     <main class="container">
       <section class="product-detail">
         <div class="seller-info">
@@ -227,7 +227,7 @@ body {
 </template>
 <script>
 import { ref, computed, onMounted  } from 'vue';
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import {useRoute, useRouter} from 'vue-router';
 import axios from "axios";
@@ -235,7 +235,7 @@ import defaultProfile from "../assets/user.png";
 import Cookies from "js-cookie";
 
 export default {
-  components: {AppFooter, Header},
+  components: {AppFooter, AppHeader},
 
   setup() {
     const route = useRoute(); // useRoute를 통해 현재 라우트에 접근
