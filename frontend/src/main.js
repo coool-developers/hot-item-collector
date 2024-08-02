@@ -3,6 +3,8 @@ import App from '@/App';
 import router from '@/router';
 import axios from "axios";
 
+//use this configure for local testing
+//axios.defaults.baseURL = 'http://localhost:8080';
 axios.defaults.baseURL = 'http://43.201.84.28:8080';
 
 const app = createApp(App);
