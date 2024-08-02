@@ -20,7 +20,6 @@ import NewItemPage from "@/components/NewItemPage.vue";
 import LikeItemPage from "@/components/LikeItemPage.vue";
 import CategoryItemPage from "@/components/CategoryItemPage.vue";
 import EditProduct from "@/components/EditProduct.vue";
-import axios from "axios";
 
 const routes = [
   {
