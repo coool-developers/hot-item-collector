@@ -123,7 +123,7 @@ export default {
 
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`https://43.201.84.28:8080/products/${productId}`, {
+        const response = await axios.get(`/products/${productId}`, {
           headers: {
             'Content-Type': 'application/json',
           },
