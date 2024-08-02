@@ -144,7 +144,7 @@ export default {
             formData.append('files', imageFile);
           });
 
-          const response = await axios.put(`http://localhost:8080/products/${productId}`, formData, {
+          const response = await axios.put(`/products/${productId}`, formData, {
             headers: {
               'Authorization': accessToken,
               'Content-Type': 'multipart/form-data',
