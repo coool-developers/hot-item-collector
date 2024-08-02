@@ -28,7 +28,7 @@ spring:
     database-platform: org.hibernate.dialect.MySQLDialect
 
   data:
-    mongdb:
+    mongodb:
       host: ${MONGODB_HOST}
       port: ${MONGODB_PORT}
       database: ${MONGODB_DATABASE}
