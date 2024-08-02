@@ -18,7 +18,7 @@ export default {
     const categories = {
       '식품': 'FOOD',
       '뷰티': 'BEAUTY',
-      '패션&주얼리': 'FAHSION',
+      '패션&주얼리': 'FASHION',
       '공예품': 'CRAFTS',
       '홈리빙': 'HOME_LIVING',
       '반려동물': 'PET'
