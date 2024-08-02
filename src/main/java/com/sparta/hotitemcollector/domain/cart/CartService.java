@@ -2,6 +2,7 @@ package com.sparta.hotitemcollector.domain.cart;
 
 import com.sparta.hotitemcollector.domain.cart.dto.CartItemResponseDto;
 import com.sparta.hotitemcollector.domain.product.entity.Product;
+import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
 import com.sparta.hotitemcollector.domain.product.service.ProductService;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.domain.user.UserService;
@@ -38,6 +39,10 @@ public class CartService {
 
 		if (isCartItemExistAtUser(productId, user.getId())) {
 			throw new CustomException(ErrorCode.ALREADY_EXIST_CARTITEM);
+		}
+
+		if (product.getStatus().equals(ProductStatus.SOLD_OUT)){
+			throw new CustomException(ErrorCode.ALREADY_SOLD_OUT);
 		}
 
 		CartItem cartItem = CartItem.builder()
