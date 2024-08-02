@@ -59,7 +59,7 @@ export default {
     const useMyAddress = async () => {
       try {
         // API를 통해 주소 정보를 가져오는 것을 시뮬레이션
-        const response = await axios.get(`http://localhost:8080/users/profile/address`, {
+        const response = await axios.get(`/users/profile/address`, {
           headers: {
             'Authorization': accessToken
           }
@@ -90,7 +90,7 @@ export default {
 
       try {
 
-        const orderResponse = await axios.post('http://localhost:8080/prepare/order', {
+        const orderResponse = await axios.post('/prepare/order', {
           productItemList: cartItems.value.map(item => item.productId),
           buyerName: shippingInfo.value.name,
           buyerTel: shippingInfo.value.phone,
@@ -103,7 +103,7 @@ export default {
 
         const orderId = orderResponse.data.result;
 
-        const paymentResponse = await axios.get(`http://localhost:8080/prepare/payment?orderId=${orderId}`, {
+        const paymentResponse = await axios.get(`/prepare/payment?orderId=${orderId}`, {
           headers: {
             'Authorization': accessToken
           }
@@ -130,7 +130,7 @@ export default {
         }, async function (rsp) { // callback
           if (rsp.success) {
             try {
-              const verifyResponse = await axios.post('http://localhost:8080/payments/verify', {
+              const verifyResponse = await axios.post('/payments/verify', {
                 impUid: rsp.imp_uid,
                 merchantUid: rsp.merchant_uid,
                 amount: rsp.paid_amount

@@ -42,7 +42,7 @@ export default {
       const accessToken = Cookies.get('access_token');
       try {
         const response = await axios.post(
-            'http://localhost:8080/users/confirm/password',
+            '/users/confirm/password',
             { password: password.value },
             {
               headers: {

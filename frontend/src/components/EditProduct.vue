@@ -72,7 +72,7 @@ export default {
 
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/products/${productId}`);
+        const response = await axios.get(`/products/${productId}`);
         const data = response.data.result;
         console.log(data);
 
@@ -104,7 +104,7 @@ export default {
           throw new Error('Access token is missing.');
         }
         if (productId && product.value.images[index].id) {
-          const response = await axios.delete(`http://localhost:8080/products/${productId}/image/${product.value.images[index].id}`, {
+          const response = await axios.delete(`/products/${productId}/image/${product.value.images[index].id}`, {
             headers: {
               'Authorization': accessToken
             }

@@ -20,7 +20,7 @@ export default {
       return date.split('T')[0]
     }
     const searchOrders = () => {
-      axios.get('http://localhost:8080/orders/sell', {
+      axios.get('/orders/sell', {
         params: {
           startDate: startDate.value,
           endDate: endDate.value,
@@ -37,7 +37,7 @@ export default {
     }
 
     const loadOrders = () => {
-      axios.get('http://localhost:8080/orders/sell', {
+      axios.get('/orders/sell', {
         headers: {
           'Authorization': accessToken
         }
@@ -50,7 +50,7 @@ export default {
 
     const updateStatus = (order) => {
 
-      axios.patch(`http://localhost:8080/orders/sell/${order.orderItemId}`, {
+      axios.patch(`/orders/sell/${order.orderItemId}`, {
         status: order.orderStatus
       }, {
         headers: {

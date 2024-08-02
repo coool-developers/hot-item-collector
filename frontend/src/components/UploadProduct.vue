@@ -73,7 +73,7 @@ export default {
           formData.append('files', imageFile);
         });
 
-        const response = await axios.post('http://localhost:8080/products', formData, {
+        const response = await axios.post('/products', formData, {
           headers: {
             'Authorization': accessToken,
             'Content-Type': 'multipart/form-data',

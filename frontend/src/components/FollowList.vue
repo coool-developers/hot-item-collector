@@ -38,14 +38,14 @@ export default {
       try {
         if (user.isFollowing) {
           // 팔로우 취소 요청
-          await axios.delete(`http://localhost:8080/follow/${user.id}`, {
+          await axios.delete(`/follow/${user.id}`, {
             headers: {
               'Authorization': accessToken
             }
           });
         } else {
           // 팔로우 요청
-          await axios.post(`http://localhost:8080/follow/${user.id}`, {}, {
+          await axios.post(`/follow/${user.id}`, {}, {
             headers: {
               'Authorization': accessToken
             }
@@ -67,7 +67,7 @@ export default {
     const fetchFollowingUsers = async () => {
       try {
         const accessToken = Cookies.get('access_token');
-        const response = await axios.get('http://localhost:8080/follows', {
+        const response = await axios.get('/follows', {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': accessToken

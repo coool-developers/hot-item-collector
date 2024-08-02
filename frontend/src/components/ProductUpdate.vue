@@ -298,7 +298,7 @@ export default {
     const fetchProduct = async () => {
       if (productId) {
         try {
-          const response = await axios.get(`http://localhost:8080/products/${productId}`);
+          const response = await axios.get(`/products/${productId}`);
           console.log(response.data.result);
 
           product.value = response.data.result;
@@ -331,7 +331,7 @@ export default {
       if (productId) {
         const accessToken = Cookies.get('access_token');
         try{
-           const response = await axios.delete(`http://localhost:8080/products/${productId}`,{
+           const response = await axios.delete(`/products/${productId}`,{
              headers: {
                'Authorization': accessToken
              }

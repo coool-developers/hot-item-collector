@@ -203,7 +203,7 @@ export default {
     const fetchUserProfile = async () => {
       try {
         const accessToken = Cookies.get('access_token');
-        const response = await axios.get('http://localhost:8080/users/profile', {
+        const response = await axios.get('/users/profile', {
           headers: {
             'Authorization': accessToken
           }
@@ -255,7 +255,7 @@ export default {
           formData.append('files', selectedFile.value);
         }
 
-        await axios.patch('http://localhost:8080/users/profile', formData, {
+        await axios.patch('/users/profile', formData, {
           headers: {
             'Authorization': accessToken,
             'Content-Type': 'multipart/form-data'

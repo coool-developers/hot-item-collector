@@ -123,7 +123,7 @@ export default {
 
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`/products/${productId}`, {
+        const response = await axios.get(`https://43.201.84.28:8080/products/${productId}`, {
           headers: {
             'Content-Type': 'application/json',
           },
@@ -152,7 +152,7 @@ export default {
 
     const fetchLikeStatus = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/likes/${productId}`, {
+        const response = await axios.get(`/likes/${productId}`, {
           headers: {
             'Authorization': accessToken
           }
@@ -166,7 +166,7 @@ export default {
     const fetchFollowStatus = async () => {
       try {
         await fetchProduct()
-        const response = await axios.get(`http://localhost:8080/follow/${product.value.userId}`, {
+        const response = await axios.get(`/follow/${product.value.userId}`, {
           headers: {
             'Authorization': accessToken
           }
@@ -191,7 +191,7 @@ export default {
 
     const follow = async () => {
       try {
-        await axios.post(`http://localhost:8080/follow/${product.value.userId}`, {}, {
+        await axios.post(`/follow/${product.value.userId}`, {}, {
           headers: {
             'Authorization': accessToken
           }
@@ -208,7 +208,7 @@ export default {
 
     const unfollow = async () => {
       try {
-        await axios.delete(`http://localhost:8080/follow/${product.value.userId}`, {
+        await axios.delete(`/follow/${product.value.userId}`, {
           headers: {
             'Authorization': accessToken
           }
@@ -231,7 +231,7 @@ export default {
     const toggleLike = async () => {
 
       try {
-        await axios.post(`http://localhost:8080/likes/${productId}`, {}, {
+        await axios.post(`/likes/${productId}`, {}, {
           headers: {
             'Authorization': accessToken
           }
@@ -259,7 +259,7 @@ export default {
 
     const addToCart = () => {
 
-      axios.post(`http://localhost:8080/cart/${productId}`, {},{
+      axios.post(`/cart/${productId}`, {},{
         headers: {
           'Content-Type':'application/json',
           'Authorization':accessToken

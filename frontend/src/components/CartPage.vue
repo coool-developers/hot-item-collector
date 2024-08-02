@@ -45,7 +45,7 @@ export default {
 
     const loadCartItems = () => {
 
-      axios.get('http://localhost:8080/cart', {
+      axios.get('/cart', {
         headers: {
           'Authorization': accessToken
         }
@@ -75,7 +75,7 @@ export default {
       if (!userConfirmed) {
         return;
       }
-      axios.delete(`http://localhost:8080/cart/${item.productId}`, {
+      axios.delete(`/cart/${item.productId}`, {
         headers: {
           'Authorization': accessToken
         }

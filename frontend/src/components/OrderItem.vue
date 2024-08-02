@@ -27,7 +27,7 @@ export default {
 
     const searchPurchases = () => {
 
-      axios.get('http://localhost:8080/orderitems/buy', {
+      axios.get('/orderitems/buy', {
         params: {
           startDate: startDate.value,
           endDate: endDate.value,

@@ -19,4 +19,5 @@ module.exports = defineConfig({
       },
     },
   },
+  baseUrl: 'http:/43.201.84.28:8080'
 });

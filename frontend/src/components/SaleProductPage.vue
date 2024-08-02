@@ -36,7 +36,7 @@ export default {
 
       try {
         const params = status ? { status } : {};
-        const response = await axios.get(`http://localhost:8080/products/sale?page=${page}&size=${itemsPerPage}`, {
+        const response = await axios.get(`/products/sale?page=${page}&size=${itemsPerPage}`, {
           headers: {
             'Authorization': accessToken
           },

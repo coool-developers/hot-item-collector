@@ -55,7 +55,7 @@ export default {
 
     const fetchOrderDetail = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/order/buy/${orderId}`, {
+        const response = await axios.get(`/order/buy/${orderId}`, {
           headers: {
             'Authorization': accessToken
           }
