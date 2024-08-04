@@ -42,7 +42,7 @@ public class UserService {
         if (finduser.isPresent()) {
             throw new CustomException(ErrorCode.DUPLICATE_USER);
         }
-        if(userRepository.existsByNicknameContainingIgnoreCase(signupRequestDto.getNickname())) {
+        if (userRepository.existsByNicknameIgnoreCase(signupRequestDto.getNickname())){
             throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
         }
 
@@ -62,7 +62,7 @@ public class UserService {
 
         ProfileImage profileImage = new ProfileImage(requestDto,user);
         user.updateProfileImage(profileImage);
-        User saveUser = userRepository.save(user);
+        userRepository.save(user);
     }
 
 
@@ -76,8 +76,8 @@ public class UserService {
             throw new CustomException(ErrorCode.INCORRECT_PASSWORD);
         }
 
-        String access = jwtUtil.createAccessToken(finduser.getLoginId(), finduser.getRole());
-        String refresh = jwtUtil.createRefreshToken(finduser.getLoginId(), finduser.getRole());
+        String access = jwtUtil.createAccessToken(finduser.getLoginId());
+        String refresh = jwtUtil.createRefreshToken(finduser.getLoginId());
 
 
         // 토큰을 데이터베이스에 저장
@@ -102,7 +102,6 @@ public class UserService {
 
         Claims claims = jwtUtil.getUserInfoFromToken(refreshToken);
         String loginId = claims.getSubject();
-        UserRole role = jwtUtil.getRoleFromToken(refreshToken);
 
 
         User finduser = findByLoginId(loginId);
@@ -118,8 +117,8 @@ public class UserService {
         }
 
 
-        String access = jwtUtil.createAccessToken(loginId, role);
-        String refresh = jwtUtil.createRefreshToken(loginId, role);
+        String access = jwtUtil.createAccessToken(loginId);
+        String refresh = jwtUtil.createRefreshToken(loginId);
 
         tokenService.updateToken(optionalToken.get(),refresh);
 
