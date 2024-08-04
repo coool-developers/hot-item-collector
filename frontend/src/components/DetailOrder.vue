@@ -3,11 +3,11 @@ import {onMounted, ref} from 'vue';
 import Cookies from "js-cookie";
 import axios from "axios";
 import {useRoute, useRouter} from "vue-router";
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 
 export default {
-  components: {AppFooter, Header},
+  components: {AppFooter, AppHeader},
   setup() {
 
     // shippingInfo를 객체로 설정
@@ -55,7 +55,7 @@ export default {
 
     const fetchOrderDetail = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/order/buy/${orderId}`, {
+        const response = await axios.get(`/order/buy/${orderId}`, {
           headers: {
             'Authorization': accessToken
           }
@@ -107,7 +107,7 @@ export default {
 
 <template>
   <div id="app">
-    <Header/>
+    <AppHeader/>
     <main class="container">
       <div class="order-details">
         <div class="shipping-info">

@@ -12,10 +12,10 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration // Spring 클래스임을 명시하는 어노테이션
 public class RedisConfig {
     // 호스트 명과 포트번호 주입
-    @Value("${spring.data.redis.host}")
+    @Value("${SPRING_DATA_REDIS_HOST}")
     private String host;
 
-    @Value("${spring.data.redis.port}")
+    @Value("${SPRING_DATA_REDIS_PORT}")
     private int port;
 
     @Bean

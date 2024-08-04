@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-   <Header/>
+   <AppHeader/>
 
     <main class="container">
       <section class="product-detail">
@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import {ref, onMounted, computed} from 'vue'
 import axios from "axios";
 import {useRoute} from "vue-router";
@@ -66,7 +66,7 @@ import Cookies from "js-cookie";
 import router from "@/router";
 
 export default {
-  components: {AppFooter, Header},
+  components: {AppFooter, AppHeader},
   props: {
     productId: {
       type: String,
@@ -152,7 +152,7 @@ export default {
 
     const fetchLikeStatus = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/likes/${productId}`, {
+        const response = await axios.get(`/likes/${productId}`, {
           headers: {
             'Authorization': accessToken
           }
@@ -166,7 +166,7 @@ export default {
     const fetchFollowStatus = async () => {
       try {
         await fetchProduct()
-        const response = await axios.get(`http://localhost:8080/follow/${product.value.userId}`, {
+        const response = await axios.get(`/follow/${product.value.userId}`, {
           headers: {
             'Authorization': accessToken
           }
@@ -191,7 +191,7 @@ export default {
 
     const follow = async () => {
       try {
-        await axios.post(`http://localhost:8080/follow/${product.value.userId}`, {}, {
+        await axios.post(`/follow/${product.value.userId}`, {}, {
           headers: {
             'Authorization': accessToken
           }
@@ -208,7 +208,7 @@ export default {
 
     const unfollow = async () => {
       try {
-        await axios.delete(`http://localhost:8080/follow/${product.value.userId}`, {
+        await axios.delete(`/follow/${product.value.userId}`, {
           headers: {
             'Authorization': accessToken
           }
@@ -231,7 +231,7 @@ export default {
     const toggleLike = async () => {
 
       try {
-        await axios.post(`http://localhost:8080/likes/${productId}`, {}, {
+        await axios.post(`/likes/${productId}`, {}, {
           headers: {
             'Authorization': accessToken
           }
@@ -259,7 +259,7 @@ export default {
 
     const addToCart = () => {
 
-      axios.post(`http://localhost:8080/cart/${productId}`, {},{
+      axios.post(`/cart/${productId}`, {},{
         headers: {
           'Content-Type':'application/json',
           'Authorization':accessToken

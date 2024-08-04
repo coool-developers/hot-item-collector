@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    @Value("${security.permitted-urls}")
+    @Value("${SECURITY_PERMITTED_URLS}")
     private String permittedUrlsString;
 
 

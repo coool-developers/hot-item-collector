@@ -1,13 +1,13 @@
 <script>
 import { ref, onMounted } from 'vue';
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import {useRoute, useRouter} from "vue-router";
 import axios from "axios";
 import Cookies from "js-cookie";
 
 export default {
-  components: { Header, AppFooter },
+  components: { AppHeader, AppFooter },
   setup() {
     const isLoggedIn = ref(true);
     const route = useRoute();
@@ -30,7 +30,7 @@ export default {
 
     const fetchUser = async () => {
       if (userId) {
-        const response = await axios.get(`http://localhost:8080/users/profile/${userId}`);
+        const response = await axios.get(`/users/profile/${userId}`);
         console.log(response.data.result);
 
         user.value = response.data.result;
@@ -41,7 +41,7 @@ export default {
 
     const fetchProduct = async (page = 1) => {
       if (userId) {
-        const response = await axios.get(`http://localhost:8080/products/sale/${userId}?page=${page}&size=${itemsPerPage}`);
+        const response = await axios.get(`/products/sale/${userId}?page=${page}&size=${itemsPerPage}`);
         console.log(response.data.result);
 
         products.value = response.data.result.content.map(product => ({
@@ -59,7 +59,7 @@ export default {
 
     const fetchFollowStatus = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/follow/${userId}`, {
+        const response = await axios.get(`/follow/${userId}`, {
           headers: {
             'Authorization': accessToken
           }
@@ -79,7 +79,7 @@ export default {
 
     const follow = async () => {
       try {
-        await axios.post(`http://localhost:8080/follow/${userId}`, {}, {
+        await axios.post(`/follow/${userId}`, {}, {
           headers: {
             'Authorization': accessToken
           }
@@ -93,7 +93,7 @@ export default {
 
     const unfollow = async () => {
       try {
-        await axios.delete(`http://localhost:8080/follow/${userId}`, {
+        await axios.delete(`/follow/${userId}`, {
           headers: {
             'Authorization': accessToken
           }
@@ -149,7 +149,7 @@ export default {
 
 <template>
   <div id="app">
-    <Header/>
+    <AppHeader/>
     <main class="container my-info">
       <section class="profile-section">
         <img :src="user.profileImage.imageUrl" alt="프로필 이미지" class="profile-image">

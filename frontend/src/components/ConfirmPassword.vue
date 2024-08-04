@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Header />
+    <AppHeader />
     <!-- Main Content Section -->
     <main class="container edit-profile">
       <h1>개인정보 수정</h1>
@@ -26,14 +26,14 @@
 <script>
 import { ref } from 'vue';
 import axios from 'axios';
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import Cookies from 'js-cookie';
 import { useRouter } from 'vue-router';
 
 
 export default {
-  components: { Header, AppFooter },
+  components: { AppHeader, AppFooter },
   setup() {
     const password = ref('');
     const router = useRouter(); // For navigation
@@ -42,7 +42,7 @@ export default {
       const accessToken = Cookies.get('access_token');
       try {
         const response = await axios.post(
-            'http://localhost:8080/users/confirm/password',
+            '/users/confirm/password',
             { password: password.value },
             {
               headers: {
