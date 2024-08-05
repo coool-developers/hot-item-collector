@@ -52,7 +52,7 @@ public class OrderService {
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 		Pageable pageable = PageRequest.of(page, size, sort);
 
-		Page<OrderItem> orderItemPage = orderItemRepository.findAllByUserId(user.getId(), startDate, endDate, pageable);
+		Page<OrderItem> orderItemPage = orderItemRepository.findOrderItemPageByUserId(user.getId(), startDate, endDate, pageable);
 
 		return orderItemPage.map(OrderItemResponseDto::new);
 	}
