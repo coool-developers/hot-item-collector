@@ -1,11 +1,11 @@
 <script>
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import { ref, computed, onMounted } from 'vue';
 import axios from "axios";
 import { useRouter, useRoute } from "vue-router";
 import AppFooter from './AppFooter.vue';
 export default {
-  components: { Header, AppFooter },
+  components: { AppHeader, AppFooter },
   setup() {
     const isLoggedIn = ref(false);
     const currentPage = ref(1);
@@ -18,7 +18,7 @@ export default {
     const categories = {
       '식품': 'FOOD',
       '뷰티': 'BEAUTY',
-      '패션&주얼리': 'FAHSION',
+      '패션&주얼리': 'FASHION',
       '공예품': 'CRAFTS',
       '홈리빙': 'HOME_LIVING',
       '반려동물': 'PET'
@@ -98,7 +98,7 @@ export default {
 
 <template>
   <div id="app">
-    <Header/>
+    <AppHeader/>
     <main class="container">
       <section class="search-results">
         <h2>{{ pageTitle }}</h2>

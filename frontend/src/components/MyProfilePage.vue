@@ -170,7 +170,7 @@ body {
 
 <template>
   <div id="app">
-    <Header />
+    <AppHeader />
     <main class="container my-info">
       <section class="profile-section">
         <img :src="user.profileImage" alt="프로필 이미지" class="profile-image">
@@ -231,7 +231,7 @@ body {
 
 <script>
 import { ref, onMounted  } from 'vue'
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import axios from 'axios';
 import Cookies from "js-cookie";
@@ -239,7 +239,7 @@ import { useRouter } from 'vue-router';
 
 export default {
   name: 'App',
-  components: {Header, AppFooter},
+  components: {AppHeader, AppFooter},
   setup() {
     const router = useRouter(); // For navigation
     const user = ref({
@@ -259,7 +259,7 @@ export default {
       const accessToken = Cookies.get('access_token');
       try {
         // Fetch user profile data
-        const userResponse = await axios.get('http://localhost:8080/users/profile', {
+        const userResponse = await axios.get('/users/profile', {
           headers: {
             'Authorization': accessToken
           }
@@ -278,7 +278,7 @@ export default {
         };
 
         // Fetch registered products
-        const registeredResponse = await axios.get('http://localhost:8080/products/sale', {
+        const registeredResponse = await axios.get('/products/sale', {
           params: {
             page: 1,
             size: 4
@@ -294,7 +294,7 @@ export default {
           image: product.image.imageUrl
         }));
 
-        const purchaseResponse = await axios.get(`http://localhost:8080/orderitems/buy`, {
+        const purchaseResponse = await axios.get(`/orderitems/buy`, {
           params: {
             page: 1,
             size: 4
@@ -315,7 +315,7 @@ export default {
 
 
 
-        const likedResponse = await axios.get('http://localhost:8080/products/like', {
+        const likedResponse = await axios.get('/products/like', {
           params: {
             page: 1,
             size: 4

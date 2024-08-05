@@ -1,6 +1,6 @@
 <script>
 import { onMounted, ref } from 'vue';
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import axios from "axios";
 import Cookies from 'js-cookie';
@@ -8,7 +8,7 @@ import { useRoute, useRouter } from "vue-router";
 import defaultProfileImage from "@/assets/user.png";
 
 export default {
-  components: { AppFooter, Header },
+  components: { AppFooter, AppHeader },
   setup() {
     const searchType = ref('product');
     const searchQuery = ref('');
@@ -72,7 +72,7 @@ export default {
 
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/products/${productId}`);
+        const response = await axios.get(`/products/${productId}`);
         const data = response.data.result;
         console.log(data);
 
@@ -104,7 +104,7 @@ export default {
           throw new Error('Access token is missing.');
         }
         if (productId && product.value.images[index].id) {
-          const response = await axios.delete(`http://localhost:8080/products/${productId}/image/${product.value.images[index].id}`, {
+          const response = await axios.delete(`/products/${productId}/image/${product.value.images[index].id}`, {
             headers: {
               'Authorization': accessToken
             }
@@ -144,7 +144,7 @@ export default {
             formData.append('files', imageFile);
           });
 
-          const response = await axios.put(`http://localhost:8080/products/${productId}`, formData, {
+          const response = await axios.put(`/products/${productId}`, formData, {
             headers: {
               'Authorization': accessToken,
               'Content-Type': 'multipart/form-data',
@@ -195,7 +195,7 @@ export default {
 
 <template>
   <div id="app">
-    <Header />
+    <AppHeader />
     <main class="container">
       <section class="product-registration">
         <h1>판매 상품 등록</h1>

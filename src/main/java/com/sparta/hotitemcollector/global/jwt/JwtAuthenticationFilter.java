@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
 
-    @Value("${security.permitted-urls}")
+    @Value("${SECURITY_PERMITTED_URLS}")
     private String permittedUrlsString;
 
     private List<String> permittedUrls;
