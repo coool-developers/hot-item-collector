@@ -18,17 +18,17 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class S3Service {
 
-    private final AmazonS3 amazonS3;
+/*    private final AmazonS3 amazonS3;
 
     @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
+    private String bucket;*/
 
     // 파일 리스트 저장
     public List<ProductImageRequestDto> uploadFiles(List<MultipartFile> files) throws IOException {
         List<ProductImageRequestDto> productImageRequestDtos = new ArrayList<>();
 
         for (MultipartFile file : files) {
-            // 파일명을 UUID로 변경하여 고유하게 설정
+/*            // 파일명을 UUID로 변경하여 고유하게 설정
             String originalFilename = file.getOriginalFilename();
             String filename = UUID.randomUUID().toString() + "_" + originalFilename;
 
@@ -44,7 +44,9 @@ public class S3Service {
 
             // ProductImageDto 생성
             ProductImageRequestDto productImageRequestDto = new ProductImageRequestDto(filename,
-                imageUrl);
+                imageUrl);*/
+
+            ProductImageRequestDto productImageRequestDto = new ProductImageRequestDto("imsiFilename", "imsiImageUrl.jpg");
             productImageRequestDtos.add(productImageRequestDto);
         }
 
@@ -53,7 +55,7 @@ public class S3Service {
 
     // 단일 파일 저장
     public ProfileImageRequestDto uploadFile(MultipartFile file) throws IOException {
-        // 파일명을 UUID로 변경하여 고유하게 설정
+/*        // 파일명을 UUID로 변경하여 고유하게 설정
         String originalFilename = file.getOriginalFilename();
         String filename = UUID.randomUUID().toString() + "_" + originalFilename;
 
@@ -68,11 +70,12 @@ public class S3Service {
         String imageUrl = amazonS3.getUrl(bucket, filename).toString();
 
         // ProductImageDto 생성
-        return new ProfileImageRequestDto(filename, imageUrl);
+        return new ProfileImageRequestDto(filename, imageUrl);*/
+        return new ProfileImageRequestDto("imsiFilename", "imsiImageUrl");
     }
 
     // 파일 삭제
     public void deleteImage(String originalFilename) {
-        amazonS3.deleteObject(bucket, originalFilename);
+        /*amazonS3.deleteObject(bucket, originalFilename);*/
     }
 }

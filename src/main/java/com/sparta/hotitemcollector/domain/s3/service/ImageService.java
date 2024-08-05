@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ImageService {
 
     public void validateFile(MultipartFile file) {
-        String filename = file.getOriginalFilename();
+/*        String filename = file.getOriginalFilename();
         String fileExtension = getFileExtension(filename).toLowerCase();
         long fileSize = file.getSize();
 
@@ -30,7 +30,7 @@ public class ImageService {
             }
         } else {
             throw new CustomException(ErrorCode.NOT_ALLOW_FORMAT);
-        }
+        }*/
     }
 
     public String getFileExtension(String filename) {
