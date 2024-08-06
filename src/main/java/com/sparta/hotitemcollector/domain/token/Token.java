@@ -18,7 +18,7 @@ public class Token extends Timestamped {
     @Column
     private long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn (name = "user_id", nullable = false)
     private User user;
 
