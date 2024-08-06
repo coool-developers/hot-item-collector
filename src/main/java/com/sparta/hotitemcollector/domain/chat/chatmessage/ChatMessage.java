@@ -4,7 +4,7 @@ import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collation = "chat_message")
+@Document(collection = "chat_message")
 public class ChatMessage extends Timestamped {
     @Id
     private String id;

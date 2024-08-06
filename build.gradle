@@ -51,18 +51,22 @@ dependencies {
     // S3
     implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.4'
 
-    // mongo
+    // MongoDB
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-    implementation 'org.mongodb:mongodb-driver-sync:4.8.0'
 
-    // websocket
+    // WebSocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.webjars:sockjs-client:1.1.2'
-
-    // messaging (STOMP)
     implementation 'org.springframework:spring-messaging'
-    implementation 'org.webjars:stomp-websocket:2.3.3-1'
+    implementation 'io.projectreactor.netty:reactor-netty:1.1.8'
+
+    // Netty의 기본 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'io.projectreactor.netty:reactor-netty'
+    implementation 'io.netty:netty-all:4.1.91.Final'
+
+    // MacOS 네이티브 DNS 해결 라이브러리
+    implementation 'io.netty:netty-resolver-dns-native-macos:4.1.91.Final'
+
 }
 
 tasks.named('test') {

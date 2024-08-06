@@ -46,17 +46,10 @@ public class RedisConfig {
         return redisTemplate;
     }
 
-    /**
-     * 단일 Topic 사용을 위한 Bean 설정
-     */
     @Bean
     public ChannelTopic channelTopic() {
         return new ChannelTopic("hotitem");
     }
-
-    /**
-     * redis에 메시지 처리를 위한 리스너 설정
-     */
 
     @Bean
     public RedisMessageListenerContainer redisMessageListener(MessageListenerAdapter listenerAdapter, ChannelTopic channelTopic) {
@@ -66,17 +59,10 @@ public class RedisConfig {
         return container;
     }
 
-    /**
-     *  실제 메시지를 처리하는 구독자 설정
-     */
     @Bean
     public MessageListenerAdapter listenerAdapter(RedisSubscriber redisSubscriber) {
         return new MessageListenerAdapter(redisSubscriber, "sendMessage");
     }
-
-    /**
-     * String, String RedisTemplate이 없어서 NullPointerException 발생
-     */
 
     @Bean
     public RedisTemplate<String, String> chattingRedisTemplate(RedisConnectionFactory redisConnectionFactory) {

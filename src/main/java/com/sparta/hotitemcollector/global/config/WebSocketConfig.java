@@ -15,14 +15,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final StompHandler stompHandler; //JWT 인증
 
-    /**
-     * sub -> 메시지 구독
-     * pub -> 메시지 발행
-     * @param config
-     */
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/sub");
         config.setApplicationDestinationPrefixes("/pub");
         config.enableStompBrokerRelay("/queue", "/topic")
                 .setRelayHost("localhost")
@@ -37,11 +31,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOrigins("*")
                 .withSockJS();
     }
-
-    /**
-     * Stomp가 token을 체크할 수 있도록 인터셉터를 설정
-     * @param registration
-     */
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>STOMP WebSocket Client</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<h1>WebSocket STOMP Client</h1>
+<input type="text" id="name" placeholder="Enter your name">
+<button onclick="sendName()">Send</button>
+<div id="greetings"></div>
+
+<script>
+    var socket = new SockJS('http://localhost:8080/ws-stomp');
+    var stompClient = Stomp.over(socket);
+
+    // Your JWT token
+    var token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMSIsImF1dGgiOiJVU0VSIiwiaWF0IjoxNzIyOTEwNTM4LCJleHAiOjE5MDI5MTA1Mzh9.E9hPscxBn_jVlbTHArQFFMMnNx6ERpX_8Uvwc2EspQg";
+
+    stompClient.connect({ 'Authorization': token }, function (frame) {
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/topic/greetings', function (greeting) {
+            showGreeting(JSON.parse(greeting.body).content);
+        });
+    }, function (error) {
+        console.log('Error: ' + error);
+    });
+
+    function sendName() {
+        stompClient.send("/app/hello", {}, JSON.stringify({'name': document.getElementById("name").value}));
+    }
+
+    function showGreeting(message) {
+        var greetings = document.getElementById("greetings");
+        var p = document.createElement("p");
+        p.appendChild(document.createTextNode(message));
+        greetings.appendChild(p);
+    }
+</script>
+</body>
+</html>

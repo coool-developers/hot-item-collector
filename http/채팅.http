@@ -13,6 +13,13 @@ Content-Type: application/json
 %}
 
 ### 채팅 보내기
-POST http://localhost:8080/chat/publish?message=채팅이 되는겨?
+POST http://localhost:8080/chat/message
 Content-Type: application/json
 Authorization: {{access_token}}
+
+{
+  "id": "1",
+  "roomId" : "1",
+  "message" : "뭔데",
+  "sender" : "123"
+}
