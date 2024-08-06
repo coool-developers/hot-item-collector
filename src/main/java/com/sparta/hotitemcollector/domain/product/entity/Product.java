@@ -28,7 +28,7 @@ public class Product extends Timestamped {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images = new ArrayList<>();
 
     @Column(nullable = false)
@@ -48,7 +48,7 @@ public class Product extends Timestamped {
     @Column(nullable = false)
     private Long likes;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
