@@ -19,14 +19,14 @@ public class ChatRoom extends Timestamped {
 
     private String roomId;
     private String roomName;
-    private String sendUser;
-    private String receiveUser;
+    private String seller;
+    private String buyer;
 
-    public ChatRoom(String roomId, String roomName, String sendUser, String receiveUser) {
+    public ChatRoom(String roomId, String roomName, String seller, String buyer) {
         this.roomId = roomId;
         this.roomName = roomName;
-        this.sendUser = sendUser;
-        this.receiveUser = receiveUser;
+        this.seller = seller;
+        this.buyer = buyer;
 
     }
 }
