@@ -4,6 +4,7 @@ import com.sparta.hotitemcollector.domain.user.dto.user.ProfileImageRequestDto;
 import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,7 +26,7 @@ public class ProfileImage extends Timestamped {
     private String filename;
     @Column(name = "image_url")
     private String imageUrl;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

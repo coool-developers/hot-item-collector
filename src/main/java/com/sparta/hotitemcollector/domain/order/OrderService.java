@@ -3,7 +3,6 @@ package com.sparta.hotitemcollector.domain.order;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -53,7 +52,7 @@ public class OrderService {
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 		Pageable pageable = PageRequest.of(page, size, sort);
 
-		Page<OrderItem> orderItemPage = orderItemRepository.findAllByUserId(user.getId(), startDate, endDate, pageable);
+		Page<OrderItem> orderItemPage = orderItemRepository.findOrderItemPageByUserId(user.getId(), startDate, endDate, pageable);
 
 		return orderItemPage.map(OrderItemResponseDto::new);
 	}
@@ -72,14 +71,13 @@ public class OrderService {
 	@Transactional(readOnly = true)
 	public List<OrderItemBySellerResponseDto> getOrdersAllBySeller(LocalDateTime startDate, LocalDateTime endDate, String status, User user) {
 
-		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 		List<OrderItem> orderItemList = new ArrayList<>();
 		List<Product> productList = productService.findByUserAndStatus(user, ProductStatus.SOLD_OUT);
 
 		if (status == null || status.isEmpty()) {
-			orderItemList = orderItemRepository.findAllByCreatedAtBetweenAndProductIn(startDate, endDate, productList, sort);
+			orderItemList = orderItemRepository.findAllByCreatedAtBetweenAndProductInOrderByCreatedAtDesc(startDate, endDate, productList);
 		} else {
-			orderItemList = orderItemRepository.findAllByStatusAndCreatedAtBetweenAndProductIn(OrderStatus.fromString(status), startDate, endDate, productList, sort);
+			orderItemList = orderItemRepository.findAllByStatusAndCreatedAtBetweenAndProductInOrderByCreatedAtDesc(OrderStatus.fromString(status), startDate, endDate, productList);
 		}
 
 		return orderItemList
