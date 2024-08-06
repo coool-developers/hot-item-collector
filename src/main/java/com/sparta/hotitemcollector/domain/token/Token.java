@@ -3,10 +3,7 @@ package com.sparta.hotitemcollector.domain.token;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
@@ -21,13 +18,15 @@ public class Token extends Timestamped {
     @Column
     private long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn (name = "user_id", nullable = false)
     private User user;
 
+    @Setter
     @Column (name = "refresh_time", nullable = false)
     private Date refreshTime;
 
+    @Setter
     @Column (name = "refresh_token", nullable = false)
     private String refreshToken;
 
@@ -38,4 +37,5 @@ public class Token extends Timestamped {
         this.refreshTime = refreshTime;
         this.refreshToken = refreshToken;
     }
+
 }

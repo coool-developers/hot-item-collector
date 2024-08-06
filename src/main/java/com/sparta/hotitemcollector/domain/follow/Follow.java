@@ -16,17 +16,17 @@ public class Follow extends Timestamped {
     @Column
     private Long id;
 
-    @ManyToOne
+    @ManyToOne (fetch = FetchType.LAZY)
     @JoinColumn(name = "follower_id", nullable = false)
     private User follower;
 
-    @ManyToOne
+    @ManyToOne (fetch = FetchType.LAZY)
     @JoinColumn(name = "following_id", nullable = false)
     private User following;
 
     @Builder
-    public Follow (User follower, User following) {
-        this.follower = follower;
-        this.following = following;
+    public Follow(User follower, User following) {
+        this.follower = follower; // 팔로우 하는 사람
+        this.following = following; // 팔로우 당하는 사람
     }
 }

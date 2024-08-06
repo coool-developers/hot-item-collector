@@ -1,0 +1,47 @@
+### 로그인 - 유저1
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "loginId": "user1",
+  "password": "passWord123!"
+}
+
+> {%
+    client.global.set("access_token", response.body.result.access);
+    client.global.set("refresh_token", response.body.result.refresh);
+%}
+
+### 유저 1 -> 유저 2 팔로우
+POST http://localhost:8080/follow/2
+Content-Type: application/json
+Authorization: {{access_token}}
+
+### 유저 1 -> 유저 2 팔로우 취소
+DELETE http://localhost:8080/follow/2
+Content-Type: application/json
+Authorization: {{access_token}}
+
+### 로그인 유저 2
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "loginId": "user2",
+  "password": "passWord123!"
+}
+
+> {%
+    client.global.set("access_token", response.body.result.access);
+    client.global.set("refresh_token", response.body.result.refresh);
+%}
+
+### 유저 2 -> 유저 1 팔로우
+POST http://localhost:8080/follow/1
+Content-Type: application/json
+Authorization: {{access_token}}
+
+### 유저 2 -> 유저 1 팔로우 취소
+DELETE http://localhost:8080/follow/1
+Content-Type: application/json
+Authorization: {{access_token}}

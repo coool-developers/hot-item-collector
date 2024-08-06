@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  db:
+    platform: linux/x86_64
+    image: mysql
+    container_name: hot-item-collector
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: Asia/Seoul
+
+#  db_dummy:
+#    image: mysql
+#    container_name: dummy-hot-item-collector
+#    restart: always
+#    environment:
+#      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+#      MYSQL_DATABASE: ${MYSQL_DUMMY_DATABASE}
+#      MYSQL_ROOT_USER: ${MYSQL_USER}
+#      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+#    ports:
+#      - "3308:3306"
+
+  redis:
+    image: redis
+    container_name: hot-item-collector-redis
+    ports:
+      - "6379:6379"

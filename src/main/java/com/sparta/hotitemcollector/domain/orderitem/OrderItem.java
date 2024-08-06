@@ -1,9 +1,22 @@
 package com.sparta.hotitemcollector.domain.orderitem;
 
-import com.sparta.hotitemcollector.domain.order.Order;
-import com.sparta.hotitemcollector.domain.product.Product;
+import com.sparta.hotitemcollector.domain.order.OrderStatus;
+import com.sparta.hotitemcollector.domain.order.Orders;
+import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.global.Timestamped;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,23 +27,33 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OrderItem extends Timestamped {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
-    private long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column
+	private long id;
 
-    @ManyToOne
-    @JoinColumn(name ="order_id", nullable = false)
-    private Order order;
+	@Column(name = "status", nullable = false)
+	@Enumerated(value = EnumType.STRING)
+	private OrderStatus status;
 
-    @ManyToOne
-    @JoinColumn(name ="product_id", nullable = false)
-    private Product product;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "order_id", nullable = false)
+	private Orders order;
 
-    @Builder
-    public OrderItem(long id, Order order, Product product) {
-        this.id = id;
-        this.order = order;
-        this.product = product;
-    }
+	// @ManyToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "product_id", nullable = false)
+	private Product product;
+
+	@Builder
+	public OrderItem(long id, Orders order, Product product, OrderStatus status) {
+		this.id = id;
+		this.order = order;
+		this.product = product;
+		this.status = status;
+	}
+
+	public void updateOrderItemStatus(OrderStatus status) {
+		this.status = status;
+	}
 }
