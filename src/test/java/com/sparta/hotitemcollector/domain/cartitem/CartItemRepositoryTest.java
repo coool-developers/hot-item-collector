@@ -1,7 +1,5 @@
 package com.sparta.hotitemcollector.domain.cartitem;
 
-import java.util.Optional;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +14,6 @@ import org.springframework.data.domain.Sort;
 import com.sparta.hotitemcollector.TestConfig;
 import com.sparta.hotitemcollector.domain.cart.CartItem;
 import com.sparta.hotitemcollector.domain.cart.CartItemRepository;
-import com.sparta.hotitemcollector.domain.product.entity.Product;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)

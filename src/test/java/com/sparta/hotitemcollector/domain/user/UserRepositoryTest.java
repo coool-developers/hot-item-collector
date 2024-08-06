@@ -8,13 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 import com.sparta.hotitemcollector.TestConfig;
-import com.sparta.hotitemcollector.domain.product.entity.Product;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -26,7 +21,7 @@ public class UserRepositoryTest {
 
 	@Test
 	@DisplayName("1. findByNicknameContainingIgnoreCase를 테스트한다")
-	void Test1(){
+	void Test1() {
 		// given
 		String nickname = "id";
 
@@ -44,14 +39,14 @@ public class UserRepositoryTest {
 		for (User user : userList) {
 			System.out.println("User ID: " + user.getId());
 			System.out.println("User Nickname: " + user.getNickname());
-		//	System.out.println("User Profile Image: " + user.getProfileImage().getImageUrl());
+			//	System.out.println("User Profile Image: " + user.getProfileImage().getImageUrl());
 			System.out.println("------------------------------------");
 		}
 	}
 
 	@Test
 	@DisplayName("2. existsByNicknameContainingIgnoreCase를 테스트한다")
-	void Test2(){
+	void Test2() {
 		// given
 		String nickname = "dssds";
 

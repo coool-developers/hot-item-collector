@@ -1,7 +1,5 @@
 package com.sparta.hotitemcollector.domain.follow;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +10,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import com.sparta.hotitemcollector.TestConfig;
-import com.sparta.hotitemcollector.domain.orderitem.OrderItem;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.domain.user.UserRepository;
 
@@ -64,7 +61,6 @@ public class FollowRepositoryTest {
 		System.out.println("====================================");
 	}
 
-
 	@Test
 	@DisplayName("3. findByFollowerId를 테스트한다")
 	void test3() {
@@ -74,7 +70,7 @@ public class FollowRepositoryTest {
 		// when
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 메소드 시작 >>>>>>>>>>>>>>>>>>>>>>>>>");
 		long before = System.currentTimeMillis();
-		List<Follow>follow = followRepository.findByFollowerId(id);
+		List<Follow> follow = followRepository.findByFollowerId(id);
 		long after = System.currentTimeMillis();
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 메소드 종료 >>>>>>>>>>>>>>>>>>>>>>>>>");
 

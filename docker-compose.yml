@@ -14,17 +14,17 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       TZ: Asia/Seoul
 
-  db_dummy:
-    image: mysql
-    container_name: dummy-hot-item-collector
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DUMMY_DATABASE}
-      MYSQL_ROOT_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "3308:3306"
+#  db_dummy:
+#    image: mysql
+#    container_name: dummy-hot-item-collector
+#    restart: always
+#    environment:
+#      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+#      MYSQL_DATABASE: ${MYSQL_DUMMY_DATABASE}
+#      MYSQL_ROOT_USER: ${MYSQL_USER}
+#      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+#    ports:
+#      - "3308:3306"
 
   redis:
     image: redis

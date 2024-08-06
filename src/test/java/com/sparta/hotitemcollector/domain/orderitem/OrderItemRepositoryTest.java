@@ -23,7 +23,6 @@ import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.repository.ProductRepository;
 
 @DataJpaTest
-// @EnableJpaRepositories(basePackageClasses = OrderItemRepository.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(TestConfig.class)
 class QueryTest {
@@ -49,7 +48,6 @@ class QueryTest {
 		System.out.println("총 걸린 시간 : " + (after - before) + "ms");
 		System.out.println("====================================");
 	}
-
 
 	@Test
 	@DisplayName("1. findAllByStatusAndCreatedAtBetweenAndProductInOrderByCreatedAtDesc를 테스트한다")
@@ -81,7 +79,6 @@ class QueryTest {
 		System.out.println("총 걸린 시간 : " + (after - before) + "ms");
 		System.out.println("====================================");
 	}
-
 
 	@Test
 	@DisplayName("2. findOrderItemPageByUserId를 테스트한다")
