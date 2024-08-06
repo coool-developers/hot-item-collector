@@ -37,7 +37,7 @@ class QueryTest {
 	@DisplayName("0. orderItemRepository에서 findByOrderId를 테스트한다")
 	void test0() {
 		//given
-		Long id = 83889L;
+		Long id = 2L;
 
 		// when
 		long before = System.currentTimeMillis();

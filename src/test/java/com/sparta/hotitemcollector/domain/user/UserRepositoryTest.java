@@ -1,6 +1,6 @@
-package com.sparta.hotitemcollector.domain.cartitem;
+package com.sparta.hotitemcollector.domain.user;
 
-import java.util.Optional;
+import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,54 +14,58 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import com.sparta.hotitemcollector.TestConfig;
-import com.sparta.hotitemcollector.domain.cart.CartItem;
-import com.sparta.hotitemcollector.domain.cart.CartItemRepository;
 import com.sparta.hotitemcollector.domain.product.entity.Product;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(TestConfig.class)
-public class CartItemRepositoryTest {
+public class UserRepositoryTest {
 
 	@Autowired
-	CartItemRepository cartItemRepository;
+	UserRepository userRepository;
 
 	@Test
-	@DisplayName("1. findByProductIdAndUserId를 테스트한다")
-	void test1() {
-		//given
-		Long ProductId = 1L;
-		Long UserId = 1L;
+	@DisplayName("1. findByNicknameContainingIgnoreCase를 테스트한다")
+	void Test1(){
+		// given
+		String nickname = "id";
 
 		// when
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 메소드 시작 >>>>>>>>>>>>>>>>>>>>>>>>>");
 		long before = System.currentTimeMillis();
-		CartItem cartItem = cartItemRepository.findByProductIdAndUserId(ProductId, UserId).orElse(null);
+		List<User> userList = userRepository.findByNicknameContainingIgnoreCase(nickname);
 		long after = System.currentTimeMillis();
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 메소드 종료 >>>>>>>>>>>>>>>>>>>>>>>>>");
 
 		// then
 		System.out.println("총 걸린 시간 : " + (after - before) + "ms");
 		System.out.println("====================================");
+
+		for (User user : userList) {
+			System.out.println("User ID: " + user.getId());
+			System.out.println("User Nickname: " + user.getNickname());
+		//	System.out.println("User Profile Image: " + user.getProfileImage().getImageUrl());
+			System.out.println("------------------------------------");
+		}
 	}
 
 	@Test
-	@DisplayName("1. findAllByUserId를 테스트한다")
-	void test2() {
-		//given
-		Long userId = 2L;
-		Pageable pageable = PageRequest.of(1, 16, Sort.by(Sort.Direction.DESC, "createdAt"));
+	@DisplayName("2. existsByNicknameContainingIgnoreCase를 테스트한다")
+	void Test2(){
+		// given
+		String nickname = "dssds";
 
 		// when
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 메소드 시작 >>>>>>>>>>>>>>>>>>>>>>>>>");
 		long before = System.currentTimeMillis();
-		Page<CartItem> cartItemPage = cartItemRepository.findAllByUserId(userId, pageable);
+		Boolean isExist = userRepository.existsByNicknameContainingIgnoreCase(nickname);
 		long after = System.currentTimeMillis();
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 메소드 종료 >>>>>>>>>>>>>>>>>>>>>>>>>");
 
 		// then
 		System.out.println("총 걸린 시간 : " + (after - before) + "ms");
 		System.out.println("====================================");
-	}
 
+		System.out.println(isExist);
+	}
 }

@@ -72,9 +72,9 @@ public class UserService {
 
         checkUserStatus(finduser);
 
-/*        if (!passwordEncoder.matches(loginReqeustDto.getPassword(), finduser.getPassword())) {
+        if (!passwordEncoder.matches(loginReqeustDto.getPassword(), finduser.getPassword())) {
             throw new CustomException(ErrorCode.INCORRECT_PASSWORD);
-        }*/
+        }
 
         String access = jwtUtil.createAccessToken(finduser.getLoginId(), finduser.getRole());
         String refresh = jwtUtil.createRefreshToken(finduser.getLoginId(), finduser.getRole());
