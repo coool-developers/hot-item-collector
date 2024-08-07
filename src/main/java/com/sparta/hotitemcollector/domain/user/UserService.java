@@ -1,15 +1,16 @@
 package com.sparta.hotitemcollector.domain.user;
 
 import com.sparta.hotitemcollector.domain.follow.FollowRepository;
-import com.sparta.hotitemcollector.domain.follow.FollowService;
 import com.sparta.hotitemcollector.domain.s3.service.S3Service;
 import com.sparta.hotitemcollector.domain.token.Token;
 import com.sparta.hotitemcollector.domain.token.TokenService;
-import com.sparta.hotitemcollector.domain.user.dto.auth.LoginReqeustDto;
+import com.sparta.hotitemcollector.domain.user.dto.auth.ConnectAccountRequestDto;
 import com.sparta.hotitemcollector.domain.user.dto.auth.LoginResponseDto;
 import com.sparta.hotitemcollector.domain.user.dto.auth.RefreshRequestDto;
 import com.sparta.hotitemcollector.domain.user.dto.auth.SignupRequestDto;
 import com.sparta.hotitemcollector.domain.user.dto.user.*;
+import com.sparta.hotitemcollector.domain.user.oauthUser.OAuthUser;
+import com.sparta.hotitemcollector.domain.user.oauthUser.OAuthUserRepository;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import com.sparta.hotitemcollector.global.jwt.JwtUtil;
@@ -35,6 +36,7 @@ public class UserService {
     private final S3Service s3Service;
     private final ProfileImageRepository profileImageRepository;
     private final FollowRepository followRepository;
+    private final OAuthUserRepository oAuthUserRepository;
 
     public void signup(SignupRequestDto signupRequestDto) {
         Optional<User> finduser = userRepository.findByLoginId(signupRequestDto.getLoginId());
@@ -42,55 +44,68 @@ public class UserService {
         if (finduser.isPresent()) {
             throw new CustomException(ErrorCode.DUPLICATE_USER);
         }
-        if (userRepository.existsByNicknameIgnoreCase(signupRequestDto.getNickname())){
-            throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
-        }
+
 
         String password = signupRequestDto.getPassword();
         String encodedPassword = passwordEncoder.encode(password);
 
         String defaultFilename = "기본 프로필 이미지";
         String defaultImageUrl = "https://www.pngarts.com/files/10/Default-Profile-Picture-PNG-Download-Image.png";
-        ProfileImageRequestDto requestDto = new ProfileImageRequestDto(defaultFilename,defaultImageUrl);
+        ProfileImageRequestDto requestDto = new ProfileImageRequestDto(defaultFilename, defaultImageUrl);
 
         User user = User.builder()
                 .loginId(signupRequestDto.getLoginId())
                 .password(encodedPassword)
                 .username(signupRequestDto.getUsername())
-                .nickname(signupRequestDto.getNickname())
                 .build();
 
-        ProfileImage profileImage = new ProfileImage(requestDto,user);
+        ProfileImage profileImage = new ProfileImage(requestDto, user);
         user.updateProfileImage(profileImage);
         userRepository.save(user);
     }
 
-
-    public LoginResponseDto login(LoginReqeustDto loginReqeustDto) {
-        User finduser = userRepository.findByLoginId(loginReqeustDto.getLoginId())
+    public void connectAccount(ConnectAccountRequestDto requestDto) {
+        User finduser = userRepository.findByLoginId(requestDto.getLoginId())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
-
         checkUserStatus(finduser);
 
-        if (!passwordEncoder.matches(loginReqeustDto.getPassword(), finduser.getPassword())) {
+        if (!passwordEncoder.matches(requestDto.getPassword(), finduser.getPassword())) {
             throw new CustomException(ErrorCode.INCORRECT_PASSWORD);
         }
-
-        String access = jwtUtil.createAccessToken(finduser.getLoginId());
-        String refresh = jwtUtil.createRefreshToken(finduser.getLoginId());
-
-
-        // 토큰을 데이터베이스에 저장
-        Optional<Token> optionalToken = tokenService.findRefreshToken(finduser);
-        if (optionalToken.isPresent()) {
-            Token token = optionalToken.get();
-            tokenService.updateToken(token, refresh);
+        Optional<OAuthUser> optionalOAuthUser = oAuthUserRepository.findByIdAndSocialId(requestDto.getOauthId(), requestDto.getSocialId());
+        if (optionalOAuthUser.isPresent()) {
+            OAuthUser oAuthUser = optionalOAuthUser.get();
+            oAuthUser.updateUser(finduser);
+            oAuthUserRepository.save(oAuthUser);
         } else {
-            tokenService.saveToken(finduser, refresh);
+            throw new CustomException(ErrorCode.NOT_FOUND);
         }
-
-        return new LoginResponseDto("Bearer " + access, refresh);
     }
+//    public LoginResponseDto login(LoginReqeustDto loginReqeustDto) {
+//        User finduser = userRepository.findByLoginId(loginReqeustDto.getLoginId())
+//                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
+//
+//        checkUserStatus(finduser);
+//
+//        if (!passwordEncoder.matches(loginReqeustDto.getPassword(), finduser.getPassword())) {
+//            throw new CustomException(ErrorCode.INCORRECT_PASSWORD);
+//        }
+//
+//        String access = jwtUtil.createAccessToken(finduser.getLoginId());
+//        String refresh = jwtUtil.createRefreshToken(finduser.getLoginId());
+//
+//
+//        // 토큰을 데이터베이스에 저장
+//        Optional<Token> optionalToken = tokenService.findRefreshToken(finduser);
+//        if (optionalToken.isPresent()) {
+//            Token token = optionalToken.get();
+//            tokenService.updateToken(token, refresh);
+//        } else {
+//            tokenService.saveToken(finduser, refresh);
+//        }
+//
+//        return new LoginResponseDto("Bearer " + access, refresh);
+//    }
 
     public LoginResponseDto refreshToken(RefreshRequestDto refreshRequestDto) {
         String refreshToken = refreshRequestDto.getRefresh();
@@ -108,11 +123,11 @@ public class UserService {
 
         // DB에 저장된 리프레시 토큰 검증
         Optional<Token> optionalToken = tokenService.findRefreshToken(finduser);
-        if(optionalToken.isPresent()){
+        if (optionalToken.isPresent()) {
             if (!optionalToken.get().getRefreshToken().equals(refreshToken)) {
                 throw new CustomException(ErrorCode.UNMATCHED_TOKEN);
             }
-        }else{
+        } else {
             throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
 
@@ -120,7 +135,7 @@ public class UserService {
         String access = jwtUtil.createAccessToken(loginId);
         String refresh = jwtUtil.createRefreshToken(loginId);
 
-        tokenService.updateToken(optionalToken.get(),refresh);
+        tokenService.updateToken(optionalToken.get(), refresh);
 
         return new LoginResponseDto("Bearer " + access, refresh);
     }
@@ -187,11 +202,9 @@ public class UserService {
     }
 
 
-
-
     public ProfileResponseDto updateProfile(ProfileRequestDto requestDto, User user) {
         User findUser = userRepository.findById(user.getId())
-            .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
 
         if (requestDto.getNickname() != null) {
             findUser.setNickname(requestDto.getNickname());
@@ -219,9 +232,9 @@ public class UserService {
                 existingProfileImage.updateImage(requestDto.getProfileImage());
                 profileImageRepository.save(existingProfileImage);
                 findUser.updateProfileImage(existingProfileImage);
-            }else{ // 프로필 사진 없을 경우
-                ProfileImageRequestDto profileImageRequestDto = new ProfileImageRequestDto(requestDto.getProfileImage().getFilename(),requestDto.getProfileImage().getImageUrl());
-                ProfileImage newProfileImage = new ProfileImage(profileImageRequestDto,findUser);
+            } else { // 프로필 사진 없을 경우
+                ProfileImageRequestDto profileImageRequestDto = new ProfileImageRequestDto(requestDto.getProfileImage().getFilename(), requestDto.getProfileImage().getImageUrl());
+                ProfileImage newProfileImage = new ProfileImage(profileImageRequestDto, findUser);
                 profileImageRepository.save(newProfileImage);
                 findUser.updateProfileImage(newProfileImage);
             }
@@ -229,7 +242,7 @@ public class UserService {
 
             ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(saveUser.getProfileImage());
             return new ProfileResponseDto(saveUser, profileImageResponseDto);
-        }else{
+        } else {
             User saveUser = userRepository.save(findUser);
             return new ProfileResponseDto(saveUser, null);
         }
@@ -259,18 +272,18 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
         Long followerCount = followRepository.countByFollowing(findUser);
         ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(findUser.getProfileImage());
-            return new GetUserProfileDto(findUser,profileImageResponseDto,followerCount);
+        return new GetUserProfileDto(findUser, profileImageResponseDto, followerCount);
     }
 
     public GetMyProfileDto getMyProfile(User user) {
         User findUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
         Long followerCount = followRepository.countByFollowing(findUser);
-        if(findUser.getProfileImage()!=null){
+        if (findUser.getProfileImage() != null) {
             ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(findUser.getProfileImage());
-            return new GetMyProfileDto(findUser,profileImageResponseDto,followerCount);
+            return new GetMyProfileDto(findUser, profileImageResponseDto, followerCount);
         }
-        return new GetMyProfileDto(findUser,null,followerCount);
+        return new GetMyProfileDto(findUser, null, followerCount);
 
     }
 
@@ -305,13 +318,12 @@ public class UserService {
     }
 
 
-
     /**
      * 닉네임으로 유저 리스트 검색
      * @param nickname
      * @return
      */
-    public List<User> findByNicknameContainingIgnoreCase (String nickname) {
+    public List<User> findByNicknameContainingIgnoreCase(String nickname) {
         return userRepository.findByNicknameContainingIgnoreCase(nickname);
     }
 
