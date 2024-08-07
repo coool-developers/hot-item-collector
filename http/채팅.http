@@ -12,14 +12,59 @@ Content-Type: application/json
     client.global.set("refresh_token", response.body.result.refresh);
 %}
 
-### 채팅 보내기
+### 로그인 유저 2
+POST http://localhost:8080/users/login
+Content-Type: application/json
+
+{
+  "loginId": "user2",
+  "password": "passWord123!"
+}
+
+> {%
+    client.global.set("access_token", response.body.result.access);
+    client.global.set("refresh_token", response.body.result.refresh);
+%}
+
+### 채팅방 생성
+POST http://localhost:8080/chatroom
+Content-Type: application/json
+Authorization: {{access_token}}
+
+{
+  "seller": "someone Lee"
+}
+
+### 채팅방 조회
+GET http://localhost:8080/chatroom/someone Lee_someone Kim
+
+### 채팅 생성
 POST http://localhost:8080/chat/message
 Content-Type: application/json
 Authorization: {{access_token}}
 
 {
-  "id": "1",
-  "roomId" : "1",
-  "message" : "뭔데",
-  "sender" : "123"
+    "roomId": "someone Lee_someone Kim",
+    "message": "나는 안녕 한데?"
+}
+
+### Create or Get Chat Room
+POST http://localhost:8080/chatroom
+Content-Type: application/json
+Authorization: {{access_token}}
+
+{
+  "seller": "someone Lee"
+}
+
+> {% client.global.set("roomId", response.body.roomId); %}
+
+### Send Chat Message
+POST http://localhost:8080/pub/chat/message
+Content-Type: application/json
+Authorization: {{access_token}}
+
+{
+  "roomId": "{{roomId}}",
+  "message": "Hello, this is a test message"
 }

@@ -18,18 +18,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.setApplicationDestinationPrefixes("/pub");
-        config.enableStompBrokerRelay("/queue", "/topic")
-                .setRelayHost("localhost")
-                .setRelayPort(6379)
-                .setClientLogin("guest")
-                .setClientPasscode("guest");
+        config.enableSimpleBroker("/sub");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+
         registry.addEndpoint("/ws-stomp")
-                .setAllowedOrigins("*")
-                .withSockJS();
+                .setAllowedOrigins("http://localhost:63342", "http://localhost:8081", "http://localhost:8080");
+//                .withSockJS();
     }
 
     @Override

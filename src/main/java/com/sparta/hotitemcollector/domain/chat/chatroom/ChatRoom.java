@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,6 +23,7 @@ public class ChatRoom extends Timestamped {
     private String seller;
     private String buyer;
 
+    @Builder
     public ChatRoom(String roomId, String roomName, String seller, String buyer) {
         this.roomId = roomId;
         this.roomName = roomName;

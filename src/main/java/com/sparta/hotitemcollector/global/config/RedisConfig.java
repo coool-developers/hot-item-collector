@@ -61,15 +61,6 @@ public class RedisConfig {
 
     @Bean
     public MessageListenerAdapter listenerAdapter(RedisSubscriber redisSubscriber) {
-        return new MessageListenerAdapter(redisSubscriber, "sendMessage");
-    }
-
-    @Bean
-    public RedisTemplate<String, String> chattingRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(redisConnectionFactory);
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-        return redisTemplate;
+        return new MessageListenerAdapter(redisSubscriber, "onMessage");
     }
 }

@@ -59,6 +59,12 @@ dependencies {
     implementation 'org.springframework:spring-messaging'
     implementation 'io.projectreactor.netty:reactor-netty:1.1.8'
 
+    // STOMP
+    implementation 'org.webjars:stomp-websocket:2.3.4'
+
+// SockJS
+    implementation 'org.webjars:sockjs-client:1.5.1'
+
     // Netty의 기본 의존성
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'io.projectreactor.netty:reactor-netty'
