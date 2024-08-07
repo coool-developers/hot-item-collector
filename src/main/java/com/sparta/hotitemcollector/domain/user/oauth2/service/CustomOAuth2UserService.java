@@ -1,6 +1,5 @@
 package com.sparta.hotitemcollector.domain.user.oauth2.service;
 
-import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.domain.user.oauth2.CustomOAuth2User;
 import com.sparta.hotitemcollector.domain.user.oauth2.OAuthAttributes;
 import com.sparta.hotitemcollector.domain.user.oauthUser.OAuthUser;
@@ -8,7 +7,6 @@ import com.sparta.hotitemcollector.domain.user.oauthUser.OAuthUserRepository;
 import com.sparta.hotitemcollector.domain.user.oauthUser.SocialType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -16,7 +14,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.Map;
 
 @Slf4j
@@ -47,6 +44,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
          * http://localhost:8080/oauth2/authorization/kakao에서 kakao가 registrationId
          * userNameAttributeName은 이후에 nameAttributeKey로 설정된다.
          */
+        System.out.println(" = " + userRequest.getClientRegistration());
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         SocialType socialType = getSocialType(registrationId);
         String userNameAttributeName = userRequest.getClientRegistration()
@@ -58,21 +56,12 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         OAuthUser createdOAuthUser = getUser(extractAttributes, socialType); // getUser() 메소드로 User 객체 생성 후 반환
 
-        // 회원가입 페이지로 리다이렉트
-        if (createdOAuthUser.getUser() == null) {
-            throw new OAuth2AuthenticationException("Redirect to signup page");
-        }
 
-        User createUser = createdOAuthUser.getUser();
-
-        // DefaultOAuth2User를 구현한 CustomOAuth2User 객체를 생성해서 반환
-        return new CustomOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(createUser.getRole().getAuthority())),
-                attributes,
-                extractAttributes.getNameAttributeKey(),
-                createdOAuthUser.getEmail(),
-                createUser.getRole()
-        );
+        return CustomOAuth2User.builder()
+                .attributes(attributes)
+                .nameAttributeKey(extractAttributes.getNameAttributeKey())
+                .email(createdOAuthUser.getEmail())
+                .build();
     }
 
     private SocialType getSocialType(String registrationId) {

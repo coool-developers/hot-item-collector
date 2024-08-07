@@ -3,11 +3,8 @@ package com.sparta.hotitemcollector.domain.user;
 import com.sparta.hotitemcollector.domain.s3.service.ImageService;
 import com.sparta.hotitemcollector.domain.s3.service.S3Service;
 import com.sparta.hotitemcollector.domain.security.UserDetailsImpl;
+import com.sparta.hotitemcollector.domain.user.dto.auth.*;
 import com.sparta.hotitemcollector.domain.user.dto.user.*;
-import com.sparta.hotitemcollector.domain.user.dto.auth.LoginReqeustDto;
-import com.sparta.hotitemcollector.domain.user.dto.auth.LoginResponseDto;
-import com.sparta.hotitemcollector.domain.user.dto.auth.RefreshRequestDto;
-import com.sparta.hotitemcollector.domain.user.dto.auth.SignupRequestDto;
 import com.sparta.hotitemcollector.global.common.CommonResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
@@ -35,11 +32,23 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<CommonResponse> login(@RequestBody LoginReqeustDto requestDto) {
-        LoginResponseDto responseDto = userService.login(requestDto);
-        CommonResponse response = new CommonResponse<>("로그인 성공",200,responseDto);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+//    @PostMapping("/login")
+//    public ResponseEntity<CommonResponse> login(@RequestBody LoginReqeustDto requestDto) {
+//        LoginResponseDto responseDto = userService.login(requestDto);
+//        CommonResponse response = new CommonResponse<>("로그인 성공",200,responseDto);
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
+
+    @PostMapping("/connect")
+    public ResponseEntity<CommonResponse> connectAccount(@RequestBody ConnectAccountRequestDto requestDto) {
+        try {
+            userService.connectAccount(requestDto);
+            CommonResponse response = new CommonResponse<>("소셜로그인 연결 성공",201,"");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            // 로그 기록 및 예외 처리
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/confirm/password")

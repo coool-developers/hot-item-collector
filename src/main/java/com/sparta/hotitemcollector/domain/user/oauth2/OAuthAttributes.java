@@ -70,6 +70,7 @@ public class OAuthAttributes {
         return OAuthUser.builder()
                 .socialType(socialType)
                 .socialId(oauth2UserInfo.getId())
+                .email(oauth2UserInfo.getEmail())
                 .build();
     }
 }

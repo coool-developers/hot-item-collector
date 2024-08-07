@@ -2,6 +2,7 @@ package com.sparta.hotitemcollector.global.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.hotitemcollector.domain.user.UserRole;
+import com.sparta.hotitemcollector.global.common.CommonResponse;
 import com.sparta.hotitemcollector.global.config.JwtConfig;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
@@ -70,28 +71,29 @@ public class JwtUtil {
         response.setContentType("application/json;charset=UTF-8");
 
         Map<String, String> tokens = new HashMap<>();
-        tokens.put("accessToken", accessToken);
+        tokens.put("access", accessToken);
         if (refreshToken != null) {
-            tokens.put("refreshToken", refreshToken);
+            tokens.put("refresh", refreshToken);
         }
+        CommonResponse responseForm = new CommonResponse<>("Access Token, Refresh Token 바디에 설정 성공",200,tokens);
 
-        String responseBody = objectMapper.writeValueAsString(tokens);
+        String responseBody = objectMapper.writeValueAsString(responseForm);
         response.getWriter().write(responseBody);
         log.info("Access Token, Refresh Token 바디에 설정 완료");
     }
-    /**
-     * AccessToken 헤더 설정
-     */
-    public void setAccessTokenHeader(HttpServletResponse response, String accessToken) {
-        response.setHeader("Authorization", accessToken);
-    }
-
-    /**
-     * RefreshToken 헤더 설정
-     */
-    public void setRefreshTokenHeader(HttpServletResponse response, String refreshToken) {
-        response.setHeader("refresh", refreshToken);
-    }
+//    /**
+//     * AccessToken 헤더 설정
+//     */
+//    public void setAccessTokenHeader(HttpServletResponse response, String accessToken) {
+//        response.setHeader("Authorization", accessToken);
+//    }
+//
+//    /**
+//     * RefreshToken 헤더 설정
+//     */
+//    public void setRefreshTokenHeader(HttpServletResponse response, String refreshToken) {
+//        response.setHeader("refresh", refreshToken);
+//    }
 
 
     // 토큰 생성

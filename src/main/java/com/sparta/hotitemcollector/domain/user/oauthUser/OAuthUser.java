@@ -1,9 +1,6 @@
 package com.sparta.hotitemcollector.domain.user.oauthUser;
 
-import com.sparta.hotitemcollector.domain.user.ProfileImage;
 import com.sparta.hotitemcollector.domain.user.User;
-import com.sparta.hotitemcollector.domain.user.UserRole;
-import com.sparta.hotitemcollector.domain.user.UserStatus;
 import com.sparta.hotitemcollector.global.Timestamped;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -33,10 +30,15 @@ public class OAuthUser extends Timestamped {
 
 
     @Builder
-    public OAuthUser(SocialType socialType, User user, String socialId) {
+    public OAuthUser(SocialType socialType, User user, String socialId,String email) {
+        this.email = email;
         this.socialType = socialType;
         this.user = user;
         this.socialId = socialId;
+    }
+
+    public void updateUser(User user) {
+        this.user = user;
     }
 
 }
