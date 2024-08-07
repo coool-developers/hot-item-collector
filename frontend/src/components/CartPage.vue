@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Header/>
+    <AppHeader/>
     <main class="container cart">
       <h1>장바구니</h1>
       <div class="cart-items">
@@ -34,18 +34,18 @@ import {ref, computed, onMounted} from 'vue';
 import axios from "axios";
 import {useRouter} from "vue-router";
 import Cookies from "js-cookie";
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 
 export default {
-  components: { Header, AppFooter },
+  components: { AppHeader, AppFooter },
   setup() {
     const cartItems = ref([]); // 장바구니 항목을 저장할 상태
     const accessToken = Cookies.get('access_token');
 
     const loadCartItems = () => {
 
-      axios.get('http://localhost:8080/cart', {
+      axios.get('/cart', {
         headers: {
           'Authorization': accessToken
         }
@@ -75,7 +75,7 @@ export default {
       if (!userConfirmed) {
         return;
       }
-      axios.delete(`http://localhost:8080/cart/${item.productId}`, {
+      axios.delete(`/cart/${item.productId}`, {
         headers: {
           'Authorization': accessToken
         }

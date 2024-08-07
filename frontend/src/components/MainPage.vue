@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Header />
+    <AppHeader />
     <main class="container">
       <section class="hot-top-10">
         <h2>Hot Top 10 Items</h2>
@@ -47,14 +47,14 @@
 
 <script>
 
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import {useRouter} from "vue-router";
 
 export default {
-  components: {Header, AppFooter},
+  components: {AppHeader, AppFooter},
   setup() {
     const isLoggedIn = ref(false);
     const hotTopItems = ref([]);
@@ -100,7 +100,7 @@ export default {
         });
 
         if (response.data && response.data.result) {
-          newItems.value = response.data.result;
+          newItems.value = response.data.result.content;
         } else {
           console.error('Unexpected response format:', response.data);
         }
@@ -152,7 +152,7 @@ export default {
           }
         });
 
-        followedUsersItems.value = response.data.result;
+        followedUsersItems.value = response.data.result.content;
       } catch (error) {
         console.error('Error fetching followed users items:', error);
         if (error.response) {

@@ -136,7 +136,7 @@ body {
 
 <template>
   <div id="app">
-    <Header />
+    <AppHeader />
     <main class="container edit-profile">
       <h1>개인정보 수정</h1>
       <form class="edit-profile-form" @submit.prevent="submitForm">
@@ -180,11 +180,11 @@ body {
 import { ref, onMounted  } from 'vue';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import { useRouter } from 'vue-router';
 export default {
-  components: { Header, AppFooter },
+  components: { AppHeader, AppFooter },
   setup() {
     const router = useRouter(); // For navigation
     const defaultProfileImage = require('@/assets/user.png');
@@ -203,7 +203,7 @@ export default {
     const fetchUserProfile = async () => {
       try {
         const accessToken = Cookies.get('access_token');
-        const response = await axios.get('http://localhost:8080/users/profile', {
+        const response = await axios.get('/users/profile', {
           headers: {
             'Authorization': accessToken
           }
@@ -255,7 +255,7 @@ export default {
           formData.append('files', selectedFile.value);
         }
 
-        await axios.patch('http://localhost:8080/users/profile', formData, {
+        await axios.patch('/users/profile', formData, {
           headers: {
             'Authorization': accessToken,
             'Content-Type': 'multipart/form-data'

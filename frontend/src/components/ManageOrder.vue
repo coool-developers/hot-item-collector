@@ -2,11 +2,11 @@
 import {onMounted, ref} from 'vue';
 import Cookies from "js-cookie";
 import axios from "axios";
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 
 export default {
-  components: { Header, AppFooter },
+  components: { AppHeader, AppFooter },
   setup() {
     const deliveryStatuses = ref(['결제 대기중', '결제 완료', '상품 준비중', '배송 시작', '배송 중', '배송 완료', '주문 취소'])
     const statusFilter = ref('')
@@ -16,8 +16,11 @@ export default {
     const endDate = ref(today)
     const accessToken = Cookies.get('access_token')
 
+    const formatDate = (date) => {
+      return date.split('T')[0]
+    }
     const searchOrders = () => {
-      axios.get('http://localhost:8080/orders/sell', {
+      axios.get('/orders/sell', {
         params: {
           startDate: startDate.value,
           endDate: endDate.value,
@@ -34,7 +37,7 @@ export default {
     }
 
     const loadOrders = () => {
-      axios.get('http://localhost:8080/orders/sell', {
+      axios.get('/orders/sell', {
         headers: {
           'Authorization': accessToken
         }
@@ -47,7 +50,7 @@ export default {
 
     const updateStatus = (order) => {
 
-      axios.patch(`http://localhost:8080/orders/sell/${order.orderItemId}`, {
+      axios.patch(`/orders/sell/${order.orderItemId}`, {
         status: order.orderStatus
       }, {
         headers: {
@@ -73,7 +76,8 @@ export default {
       startDate,
       endDate,
       searchOrders,
-      updateStatus
+      updateStatus,
+      formatDate
     }
   }
 }
@@ -81,7 +85,7 @@ export default {
 
 <template>
   <div id="app">
-    <Header/>
+    <AppHeader/>
     <main class="container">
       <h1>주문 관리</h1>
       <div class="search-filters">
@@ -101,6 +105,7 @@ export default {
             <p><strong>주문자:</strong> {{ order.userNickname }}</p>
             <p><strong>연락처:</strong> {{ order.phoneNumber }}</p>
             <p><strong>주소:</strong> {{ order.address }}</p>
+            <p><strong>주문일시:</strong> {{formatDate(order.createdAt)}}</p>
           </div>
           <div class="order-details">
             <div class="order-info">

@@ -1,11 +1,11 @@
 <template>
   <div id="app">
-    <Header/>
+    <AppHeader/>
     <main class="container">
       <section class="search-results">
         <h2>{{ pageTitle }}</h2>
-        <div v-if="displayedItems.length > 0" class="item-grid">
-          <div v-for="item in displayedItems" :key="item.id" class="item-card"
+        <div v-if="products.length > 0" class="item-grid">
+          <div v-for="item in products" :key="item.id" class="item-card"
                @click="item ? goToProduct(item.id) : null">
             <img :src="item?.image?.imageUrl || '/path/to/default-image.jpg'"
                  :alt="item?.name || 'Default Alt Text'">
@@ -35,14 +35,14 @@
 
 
 <script>
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import { ref, computed, onMounted } from 'vue';
 import axios from "axios";
 import { useRouter, useRoute } from "vue-router";
 
 export default {
-  components: { Header, AppFooter },
+  components: { AppHeader, AppFooter },
   setup() {
     const isLoggedIn = ref(false);
     const currentPage = ref(1);
@@ -57,14 +57,6 @@ export default {
     const route = useRoute();
 
 
-    const displayedItems = computed(() => {
-      if (!Array.isArray(products.value)) {
-        return []; // products가 배열이 아닌 경우 빈 배열 반환
-      }
-      const start = (currentPage.value - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      return products.value.slice(start, end);
-    });
 
     const pageTitle = computed(() => {
       if (searchType.value === 'product') {
@@ -87,8 +79,8 @@ export default {
         const response = await axios.get(url);
         console.log(response.data);
         const data = response.data.result;
-        products.value = data || [];
-        totalPages.value = Math.ceil((data.total || 0) / itemsPerPage);
+        products.value = data.content || [];
+        totalPages.value = data.totalPages || 1;
       } catch (error) {
         console.error('Failed to fetch products:', error);
       }
@@ -132,7 +124,6 @@ export default {
       totalPages,
       itemsPerPage,
       products,
-      displayedItems,
       pageTitle,
       prevPage,
       nextPage,

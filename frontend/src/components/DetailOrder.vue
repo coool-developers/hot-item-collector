@@ -3,11 +3,11 @@ import {onMounted, ref} from 'vue';
 import Cookies from "js-cookie";
 import axios from "axios";
 import {useRoute, useRouter} from "vue-router";
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 
 export default {
-  components: {AppFooter, Header},
+  components: {AppFooter, AppHeader},
   setup() {
 
     // shippingInfo를 객체로 설정
@@ -23,7 +23,7 @@ export default {
     const route = useRoute();
     const orderId = route.query.orderId;
 
-    const deliveryStatuses = ref(['결제완료', '상품준비중', '배송중', '배송완료']);
+    const deliveryStatuses = ref(['결제 완료', '상품 준비중', '배송 중', '배송 완료']);
     const currentStatusIndex = ref(0); // 현재 상태 (배송완료)
 
     const statusMapping = {
@@ -55,16 +55,17 @@ export default {
 
     const fetchOrderDetail = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/order/buy/${orderId}`, {
+        const response = await axios.get(`/order/buy/${orderId}`, {
           headers: {
             'Authorization': accessToken
           }
         });
 
         const orderDataResponse = response.data.result;
+        console.log(response.data);
 
         if (orderDataResponse) {
-          orderDataResponse.value = orderDataResponse;
+          // orderDataResponse.value = orderDataResponse;
           shippingInfo.value = {
             name: orderDataResponse.userName,
             phone: orderDataResponse.phoneNumber,
@@ -81,6 +82,7 @@ export default {
             currentStatusIndex: getStatusIndex(item.orderStatus)
           }));
         }
+        console.log(products.value)
       } catch (err) {
         console.error('Failed to fetch order details:', err);
       }
@@ -105,7 +107,7 @@ export default {
 
 <template>
   <div id="app">
-    <Header/>
+    <AppHeader/>
     <main class="container">
       <div class="order-details">
         <div class="shipping-info">
@@ -145,6 +147,7 @@ export default {
                   <div class="status-icon">{{ index + 1 }}</div>
                   <div class="status-label">{{ status }}</div>
                 </div>
+                <pre>현재 상태 인덱스: {{ product.currentStatusIndex }}</pre>
               </div>
             </div>
           </div>

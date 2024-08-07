@@ -146,10 +146,16 @@ body {
   margin-bottom: 5px;
 }
 
-.product-id {
+.seller-info {
   color: #666;
   font-size: 14px;
 }
+
+.seller-info a {
+  color: var(--main-color);
+  text-decoration: none;
+}
+
 .no-items-message {
   text-align: center;
   padding: 20px;
@@ -164,7 +170,7 @@ body {
 
 <template>
   <div id="app">
-    <Header />
+    <AppHeader />
     <main class="container my-info">
       <section class="profile-section">
         <img :src="user.profileImage" alt="프로필 이미지" class="profile-image">
@@ -198,7 +204,7 @@ body {
             <img :src="product.image" :alt="product.name" class="product-image">
             <div class="product-info">
               <div class="product-name">{{ product.name }}</div>
-              <div class="product-id">ID: {{ product.id }}</div>
+              <div class="seller-info">판매자: <a :href="'/seller/' + product.sellerId">{{ product.sellerNickname }}</a></div>
             </div>
           </div>
         </div>
@@ -212,7 +218,7 @@ body {
             <img :src="product.image" :alt="product.name" class="product-image">
             <div class="product-info">
               <div class="product-name">{{ product.name }}</div>
-              <div class="product-id">ID: {{ product.id }}</div>
+              <div class="seller-info">판매자: <a :href="'/seller/' + product.userId">{{ product.userNickname }}</a></div>
             </div>
           </div>
         </div>
@@ -225,7 +231,7 @@ body {
 
 <script>
 import { ref, onMounted  } from 'vue'
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import axios from 'axios';
 import Cookies from "js-cookie";
@@ -233,7 +239,7 @@ import { useRouter } from 'vue-router';
 
 export default {
   name: 'App',
-  components: {Header, AppFooter},
+  components: {AppHeader, AppFooter},
   setup() {
     const router = useRouter(); // For navigation
     const user = ref({
@@ -253,7 +259,7 @@ export default {
       const accessToken = Cookies.get('access_token');
       try {
         // Fetch user profile data
-        const userResponse = await axios.get('http://localhost:8080/users/profile', {
+        const userResponse = await axios.get('/users/profile', {
           headers: {
             'Authorization': accessToken
           }
@@ -272,7 +278,7 @@ export default {
         };
 
         // Fetch registered products
-        const registeredResponse = await axios.get('http://localhost:8080/products/sale', {
+        const registeredResponse = await axios.get('/products/sale', {
           params: {
             page: 1,
             size: 4
@@ -282,13 +288,34 @@ export default {
           }
         });
         console.log(registeredResponse.data);
-        registeredProducts.value = registeredResponse.data.result.map(product => ({
+        registeredProducts.value = registeredResponse.data.result.content.map(product => ({
           id: product.id,
           name: product.name,
           image: product.image.imageUrl
         }));
 
-        const likedResponse = await axios.get('http://localhost:8080/products/like', {
+        const purchaseResponse = await axios.get(`/orderitems/buy`, {
+          params: {
+            page: 1,
+            size: 4
+          },
+          headers: {
+            'Authorization': accessToken
+          }
+        });
+        console.log(purchaseResponse.data);
+
+        purchasedProducts.value = purchaseResponse.data.result.content.map(product => ({
+          id: product.productId,
+          name: product.productName,
+          sellerId: product.sellerId,
+          sellerNickname: product.sellerNickname,
+          image: product.productImage.imageUrl
+        }));
+
+
+
+        const likedResponse = await axios.get('/products/like', {
           params: {
             page: 1,
             size: 4
@@ -299,11 +326,15 @@ export default {
         });
         console.log(likedResponse.data);
 
-        likedProducts.value = likedResponse.data.result.map(product => ({
+        likedProducts.value = likedResponse.data.result.content.map(product => ({
           id: product.id,
           name: product.name,
+          userId: product.userId,
+          userNickname: product.userName,
           image: product.image.imageUrl
         }));
+
+
 
       } catch (error) {
         console.error('Failed to fetch data:', error);
@@ -336,6 +367,7 @@ export default {
     const goToPurchasedProducts = () => {
       alert('내가 구매한 상품 목록 페이지로 이동합니다.')
       router.push(`/orders/buy`)
+
       //alert('내가 구매한 상품 목록 페이지로 이동합니다.')
     }
 

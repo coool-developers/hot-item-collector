@@ -196,7 +196,7 @@ async function getrefreshToken() {
   }
 
   try {
-    const response = await axios.post('http://localhost:8080/users/refresh', {
+    const response = await axios.post('/users/refresh', {
       refresh: refreshToken
     }, {
       headers: {
@@ -286,7 +286,7 @@ async function logout() {
 
   try {
     // Send logout request to server
-    const response = await axios.post('http://localhost:8080/users/logout', {}, {
+    const response = await axios.post('/users/logout', {}, {
       headers: {
         'Authorization': accessToken
       }
@@ -322,7 +322,7 @@ async function deleteAccount() {
         const accessToken = Cookies.get('access_token');
         console.log(accessToken);
 
-      const response = await axios.patch('http://localhost:8080/users/withdraw', {}, {
+      const response = await axios.patch('/users/withdraw', {}, {
         headers: {
           'Authorization': accessToken
         }
@@ -362,7 +362,7 @@ function goToCart() {
 
 async function register() {
   try {
-    const response = await axios.post('http://localhost:8080/users/signup', {
+    const response = await axios.post('/users/signup', {
       loginId: signupLoginId.value,
       password: signupPassword.value,
       username: username.value,
@@ -402,7 +402,7 @@ async function login() {
   // 로그인 로직 구현
   {
     try {
-      const response = await axios.post('http://localhost:8080/users/login', {
+      const response = await axios.post('/users/login', {
         loginId: loginId.value,
         password: password.value,
       }, {
@@ -485,7 +485,7 @@ function validateConfirmNewPassword() {
 async function changePassword() {
   try {
     const accessToken = Cookies.get('access_token');
-    const response = await axios.patch('http://localhost:8080/users/password', {
+    const response = await axios.patch('/users/password', {
       oldPassword: currentPassword.value,
       newPassword: newPassword.value,
     }, {

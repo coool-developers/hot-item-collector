@@ -3,16 +3,18 @@ import {ref, onMounted} from 'vue'
 import {DateTime} from 'luxon'
 import Cookies from "js-cookie";
 import axios from "axios";
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
+import router from "@/router";
 
 export default {
-  components: {Header, AppFooter},
+  components: {AppHeader, AppFooter},
   setup() {
     const startDate = ref('')
     const endDate = ref('')
     const orders = ref([])
     const accessToken = Cookies.get('access_token')
+    const groupedOrders = ref({});
 
     const formatDate = (dateString) => {
       const date = DateTime.fromISO(dateString)
@@ -25,7 +27,7 @@ export default {
 
     const searchPurchases = () => {
 
-      axios.get('http://localhost:8080/orders/buy', {
+      axios.get('/orderitems/buy', {
         params: {
           startDate: startDate.value,
           endDate: endDate.value,
@@ -34,11 +36,34 @@ export default {
           'Authorization': accessToken
         }
       }).then(response => {
-        orders.value = response.data.result;
+        orders.value = response.data.result.content;
+        groupedOrders.value = groupOrdersByDate(orders.value);
       }).catch(error => {
         console.error(error)
       })
     }
+    const goToOrderDetail = (itemId) => {
+      const orderItem = orders.value.find(order => order.productId === itemId);
+
+      alert(`주문 ID ${orderItem.orderId}의 주문상세 페이지로 이동합니다.`)
+      if (orderItem) {
+        router.push({name: 'DetailOrder', query: {orderId: orderItem.orderId}});
+      } else {
+        console.error('주문 아이템을 찾을 수 없습니다.');
+      }
+    }
+
+    const groupOrdersByDate = (orders) => {
+      return orders.reduce((grouped, order) => {
+        const date = order.createdAt.split('T')[0];
+        if (!grouped[date]) {
+          grouped[date] = [];
+        }
+        grouped[date].push(order);
+        return grouped;
+      }, {});
+    }
+
 
     onMounted(() => {
           const today = DateTime.now();
@@ -56,6 +81,8 @@ export default {
       formatDate,
       formatPrice,
       searchPurchases,
+      goToOrderDetail,
+      groupedOrders
     };
   }
 };
@@ -64,7 +91,7 @@ export default {
 
 <template>
   <div id="app">
-    <Header/>
+    <AppHeader/>
     <main class="container purchased-products">
       <h1>구매한 상품 목록</h1>
       <div class="date-range-selector">
@@ -73,27 +100,29 @@ export default {
         <input type="date" v-model="endDate">
         <button @click="searchPurchases">검색</button>
       </div>
-      <div v-for="order in orders" :key="order.id">
-        <div class="purchase-date">{{ formatDate(order.createdAt) }}</div>
-        <div class="products-container">
-          <div v-for="item in order.productItemResponseDtoList" :key="item.productId" class="product-card"
-               @click="goToProductDetail(item.productId)">
-            <img :src="item.productImage.imageUrl" :alt="item.productName" class="product-image">
-            <div class="product-info">
-              <div class="product-details">
-                <div class="product-name">{{ item.productName }}</div>
-                <div>
-                  판매자: <a :href="'/seller/' + item.sellerId" class="seller-name" @click.stop>{{
-                    item.sellerNickname
-                  }}</a>
+      <div v-if="Object.keys(groupedOrders).length > 0">
+        <div v-for="(orders, date) in groupedOrders" :key="date">
+          <div class="purchase-date">{{ formatDate(date) }}</div>
+          <div class="products-container">
+            <div v-for="item in orders" :key="item.id" class="product-card" @click="goToOrderDetail(item.productId)">
+              <img :src="item.productImage.imageUrl" :alt="item.productName" class="product-image">
+              <div class="product-info">
+                <div class="product-details">
+                  <div class="product-name">{{ item.productName }}</div>
+                  <div>
+                    판매자: <a :href="'/seller/' + item.sellerId" class="seller-name" @click.stop>{{
+                      item.sellerNickname
+                    }}</a>
+                  </div>
                 </div>
+                <div class="product-price">{{ formatPrice(item.price) }}원</div>
+                <div class="product-status">{{ item.orderStatus }}</div>
               </div>
-              <div class="product-price">{{ formatPrice(item.price) }}원</div>
-              <div class="product-status">{{ item.orderStatus }}</div>
             </div>
           </div>
         </div>
       </div>
+      <div v-else class="no-items-message">해당 기간에 등록된 상품이 없습니다.</div>
     </main>
 
     <AppFooter/>
@@ -243,5 +272,15 @@ body {
   color: #666;
   width: 100px;
   text-align: right;
+}
+
+.no-items-message {
+  text-align: center;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin: 20px 0;
+  color: #666;
+  font-style: italic;
 }
 </style>

@@ -42,7 +42,7 @@ public class Payment {
     @Column(name = "paid_at")
     private LocalDateTime paidAt; // 지불 일자
 
-    @ManyToOne
+    @ManyToOne (fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Orders order;
 

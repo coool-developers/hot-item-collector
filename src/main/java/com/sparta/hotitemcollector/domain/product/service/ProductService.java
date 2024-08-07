@@ -2,17 +2,17 @@ package com.sparta.hotitemcollector.domain.product.service;
 
 import com.sparta.hotitemcollector.domain.follow.Follow;
 import com.sparta.hotitemcollector.domain.follow.FollowService;
+import com.sparta.hotitemcollector.domain.product.dto.HotProductResponseDto;
 import com.sparta.hotitemcollector.domain.product.dto.ProductImageRequestDto;
 import com.sparta.hotitemcollector.domain.product.dto.ProductImageResponseDto;
-import com.sparta.hotitemcollector.domain.product.entity.ProductImage;
-import com.sparta.hotitemcollector.domain.product.repository.ProductImageRepository;
-import com.sparta.hotitemcollector.domain.product.repository.ProductRepository;
-import com.sparta.hotitemcollector.domain.product.dto.HotProductResponseDto;
 import com.sparta.hotitemcollector.domain.product.dto.ProductRequestDto;
 import com.sparta.hotitemcollector.domain.product.dto.ProductResponseDto;
 import com.sparta.hotitemcollector.domain.product.dto.ProductSimpleResponseDto;
 import com.sparta.hotitemcollector.domain.product.entity.Product;
+import com.sparta.hotitemcollector.domain.product.entity.ProductImage;
 import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
+import com.sparta.hotitemcollector.domain.product.repository.ProductImageRepository;
+import com.sparta.hotitemcollector.domain.product.repository.ProductRepository;
 import com.sparta.hotitemcollector.domain.s3.service.S3Service;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.domain.user.UserService;
@@ -21,22 +21,16 @@ import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -191,7 +185,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getFollowProduct(User user, int page, int size) {
+    public Page<ProductSimpleResponseDto> getFollowProduct(User user, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         List<Follow> followList = followService.getAllFollowers(user);
 
@@ -201,10 +195,7 @@ public class ProductService {
 
         Page<Product> productPage = productRepository.findByUserIn(followingUsers, pageable);
 
-        return productPage.getContent()
-            .stream()
-            .map(ProductSimpleResponseDto::new)
-            .collect(Collectors.toList());
+        return productPage.map(ProductSimpleResponseDto::new);
     }
 
     @Transactional(readOnly = true)
@@ -219,7 +210,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getSaleProduct(User user, ProductStatus status, int page,
+    public Page<ProductSimpleResponseDto> getSaleProduct(User user, ProductStatus status, int page,
         int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage=Page.empty(pageable);
@@ -231,14 +222,11 @@ public class ProductService {
             productPage = productRepository.findByUser(user,pageable);
         }
 
-        return productPage.getContent()
-            .stream()
-            .map(ProductSimpleResponseDto::new)
-            .collect(Collectors.toList());
+        return productPage.map(ProductSimpleResponseDto::new);
     }
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getSaleYourProduct(Long userId, ProductStatus status, int page, int size) {
+    public Page<ProductSimpleResponseDto> getSaleYourProduct(Long userId, ProductStatus status, int page, int size) {
         User user = userService.findByUserId(userId);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -251,22 +239,16 @@ public class ProductService {
             productPage = productRepository.findByUser(user,pageable);
         }
 
-        return productPage.getContent()
-            .stream()
-            .map(ProductSimpleResponseDto::new)
-            .collect(Collectors.toList());
+        return productPage.map(ProductSimpleResponseDto::new);
     }
 
     @Transactional(readOnly = true)
-    public List<ProductSimpleResponseDto> getNewProduct(int page, int size) {
+    public Page<ProductSimpleResponseDto> getNewProduct(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<Product> productPage = productRepository.findAll(pageable);
 
-        return productPage.getContent()
-            .stream()
-            .map(ProductSimpleResponseDto::new)
-            .collect(Collectors.toList());
+        return productPage.map(ProductSimpleResponseDto::new);
     }
 
     public Product findById(Long productId) {
