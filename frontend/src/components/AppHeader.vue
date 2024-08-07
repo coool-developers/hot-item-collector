@@ -460,6 +460,8 @@ function switchToLogin() {
 
 function kakaoLogin() {
   // 카카오 로그인 로직 구현
+  // 정보 수정 함수 구현
+  window.location.href = 'http://localhost:8080/oauth2/authorization/kakao';
 }
 
 function validateNewPassword() {
