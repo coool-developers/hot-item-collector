@@ -16,6 +16,4 @@ public class SignupRequestDto {
     private String password;
     @NotBlank(message = "이름은 필수 입력 사항입니다.")
     private String username;
-    @NotBlank(message = "이름은 필수 입력 사항입니다.")
-    private String nickname;
 }
