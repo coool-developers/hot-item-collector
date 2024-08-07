@@ -1,5 +1,6 @@
 package com.sparta.hotitemcollector.domain.product.service;
 
+import com.sparta.hotitemcollector.domain.product.dto.FilterQueryDto;
 import com.sparta.hotitemcollector.domain.product.repository.ProductRepository;
 import com.sparta.hotitemcollector.domain.product.dto.ProductSimpleResponseDto;
 import com.sparta.hotitemcollector.domain.product.entity.Product;
@@ -32,16 +33,19 @@ public class SearchService {
         if (nickname != null && !nickname.isEmpty()) {
             List<User> userList = userService.findByNicknameContainingIgnoreCase(nickname);
             if (!userList.isEmpty()) {
-                productPage = productRepository.findByUserIn(userList, pageable);
+               // FilterQueryDto filterQueryDto = new FilterQueryDto(userList);
+               productPage = productRepository.findByRequirement(userList, null, null, null, null, pageable);
             }
         }
 
         if (productName != null && !productName.isEmpty()) {
-            productPage = productRepository.findByNameContainingIgnoreCase(productName, pageable);
+            // FilterQueryDto filterQueryDto = new FilterQueryDto(productName);
+            productPage = productRepository.findByRequirement(null, null, productName, null, null, pageable);
         }
 
         if (category != null) {
-            productPage = productRepository.findByCategory(category, pageable);
+            FilterQueryDto filterQueryDto = new FilterQueryDto(category);
+           productPage = productRepository.findByRequirement(null, null, null, category, null, pageable);
         }
 
         return productPage.map(ProductSimpleResponseDto::new);

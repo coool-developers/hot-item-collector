@@ -1,5 +1,8 @@
 package com.sparta.hotitemcollector.domain.product;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +15,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import com.sparta.hotitemcollector.TestConfig;
+import com.sparta.hotitemcollector.domain.product.dto.FilterQueryDto;
 import com.sparta.hotitemcollector.domain.product.entity.Product;
+import com.sparta.hotitemcollector.domain.product.entity.ProductCategory;
 import com.sparta.hotitemcollector.domain.product.repository.ProductRepository;
+import com.sparta.hotitemcollector.domain.user.User;
+import com.sparta.hotitemcollector.domain.user.UserRepository;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -22,8 +29,10 @@ public class ProductRepositoryTest {
 
 	@Autowired
 	ProductRepository productRepository;
+	@Autowired
+	UserRepository userRepository;
 
-	@Test
+	/*@Test
 	@DisplayName("1. findByNameContaining를 테스트한다")
 	void test1() {
 		//given
@@ -39,6 +48,34 @@ public class ProductRepositoryTest {
 		// then
 		System.out.println("총 걸린 시간 : " + (after - before) + "ms");
 		System.out.println("====================================");
+	}*/
+
+
+	@Test
+	@DisplayName("2. findByRequirement를 테스트한다")
+	void test2() {
+		//given
+		Pageable pageable = PageRequest.of(1, 16, Sort.by(Sort.Direction.DESC, "createdAt"));
+		List<User> userList = new ArrayList<>();
+		userList.add(userRepository.findById(1L).orElse(null));
+		userList.add(userRepository.findById(2L).orElse(null));
+		User user = userRepository.findById(1L).orElse(null);
+		String productName = "똥";
+		ProductCategory category = ProductCategory.PET;
+		// ProductStatus
+
+		FilterQueryDto filterQueryDto = new FilterQueryDto(user, category);
+		// when
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 메소드 시작 >>>>>>>>>>>>>>>>>>>>>>>>>");
+		long before = System.currentTimeMillis();
+		 Page<Product> productPage = productRepository.findByRequirement(null, user, productName, null, null,  pageable);
+		long after = System.currentTimeMillis();
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 메소드 종료 >>>>>>>>>>>>>>>>>>>>>>>>>");
+
+		// then
+		System.out.println("총 걸린 시간 : " + (after - before) + "ms");
+		System.out.println("====================================");
 	}
+
 
 }

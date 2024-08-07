@@ -2,6 +2,7 @@ package com.sparta.hotitemcollector.domain.product.service;
 
 import com.sparta.hotitemcollector.domain.follow.Follow;
 import com.sparta.hotitemcollector.domain.follow.FollowService;
+import com.sparta.hotitemcollector.domain.product.dto.FilterQueryDto;
 import com.sparta.hotitemcollector.domain.product.dto.HotProductResponseDto;
 import com.sparta.hotitemcollector.domain.product.dto.ProductImageRequestDto;
 import com.sparta.hotitemcollector.domain.product.dto.ProductImageResponseDto;
@@ -24,6 +25,8 @@ import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -35,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j(topic = "ProductService")
 public class ProductService {
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
@@ -167,7 +171,9 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductResponseDto getProduct(Long productId) {
         // Product와 관련된 이미지 정보를 가져옴
+        log.info("getProduct - product 이미지 가져오기");
         Product product = productRepository.findByIdWithImages(productId);
+        log.info("product 이미지 가져오기 완료");
 
         // Product와 연관된 이미지 정보를 DTO로 변환
         List<ProductImageResponseDto> imageDtos = product.getImages().stream()
@@ -193,15 +199,20 @@ public class ProductService {
             .map(Follow::getFollowing)
             .collect(Collectors.toList());
 
-        Page<Product> productPage = productRepository.findByUserIn(followingUsers, pageable);
+        // FilterQueryDto filterQueryDto = new FilterQueryDto(followingUsers);
 
+        log.info("getFollowerProduct - findByUserIn 시작");
+        Page<Product> productPage = productRepository.findByRequirement(followingUsers, null, null, null, null, pageable);
+        log.info("getFollowerProduct - findByUserIn 완료");
         return productPage.map(ProductSimpleResponseDto::new);
     }
 
     @Transactional(readOnly = true)
     public List<HotProductResponseDto> getHotProduct(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        log.info("getHotProduct - findTop10ByordrerByLikesDesc 시작");
         Page<Product> productPage = productRepository.findTop10ByOrderByLikesDesc(pageable);
+        log.info("findTop10 완료");
 
         return productPage.getContent()
             .stream()
@@ -215,12 +226,17 @@ public class ProductService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage=Page.empty(pageable);
 
+        log.info("getSaleProduct 시작");
         if(status!=null){
-            productPage = productRepository.findByUserAndStatus(user, status, pageable);
+            // FilterQueryDto filterQueryDto = new FilterQueryDto(user, status);
+            productPage = productRepository.findByRequirement(null, user, null, null, status, pageable);
         }
         if(status==null){
-            productPage = productRepository.findByUser(user,pageable);
+          //  productPage = productRepository.findByRequirement(null, user, null, null, pageable);
+            FilterQueryDto filterQueryDto = new FilterQueryDto(user);
+            productPage = productRepository.findByRequirement(null,user, null, null, null, pageable);
         }
+        log.info("getSaleProduct 완료");
 
         return productPage.map(ProductSimpleResponseDto::new);
     }
@@ -233,10 +249,14 @@ public class ProductService {
         Page<Product> productPage=Page.empty(pageable);
 
         if(status!=null){
-            productPage = productRepository.findByUserAndStatus(user, status, pageable);
+           productPage = productRepository.findByRequirement(null, user, null, null, status, pageable);
+       //      FilterQueryDto filterQueryDto = new FilterQueryDto(user, status);
+            // productPage = productRepository.findByRequirement(user,, pageable);
         }
         if(status==null){
-            productPage = productRepository.findByUser(user,pageable);
+           productPage = productRepository.findByRequirement(null, user, null, null, null, pageable);
+            // FilterQueryDto filterQueryDto = new FilterQueryDto(user);
+            // productPage = productRepository.findByRequirement(filterQueryDto, pageable);
         }
 
         return productPage.map(ProductSimpleResponseDto::new);
