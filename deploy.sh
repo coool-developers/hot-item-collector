@@ -32,7 +32,7 @@ NGINX_CONFIG_PATH=/etc/nginx/sites-available/default
 FRONTEND_BUILD_PATH=/home/ubuntu/action/frontend/build
 
 # Nginx 설정 파일 수정 (필요한 경우에만)
-# sed 명령어를 이용하여 Nginx 설정 파일에서 포트나 경로를 변경할 수 있습니다.
+# sed 명령어를 이용하여 Nginx 설정 파일에서 포트나 경로를 변경
 
 # 예시: Nginx 설정에서 root 디렉터리를 프론트엔드 빌드 경로로 변경
 sudo sed -i "s|root /var/www/html;|root $FRONTEND_BUILD_PATH;|g" $NGINX_CONFIG_PATH
