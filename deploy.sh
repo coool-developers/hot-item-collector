@@ -21,5 +21,7 @@ else
 fi
 
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
-echo ">>> DEPLOY_JAR 배포" >> /home/ubuntu/action/deploy.log
-nohup java -jar $DEPLOY_JAR >> /home/ubuntu/action/deploy.log 2>> /home/ubuntu/action/deploy_err.log &
+echo ">>> DEPLOY_JAR 배포: $DEPLOY_JAR" >> /home/ubuntu/action/deploy.log
+nohup java -jar $DEPLOY_JAR --server.port=8080 >> /home/ubuntu/action/deploy.log 2>> /home/ubuntu/action/deploy_err.log &
+
+echo ">>> 배포 스크립트 종료" >> /home/ubuntu/action/deploy.log
