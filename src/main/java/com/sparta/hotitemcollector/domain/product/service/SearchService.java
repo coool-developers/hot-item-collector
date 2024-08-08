@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j(topic = "SearchService")
 public class SearchService {
 
 	private final UserService userService;
@@ -36,22 +35,16 @@ public class SearchService {
 		if (nickname != null && !nickname.isEmpty()) {
 			List<User> userList = userService.findByNicknameContainingIgnoreCase(nickname);
 			if (!userList.isEmpty()) {
-				log.info("getSearchProduct - findByRequirement");
 				productPage = productRepository.findByRequirement(userList, null, null, null, null, pageable);
-				log.info("findBYRequirement 종료");
 			}
 		}
 
 		if (productName != null && !productName.isEmpty()) {
-			log.info("getSearchProduct - findByRequirement");
 			productPage = productRepository.findByRequirement(null, null, productName, null, null, pageable);
-			log.info("findBYRequirement 종료");
 		}
 
 		if (category != null) {
-			log.info("getSearchProduct - findByRequirement");
 			productPage = productRepository.findByRequirement(null, null, null, category, null, pageable);
-			log.info("findBYRequirement 종료");
 		}
 
 		return productPage.map(ProductSimpleResponseDto::new);
