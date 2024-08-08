@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo ">>> [+] docker-compose up" >> /home/ubuntu/action/deploy.log
+docker-compose up -d --build >> /home/ubuntu/action/docker.log
 BUILD_JAR=$(ls /home/ubuntu/action/build/libs/*.jar)
 JAR_NAME=$(basename $BUILD_JAR)
 echo ">>> build 파일명: $JAR_NAME" >> /home/ubuntu/action/deploy.log
