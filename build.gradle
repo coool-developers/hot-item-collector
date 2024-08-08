@@ -56,3 +56,7 @@ dependencies {
 bootJar {
     mainClass = 'com.sparta.hotitemcollector.HotItemCollectorApplication'
 }
+
+jar {
+    enabled = false
+}
