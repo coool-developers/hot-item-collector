@@ -65,7 +65,7 @@ jobs:
         working-directory: ./frontend
 
       - name: Make frontend zip file
-        run: zip -r ./frontend-build.zip ./frontend/build -x "*.git/*"
+        run: zip -r ./frontend-build.zip ./frontend/dist -x "*.git/*"
         shell: bash
 
       # PR 이벤트에서는 배포를 막고, push 이벤트에서는 배포를 진행
