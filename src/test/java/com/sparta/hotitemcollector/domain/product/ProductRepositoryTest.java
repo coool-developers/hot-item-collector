@@ -18,6 +18,7 @@ import com.sparta.hotitemcollector.TestConfig;
 import com.sparta.hotitemcollector.domain.product.dto.FilterQueryDto;
 import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.entity.ProductCategory;
+import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
 import com.sparta.hotitemcollector.domain.product.repository.ProductRepository;
 import com.sparta.hotitemcollector.domain.user.User;
 import com.sparta.hotitemcollector.domain.user.UserRepository;
@@ -32,28 +33,10 @@ public class ProductRepositoryTest {
 	@Autowired
 	UserRepository userRepository;
 
-	/*@Test
-	@DisplayName("1. findByNameContaining를 테스트한다")
-	void test1() {
-		//given
-		Pageable pageable = PageRequest.of(1, 16, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-		// when
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 메소드 시작 >>>>>>>>>>>>>>>>>>>>>>>>>");
-		long before = System.currentTimeMillis();
-		Page<Product> productPage = productRepository.findByNameContainingIgnoreCase("name", pageable);
-		long after = System.currentTimeMillis();
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 메소드 종료 >>>>>>>>>>>>>>>>>>>>>>>>>");
-
-		// then
-		System.out.println("총 걸린 시간 : " + (after - before) + "ms");
-		System.out.println("====================================");
-	}*/
-
 
 	@Test
-	@DisplayName("2. findByRequirement를 테스트한다")
-	void test2() {
+	@DisplayName("1. findByRequirement를 테스트한다")
+	void test1() {
 		//given
 		Pageable pageable = PageRequest.of(1, 16, Sort.by(Sort.Direction.DESC, "createdAt"));
 		List<User> userList = new ArrayList<>();
@@ -62,9 +45,8 @@ public class ProductRepositoryTest {
 		User user = userRepository.findById(1L).orElse(null);
 		String productName = "똥";
 		ProductCategory category = ProductCategory.PET;
-		// ProductStatus
+		ProductStatus status = ProductStatus.SOLD_OUT;
 
-		FilterQueryDto filterQueryDto = new FilterQueryDto(user, category);
 		// when
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 메소드 시작 >>>>>>>>>>>>>>>>>>>>>>>>>");
 		long before = System.currentTimeMillis();
@@ -77,5 +59,40 @@ public class ProductRepositoryTest {
 		System.out.println("====================================");
 	}
 
+	@Test
+	@DisplayName("2. findTop10ByOrderByLikesDesc를 테스트한다")
+	void test2() {
+		//given
+		Pageable pageable = PageRequest.of(1, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+		// when
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 메소드 시작 >>>>>>>>>>>>>>>>>>>>>>>>>");
+		long before = System.currentTimeMillis();
+		Page<Product> productPage = productRepository.findTop10ByOrderByLikesDesc(pageable);
+		long after = System.currentTimeMillis();
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 메소드 종료 >>>>>>>>>>>>>>>>>>>>>>>>>");
+
+		// then
+		System.out.println("총 걸린 시간 : " + (after - before) + "ms");
+		System.out.println("====================================");
+	}
+
+	@Test
+	@DisplayName("3. findByIdWithImages를 테스트한다")
+	void test3() {
+		//given
+		Long id = 1L;
+
+		// when
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 메소드 시작 >>>>>>>>>>>>>>>>>>>>>>>>>");
+		long before = System.currentTimeMillis();
+		Product product = productRepository.findByIdWithImages(id);
+		long after = System.currentTimeMillis();
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>> 메소드 종료 >>>>>>>>>>>>>>>>>>>>>>>>>");
+
+		// then
+		System.out.println("총 걸린 시간 : " + (after - before) + "ms");
+		System.out.println("====================================");
+	}
 
 }

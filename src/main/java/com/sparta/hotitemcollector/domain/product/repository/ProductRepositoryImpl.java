@@ -6,12 +6,11 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.support.PageableExecutionUtils;
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sparta.hotitemcollector.domain.product.dto.FilterQueryDto;
 import com.sparta.hotitemcollector.domain.product.entity.Product;
 import com.sparta.hotitemcollector.domain.product.entity.ProductCategory;
 import com.sparta.hotitemcollector.domain.product.entity.ProductStatus;
@@ -25,10 +24,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 	private final JPAQueryFactory jpaQueryFactory;
 
 	@Override
-	public Page<Product> findByRequirement(List<User> users, User user, String productName, ProductCategory category, ProductStatus status,  Pageable pageable) {
-	// public Page<Product> findByRequirement(FilterQueryDto filterQueryDto, Pageable pageable) {
+	public Page<Product> findByRequirement(List<User> users, User user, String productName, ProductCategory category, ProductStatus status, Pageable pageable) {
 
-		List<Product> productList = jpaQueryFactory
+		QueryResults<Product> productQueryResults = jpaQueryFactory
 			.selectFrom(product)
 			.where(userListEq(users),
 				userEq(user),
@@ -37,42 +35,18 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 				statusEq(status))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
-			.fetch();
+			.fetchResults();
 
-		Long contentSize = jpaQueryFactory
-			.select(product.count())
-			.from(product)
-			.where(userListEq(users),
-				userEq(user),
-				productNameEq(productName),
-				categoryEq(category),
-				statusEq(status))
-			.fetchOne();
+		List<Product> productList = productQueryResults.getResults();
+		long total = productQueryResults.getTotal();
 
-		return PageableExecutionUtils.getPage(productList, pageable, () -> contentSize);
-	}
-
-	@Override
-	public Page<Product> findTop10ByOrderByLikesDesc(Pageable pageable) {
-		return null;
-	}
-
-	// @Query("SELECT p FROM Product p LEFT JOIN FETCH p.images WHERE p.id = :id")
-	@Override
-	public Product findByIdWithImages(@Param("id") Long id) {
-		return null;
-	}
-
-	@Override
-	public List<Product> findByUserAndStatus(User user, ProductStatus status) {
-		return null;
+		return PageableExecutionUtils.getPage(productList, pageable, () -> total);
 	}
 
 	public BooleanExpression userListEq(List<User> users) {
 		if (users == null || users.isEmpty()) {
 			return null;
 		}
-		//QProduct product = QProduct.product;   ?
 		return product.user.in(users);
 	}
 

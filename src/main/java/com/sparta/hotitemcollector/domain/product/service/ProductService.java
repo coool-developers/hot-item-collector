@@ -171,9 +171,9 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductResponseDto getProduct(Long productId) {
         // Product와 관련된 이미지 정보를 가져옴
-        log.info("getProduct - product 이미지 가져오기");
+        log.info("getProduct - findByIdWithImages");
         Product product = productRepository.findByIdWithImages(productId);
-        log.info("product 이미지 가져오기 완료");
+        log.info("findByIdWithImages 완료");
 
         // Product와 연관된 이미지 정보를 DTO로 변환
         List<ProductImageResponseDto> imageDtos = product.getImages().stream()
@@ -199,20 +199,18 @@ public class ProductService {
             .map(Follow::getFollowing)
             .collect(Collectors.toList());
 
-        // FilterQueryDto filterQueryDto = new FilterQueryDto(followingUsers);
-
-        log.info("getFollowerProduct - findByUserIn 시작");
+        log.info("getFollowProduct - findByRequirement");
         Page<Product> productPage = productRepository.findByRequirement(followingUsers, null, null, null, null, pageable);
-        log.info("getFollowerProduct - findByUserIn 완료");
+        log.info("findByRequirement 종료");
         return productPage.map(ProductSimpleResponseDto::new);
     }
 
     @Transactional(readOnly = true)
     public List<HotProductResponseDto> getHotProduct(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        log.info("getHotProduct - findTop10ByordrerByLikesDesc 시작");
+        log.info("getHotProduct - findTop10ByordrerByLikesDesc");
         Page<Product> productPage = productRepository.findTop10ByOrderByLikesDesc(pageable);
-        log.info("findTop10 완료");
+        log.info("findTop10ByordrerByLikesDesc 종료");
 
         return productPage.getContent()
             .stream()
@@ -226,17 +224,14 @@ public class ProductService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage=Page.empty(pageable);
 
-        log.info("getSaleProduct 시작");
+        log.info("getSaleProduct - findByRequirement");
         if(status!=null){
-            // FilterQueryDto filterQueryDto = new FilterQueryDto(user, status);
             productPage = productRepository.findByRequirement(null, user, null, null, status, pageable);
         }
         if(status==null){
-          //  productPage = productRepository.findByRequirement(null, user, null, null, pageable);
-            FilterQueryDto filterQueryDto = new FilterQueryDto(user);
             productPage = productRepository.findByRequirement(null,user, null, null, null, pageable);
         }
-        log.info("getSaleProduct 완료");
+        log.info("findByRequirement 종료");
 
         return productPage.map(ProductSimpleResponseDto::new);
     }
@@ -248,16 +243,14 @@ public class ProductService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Product> productPage=Page.empty(pageable);
 
+        log.info("getSaleYourProduct - findByRequirement");
         if(status!=null){
            productPage = productRepository.findByRequirement(null, user, null, null, status, pageable);
-       //      FilterQueryDto filterQueryDto = new FilterQueryDto(user, status);
-            // productPage = productRepository.findByRequirement(user,, pageable);
         }
         if(status==null){
            productPage = productRepository.findByRequirement(null, user, null, null, null, pageable);
-            // FilterQueryDto filterQueryDto = new FilterQueryDto(user);
-            // productPage = productRepository.findByRequirement(filterQueryDto, pageable);
         }
+        log.info("findByRequirement 종료");
 
         return productPage.map(ProductSimpleResponseDto::new);
     }
@@ -266,18 +259,22 @@ public class ProductService {
     public Page<ProductSimpleResponseDto> getNewProduct(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
+        log.info("getNewProduct - findAll");
         Page<Product> productPage = productRepository.findAll(pageable);
+        log.info("findAll 종료");
 
         return productPage.map(ProductSimpleResponseDto::new);
     }
 
     public Product findById(Long productId) {
+        log.info("findById");
         return productRepository.findById(productId).orElseThrow(
             () -> new CustomException(ErrorCode.NOT_FOUND_PRODUCT)
         );
     }
 
     public ProductImage findImageById(Long imageId) {
+        log.info("findImageById");
         return productImageRepository.findById(imageId).orElseThrow(
             () -> new CustomException(ErrorCode.NOT_FOUND_IMAGE)
         );
