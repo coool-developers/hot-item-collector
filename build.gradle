@@ -52,3 +52,7 @@ dependencies {
     implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.4'
 
 }
+
+bootJar {
+    mainClassName = 'com.sparta.hotitemcollector.HotItemCollectorApplication'
+}
