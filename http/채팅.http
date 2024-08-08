@@ -36,7 +36,7 @@ Authorization: {{access_token}}
 }
 
 ### 채팅방 조회
-GET http://localhost:8080/chatroom/someone Lee_someone Kim
+GET http://localhost:8080/chatroom/5f176cc5-e620-4b22-b58b-8a5ab8af979a
 
 ### 채팅 생성
 POST http://localhost:8080/chat/message
