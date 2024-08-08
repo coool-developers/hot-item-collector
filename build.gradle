@@ -54,5 +54,5 @@ dependencies {
 }
 
 bootJar {
-    mainClassName = 'com.sparta.hotitemcollector.HotItemCollectorApplication'
+    mainClass = 'com.sparta.hotitemcollector.HotItemCollectorApplication'
 }
