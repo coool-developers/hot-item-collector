@@ -56,7 +56,7 @@ dependencies {
 
     // WebSocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation 'org.springframework:spring-messaging'
+    implementation 'org.springframework.security:spring-security-messaging'
     implementation 'io.projectreactor.netty:reactor-netty:1.1.8'
 
     // STOMP
