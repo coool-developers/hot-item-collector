@@ -1,7 +1,6 @@
 import { createApp } from 'vue';
 import App from '@/App';
 import router from '@/router';
-import axios from "axios";
 
 //use this configure for local testing
 //axios.defaults.baseURL = 'http://localhost:8080';
