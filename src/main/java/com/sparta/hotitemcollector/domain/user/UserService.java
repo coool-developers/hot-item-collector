@@ -338,4 +338,8 @@ public class UserService {
         }
 
     }
+
+    public User findByNickname(String nickname) {
+        return userRepository.findByNickname(nickname).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+    }
 }
