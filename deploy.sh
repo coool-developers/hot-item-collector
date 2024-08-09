@@ -29,7 +29,9 @@ nohup java -jar $DEPLOY_JAR --server.port=8080 >> /home/ubuntu/action/deploy.log
 # 프론트엔드 애플리케이션을 Nginx를 통해 배포
 echo ">>> Nginx 설정 파일 복사" >> /home/ubuntu/action/deploy.log
 NGINX_CONFIG_PATH=/etc/nginx/sites-available/default
-FRONTEND_BUILD_PATH=/home/ubuntu/action/frontend/build
+FRONTEND_BUILD_PATH=/home/ubuntu/action/frontend/dist
+
+yes | cp -rf $FRONTEND_BUILD_PATH/* /var/www/html/
 
 # Nginx 설정 파일 수정 (필요한 경우에만)
 # sed 명령어를 이용하여 Nginx 설정 파일에서 포트나 경로를 변경
