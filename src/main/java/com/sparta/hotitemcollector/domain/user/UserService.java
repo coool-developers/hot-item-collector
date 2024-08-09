@@ -1,7 +1,12 @@
 package com.sparta.hotitemcollector.domain.user;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.sparta.hotitemcollector.domain.follow.FollowRepository;
-import com.sparta.hotitemcollector.domain.follow.FollowService;
 import com.sparta.hotitemcollector.domain.s3.service.S3Service;
 import com.sparta.hotitemcollector.domain.token.Token;
 import com.sparta.hotitemcollector.domain.token.TokenService;
@@ -9,19 +14,23 @@ import com.sparta.hotitemcollector.domain.user.dto.auth.LoginReqeustDto;
 import com.sparta.hotitemcollector.domain.user.dto.auth.LoginResponseDto;
 import com.sparta.hotitemcollector.domain.user.dto.auth.RefreshRequestDto;
 import com.sparta.hotitemcollector.domain.user.dto.auth.SignupRequestDto;
-import com.sparta.hotitemcollector.domain.user.dto.user.*;
+import com.sparta.hotitemcollector.domain.user.dto.user.ConfirmPasswordDto;
+import com.sparta.hotitemcollector.domain.user.dto.user.GetMyProfileDto;
+import com.sparta.hotitemcollector.domain.user.dto.user.GetUserProfileDto;
+import com.sparta.hotitemcollector.domain.user.dto.user.ProfileImageRequestDto;
+import com.sparta.hotitemcollector.domain.user.dto.user.ProfileImageResponseDto;
+import com.sparta.hotitemcollector.domain.user.dto.user.ProfileRequestDto;
+import com.sparta.hotitemcollector.domain.user.dto.user.ProfileResponseDto;
+import com.sparta.hotitemcollector.domain.user.dto.user.UserAddressDto;
+import com.sparta.hotitemcollector.domain.user.dto.user.updatePasswordRequestDto;
 import com.sparta.hotitemcollector.global.exception.CustomException;
 import com.sparta.hotitemcollector.global.exception.ErrorCode;
 import com.sparta.hotitemcollector.global.jwt.JwtUtil;
+
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
