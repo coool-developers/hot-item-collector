@@ -6,15 +6,15 @@ module.exports = defineConfig({
     port: 8081, // vue 포트 번호 설정
     proxy: {
       '/products': {
-        target: 'http://localhost:8080',
+        target: 'http://13.125.60.206:8080',
         changeOrigin: true,
       },
       '/prepare/order': {
-        target: 'http://localhost:8080',
+        target: 'http://13.125.60.206:8080',
         changeOrigin: true,
       },
       '/prepare/payments': {
-        target: 'http://localhost:8080',
+        target: 'http://13.125.60.206:8080',
         changeOrigin: true,
       },
     },

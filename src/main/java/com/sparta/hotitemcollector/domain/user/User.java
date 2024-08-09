@@ -39,7 +39,7 @@ public class User extends Timestamped {
     private String address;
 
     @Setter
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private ProfileImage profileImage;
 
     @Setter

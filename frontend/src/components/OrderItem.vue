@@ -3,12 +3,12 @@ import {ref, onMounted} from 'vue'
 import {DateTime} from 'luxon'
 import Cookies from "js-cookie";
 import axios from "axios";
-import Header from './AppHeader.vue';
+import AppHeader from './AppHeader.vue';
 import AppFooter from './AppFooter.vue';
 import router from "@/router";
 
 export default {
-  components: {Header, AppFooter},
+  components: {AppHeader, AppFooter},
   setup() {
     const startDate = ref('')
     const endDate = ref('')
@@ -27,7 +27,7 @@ export default {
 
     const searchPurchases = () => {
 
-      axios.get('http://localhost:8080/orderitems/buy', {
+      axios.get('/orderitems/buy', {
         params: {
           startDate: startDate.value,
           endDate: endDate.value,
@@ -43,7 +43,8 @@ export default {
       })
     }
     const goToOrderDetail = (itemId) => {
-      const orderItem = orders.value.find(order => order.id === itemId);
+      const orderItem = orders.value.find(order => order.productId === itemId);
+
       alert(`주문 ID ${orderItem.orderId}의 주문상세 페이지로 이동합니다.`)
       if (orderItem) {
         router.push({name: 'DetailOrder', query: {orderId: orderItem.orderId}});
@@ -90,7 +91,7 @@ export default {
 
 <template>
   <div id="app">
-    <Header/>
+    <AppHeader/>
     <main class="container purchased-products">
       <h1>구매한 상품 목록</h1>
       <div class="date-range-selector">

@@ -45,6 +45,7 @@ public class S3Service {
             // ProductImageDto 생성
             ProductImageRequestDto productImageRequestDto = new ProductImageRequestDto(filename,
                 imageUrl);
+
             productImageRequestDtos.add(productImageRequestDto);
         }
 

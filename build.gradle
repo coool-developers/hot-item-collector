@@ -78,6 +78,10 @@ dependencies {
 
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
+bootJar {
+    mainClass = 'com.sparta.hotitemcollector.HotItemCollectorApplication'
+}
+
+jar {
+    enabled = false
 }
