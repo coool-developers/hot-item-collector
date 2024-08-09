@@ -64,7 +64,6 @@ jobs:
         run: zip -r ./$GITHUB_SHA.zip . -x "*.git/*"
         shell: bash  
 
-
       # PR 이벤트에서는 배포를 막고, push 이벤트에서는 배포를 진행
       - name: Conditional Deploy
         if: github.event_name == 'push'
@@ -77,6 +76,5 @@ jobs:
           # Upload backend zip to S3
           aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
 
-
           # Code Deploy
-          aws deploy create-deployment —application-name $CODEDEPLOY_NAME —deployment-config-name CodeDeployDefault.AllAtOnce —deployment-group-name $CODEDEPLOY_GROUP —s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip
+          aws deploy create-deployment --application-name $CODEDEPLOY_NAME --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name $CODEDEPLOY_GROUP --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip
